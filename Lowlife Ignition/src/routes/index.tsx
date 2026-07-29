@@ -194,7 +194,7 @@ function Navbar({
           >
             <ShoppingBag className="h-4 w-4" />
             {cartCount > 0 && (
-              <span className="absolute -right-1.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground red-glow">
+              <span className="brand-glow absolute -right-1.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-gradient-brand px-1 text-[10px] font-bold text-primary-foreground">
                 {cartCount}
               </span>
             )}
@@ -240,7 +240,7 @@ function Hero() {
       />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,#050505_80%)]" />
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-      <div className="absolute inset-x-0 top-1/2 h-64 -translate-y-1/2 bg-[radial-gradient(ellipse_at_center,rgba(220,38,38,0.25),transparent_70%)]" />
+      <div className="absolute inset-x-0 top-1/2 h-64 -translate-y-1/2 bg-[radial-gradient(ellipse_at_center,rgba(236,72,153,0.2),rgba(109,40,217,0.12)_42%,transparent_72%)]" />
 
       <div className="relative z-10 mx-auto flex min-h-[calc(100svh-5rem)] max-w-7xl flex-col justify-end px-4 pb-16 pt-24 sm:px-6 sm:pb-24">
         <div className="max-w-3xl">
@@ -249,13 +249,13 @@ function Hero() {
             Houston Born • Car Show Built • Est. 2015
           </div>
           <h1 className="font-serif text-6xl font-black leading-[0.9] tracking-tight text-white sm:text-8xl md:text-9xl">
-            Rep the <span className="italic text-primary">Life.</span>
+            Rep the <span className="text-gradient-brand italic">Life.</span>
           </h1>
           <p className="mt-6 max-w-xl text-base text-chrome-dim sm:text-lg">
             Houston car show culture, limited merch drops, and events built for the lowlife community.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href="#shop" className="btn-red">
+            <a href="#shop" className="btn-brand">
               <Flame className="h-4 w-4" /> Shop the Drop
             </a>
             <a href="#events" className="btn-ghost">
@@ -404,7 +404,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: () => void }
           <span className="font-display text-xl text-chrome">${product.price}</span>
           <button
             onClick={onAdd}
-            className="grid h-9 w-9 place-items-center rounded-sm bg-primary text-primary-foreground transition-all hover:bg-red-700 hover:red-glow"
+            className="grid h-9 w-9 place-items-center rounded-sm bg-gradient-brand text-primary-foreground transition-all hover:brand-glow hover:saturate-125"
             aria-label="Add to cart"
           >
             <Plus className="h-4 w-4" />
@@ -452,7 +452,7 @@ function Events() {
                 </div>
                 <p className="mt-4 text-sm text-chrome-dim">{e.desc}</p>
               </div>
-              <button className="btn-red mt-6 w-full">
+              <button className="btn-brand mt-6 w-full">
                 <Ticket className="h-4 w-4" /> Buy Tickets
               </button>
             </article>
@@ -466,7 +466,7 @@ function Events() {
 function Raffles() {
   return (
     <section className="relative overflow-hidden border-b border-border py-20 sm:py-28">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(220,38,38,0.15),transparent_60%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(236,72,153,0.12),rgba(109,40,217,0.08)_38%,transparent_65%)]" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeader
           eyebrow="Community Raffles"
@@ -476,7 +476,7 @@ function Raffles() {
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {RAFFLES.map((r) => (
-            <div key={r.id} className="group relative overflow-hidden chrome-border p-6 transition-all hover:red-glow">
+            <div key={r.id} className="group relative overflow-hidden chrome-border p-6 transition-all hover:brand-glow">
               <div className="flex items-center justify-between">
                 <span
                   className={`rounded-sm border px-2 py-1 text-[10px] font-bold uppercase tracking-widest ${
@@ -500,7 +500,7 @@ function Raffles() {
         </div>
 
         <div className="mt-10 flex justify-center">
-          <a href="#" className="btn-red">
+          <a href="#" className="btn-brand">
             View Active Raffles <ArrowRight className="h-4 w-4" />
           </a>
         </div>
@@ -612,7 +612,7 @@ function SocialCTA() {
             behind-the-scenes car show content.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href="#" className="btn-red">
+            <a href="#" className="btn-brand">
               <Instagram className="h-4 w-4" /> Follow on Instagram
             </a>
             <a href="#" className="btn-ghost">Follow on TikTok</a>
