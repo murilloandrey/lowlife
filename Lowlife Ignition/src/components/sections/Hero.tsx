@@ -9,9 +9,9 @@ export function Hero() {
     >
       <img
         src={heroMeet}
-        alt="Lowlife Houston car meet at night"
-        width={1920}
-        height={1280}
+        alt="Red and black Nissan 370Z at a Lowlife evening car meet"
+        width={1556}
+        height={1148}
         className="absolute inset-0 h-full w-full object-cover opacity-70"
       />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,#050505_80%)]" />

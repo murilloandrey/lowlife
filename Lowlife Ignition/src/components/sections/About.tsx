@@ -1,4 +1,4 @@
-import gallery7 from "@/assets/gallery-7.jpg";
+import gallery11 from "@/assets/gallery-11.jpg";
 import { SectionHeader } from "./SectionHeader";
 
 export function About() {
@@ -24,8 +24,8 @@ export function About() {
       <div className="mx-auto grid max-w-7xl gap-14 px-4 sm:px-6 lg:grid-cols-2 lg:gap-20">
         <div className="relative">
           <img
-            src={gallery7}
-            alt="Lowlife community gathered around custom cars"
+            src={gallery11}
+            alt="Lowlife community gathering with modified cars at a raceway"
             loading="lazy"
             className="aspect-[4/5] w-full object-cover"
           />

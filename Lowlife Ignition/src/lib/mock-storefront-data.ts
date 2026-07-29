@@ -6,6 +6,11 @@ import gallery5 from "@/assets/gallery-5.jpg";
 import gallery6 from "@/assets/gallery-6.jpg";
 import gallery7 from "@/assets/gallery-7.jpg";
 import gallery8 from "@/assets/gallery-8.jpg";
+import gallery9 from "@/assets/gallery-9.jpg";
+import gallery10 from "@/assets/gallery-10.jpg";
+import gallery11 from "@/assets/gallery-11.jpg";
+import gallery12 from "@/assets/gallery-12.jpg";
+import gallery13 from "@/assets/gallery-13.jpg";
 import productAnime from "@/assets/product-anime.jpg";
 import productBanner from "@/assets/product-banner.jpg";
 import productJersey from "@/assets/product-jersey.jpg";
@@ -123,19 +128,111 @@ export const EVENTS = [
 ] satisfies EventMetaobject[];
 
 export const GALLERY = [
-  gallery1,
-  gallery2,
-  gallery3,
-  gallery4,
-  gallery5,
-  gallery6,
-  gallery7,
-  gallery8,
-].map((url, index) => ({
-  id: `gid://shopify/Metaobject/gallery-${index + 1}`,
-  image: { url, altText: `Lowlife meet photo ${index + 1}` },
-  caption: `From the Lowlife community — Houston meet ${index + 1}`,
-})) satisfies GalleryMetaobject[];
+  {
+    id: "gid://shopify/Metaobject/gallery-1",
+    image: {
+      url: gallery1,
+      altText: "Two lowered coupes parked beside a weathered brick building",
+    },
+    caption: "Low and clean against the old brick.",
+  },
+  {
+    id: "gid://shopify/Metaobject/gallery-2",
+    image: {
+      url: gallery2,
+      altText: "Lowered blue widebody Camaro parked on a city street",
+    },
+    caption: "Widebody Camaro sitting curbside.",
+  },
+  {
+    id: "gid://shopify/Metaobject/gallery-3",
+    image: {
+      url: gallery3,
+      altText: "Green Audi and orange Infiniti displayed at a daytime meet",
+    },
+    caption: "Color and fitment at the daytime showcase.",
+  },
+  {
+    id: "gid://shopify/Metaobject/gallery-4",
+    image: {
+      url: gallery4,
+      altText: "Blue widebody Honda Civic displayed among vendor booths",
+    },
+    caption: "Show build in the middle of vendor row.",
+  },
+  {
+    id: "gid://shopify/Metaobject/gallery-5",
+    image: {
+      url: gallery5,
+      altText: "Turquoise lowered Lexus GS parked downtown",
+    },
+    caption: "A downtown stance with deep-dish wheels.",
+  },
+  {
+    id: "gid://shopify/Metaobject/gallery-6",
+    image: {
+      url: gallery6,
+      altText: "Red widebody Lamborghini at an outdoor car show",
+    },
+    caption: "Track-bred lines at the outdoor show.",
+  },
+  {
+    id: "gid://shopify/Metaobject/gallery-7",
+    image: {
+      url: gallery7,
+      altText: "White modified Nissan photographed from above",
+    },
+    caption: "A clean build from a different angle.",
+  },
+  {
+    id: "gid://shopify/Metaobject/gallery-8",
+    image: {
+      url: gallery8,
+      altText: "Red lowered BMW coupe inside a working garage",
+    },
+    caption: "Garage-built and ready for the street.",
+  },
+  {
+    id: "gid://shopify/Metaobject/gallery-9",
+    image: {
+      url: gallery9,
+      altText: "Red modified Nissan 180SX parked on a wet street",
+    },
+    caption: "Rain only makes the red hit harder.",
+  },
+  {
+    id: "gid://shopify/Metaobject/gallery-10",
+    image: {
+      url: gallery10,
+      altText: "Red Mazda RX-7 displayed in a bright studio",
+    },
+    caption: "Rotary icon under studio light.",
+  },
+  {
+    id: "gid://shopify/Metaobject/gallery-11",
+    image: {
+      url: gallery11,
+      altText: "White Nissan Skyline at a raceway gathering",
+    },
+    caption: "Golden hour at the raceway.",
+  },
+  {
+    id: "gid://shopify/Metaobject/gallery-12",
+    image: {
+      url: gallery12,
+      altText: "Silver lowered Nissan 350Z at an evening meet",
+    },
+    caption: "The evening lineup starts low.",
+  },
+  {
+    id: "gid://shopify/Metaobject/gallery-13",
+    image: {
+      url: gallery13,
+      altText: "White Acura NSX beneath colorful neon signs at night",
+    },
+    caption: "Neon nights and a timeless silhouette.",
+  },
+] satisfies GalleryMetaobject[];
 
 export const ARTICLES = [
   {
@@ -147,7 +244,7 @@ export const ARTICLES = [
       "<p>Marcus Reyes built his Impala one late night at a time, chasing a silhouette that looked just as sharp under parking-lot lights as it did rolling down the boulevard.</p>",
     image: {
       url: gallery7,
-      altText: "Featured custom lowrider at a Lowlife meet",
+      altText: "White modified Nissan photographed from above",
     },
     publishedAt: "2026-03-28T12:00:00Z",
     author: { name: "Lowlife Editorial" },
@@ -160,7 +257,7 @@ export const ARTICLES = [
     contentHtml: "<p>A field report from our latest Houston night meet.</p>",
     image: {
       url: gallery3,
-      altText: "Cars lined up at the Lowlife night meet",
+      altText: "Green Audi and orange Infiniti at a daytime meet",
     },
     publishedAt: "2026-03-18T12:00:00Z",
     author: { name: "Lowlife Editorial" },
@@ -172,7 +269,7 @@ export const ARTICLES = [
       "Clean lines, daily miles, and a no-shortcuts approach to getting low.",
     contentHtml:
       "<p>Lexi walks us through a daily-driven build made to be used.</p>",
-    image: { url: gallery5, altText: "Static Honda Civic at a car meet" },
+    image: { url: gallery5, altText: "Turquoise lowered Lexus GS downtown" },
     publishedAt: "2026-03-09T12:00:00Z",
     author: { name: "Lowlife Editorial" },
   },
@@ -181,7 +278,7 @@ export const ARTICLES = [
     title: "Houston After Dark",
     excerpt: "A photo diary from the streets that raised the brand.",
     contentHtml: "<p>Houston after sundown, seen through the Lowlife lens.</p>",
-    image: { url: gallery8, altText: "Houston car culture after dark" },
+    image: { url: gallery8, altText: "Red lowered BMW inside a garage" },
     publishedAt: "2026-02-24T12:00:00Z",
     author: { name: "Lowlife Editorial" },
   },
@@ -192,21 +289,30 @@ export const VIDEO_POSTS = [
     id: "video-1",
     platform: "instagram",
     embedUrl: null,
-    thumbnail: { url: gallery1, altText: "Cars rolling into a Lowlife meet" },
+    thumbnail: {
+      url: gallery1,
+      altText: "Two lowered coupes beside a weathered brick building",
+    },
     caption: "Roll-in hour hits different in Houston.",
   },
   {
     id: "video-2",
     platform: "tiktok",
     embedUrl: null,
-    thumbnail: { url: gallery2, altText: "Low car detail at night" },
+    thumbnail: {
+      url: gallery2,
+      altText: "Lowered blue widebody Camaro on a city street",
+    },
     caption: "Fitment check. No shortcuts.",
   },
   {
     id: "video-3",
     platform: "instagram",
     embedUrl: null,
-    thumbnail: { url: gallery4, altText: "Crowd around featured cars" },
+    thumbnail: {
+      url: gallery4,
+      altText: "Blue widebody Honda Civic among vendor booths",
+    },
     caption: "The people make the meet.",
   },
   {
@@ -215,7 +321,7 @@ export const VIDEO_POSTS = [
     embedUrl: null,
     thumbnail: {
       url: gallery6,
-      altText: "Custom car under parking lot lights",
+      altText: "Red widebody Lamborghini at an outdoor show",
     },
     caption: "Built for the parking-lot lights.",
   },
@@ -223,7 +329,10 @@ export const VIDEO_POSTS = [
     id: "video-5",
     platform: "instagram",
     embedUrl: null,
-    thumbnail: { url: gallery8, altText: "Night meet recap" },
+    thumbnail: {
+      url: gallery8,
+      altText: "Red lowered BMW inside a working garage",
+    },
     caption: "One night. A hundred stories.",
   },
 ] satisfies VideoPost[];

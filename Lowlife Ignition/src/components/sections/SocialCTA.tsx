@@ -1,5 +1,5 @@
 import { Instagram } from "lucide-react";
-import gallery8 from "@/assets/gallery-8.jpg";
+import gallery13 from "@/assets/gallery-13.jpg";
 
 export function SocialCTA() {
   return (
@@ -9,7 +9,7 @@ export function SocialCTA() {
     >
       <div className="absolute inset-0 opacity-40">
         <img
-          src={gallery8}
+          src={gallery13}
           alt=""
           className="h-full w-full object-cover"
           loading="lazy"
