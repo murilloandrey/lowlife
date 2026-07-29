@@ -2,6 +2,7 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { handleNewsletterRequest } from "./lib/shopify/newsletter.server";
 
 type ServerEntry = {
   fetch: (
@@ -58,6 +59,9 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const newsletterResponse = await handleNewsletterRequest(request, env);
+      if (newsletterResponse) return newsletterResponse;
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
