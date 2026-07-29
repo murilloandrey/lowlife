@@ -1,9 +1,30 @@
 import { ArrowRight, Plus } from "lucide-react";
+import { toast } from "sonner";
+import { useShopifyProducts } from "@/lib/shopify/hooks";
 import { PRODUCTS } from "@/lib/mock-storefront-data";
 import type { ShopifyProduct } from "@/lib/shopify-types";
 import { SectionHeader } from "./SectionHeader";
 
-export function Shop({ onAdd }: { onAdd: (id: string) => void }) {
+export function Shop({
+  onAdd,
+}: {
+  onAdd: (product: ShopifyProduct) => Promise<void>;
+}) {
+  const { data } = useShopifyProducts();
+  const products = data ?? PRODUCTS;
+
+  const addProduct = async (product: ShopifyProduct) => {
+    try {
+      await onAdd(product);
+      toast.success(`${product.title} added to cart.`);
+    } catch (error) {
+      console.error("Could not add product to Shopify cart.", error);
+      toast.error("Could not add that item.", {
+        description: "Try again in a moment.",
+      });
+    }
+  };
+
   return (
     <section id="shop" className="border-b border-border py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -21,11 +42,11 @@ export function Shop({ onAdd }: { onAdd: (id: string) => void }) {
           </a>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {PRODUCTS.map((product) => (
+          {products.map((product) => (
             <ProductCard
               key={product.id}
               product={product}
-              onAdd={() => onAdd(product.id)}
+              onAdd={() => void addProduct(product)}
             />
           ))}
         </div>

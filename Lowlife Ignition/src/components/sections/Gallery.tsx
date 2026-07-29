@@ -1,8 +1,11 @@
 import { Instagram } from "lucide-react";
+import { useShopifyGallery } from "@/lib/shopify/hooks";
 import { GALLERY } from "@/lib/mock-storefront-data";
 import { SectionHeader } from "./SectionHeader";
 
 export function Gallery() {
+  const { data } = useShopifyGallery();
+  const gallery = data?.gallery ?? GALLERY;
   return (
     <section
       id="gallery"
@@ -11,7 +14,7 @@ export function Gallery() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeader eyebrow="The Culture" title="From the meets." />
         <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4">
-          {GALLERY.map((item, index) => (
+          {gallery.map((item, index) => (
             <figure
               key={item.id}
               className={`group relative overflow-hidden ${index === 0 || index === 5 ? "row-span-2 aspect-square md:aspect-auto" : "aspect-square"}`}

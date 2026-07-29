@@ -7,11 +7,12 @@ export type ShopifyImage = {
 
 export type ShopifyMoney = {
   amount: string;
-  currencyCode: "USD";
+  currencyCode: string;
 };
 
 export type ShopifyProduct = {
   id: string;
+  variantId: string;
   title: string;
   handle: string;
   price: ShopifyMoney;

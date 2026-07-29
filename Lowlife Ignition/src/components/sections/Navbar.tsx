@@ -12,11 +12,13 @@ const links = [
 export function Navbar({
   scrolled,
   cartCount,
+  onCartClick,
   menuOpen,
   setMenuOpen,
 }: {
   scrolled: boolean;
   cartCount: number;
+  onCartClick: () => void;
   menuOpen: boolean;
   setMenuOpen: (value: boolean) => void;
 }) {
@@ -49,6 +51,7 @@ export function Navbar({
         </nav>
         <div className="flex items-center gap-2 justify-self-end">
           <button
+            onClick={onCartClick}
             className="relative grid h-10 w-10 place-items-center rounded-sm border border-border bg-surface transition-colors hover:border-primary"
             aria-label={`Cart with ${cartCount} items`}
           >

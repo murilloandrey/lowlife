@@ -30,6 +30,7 @@ import type {
 export const PRODUCTS = [
   {
     id: "gid://shopify/Product/tee",
+    variantId: "gid://shopify/ProductVariant/tee",
     title: "Lowlife Tee",
     handle: "lowlife-tee",
     productType: "Apparel",
@@ -39,6 +40,7 @@ export const PRODUCTS = [
   },
   {
     id: "gid://shopify/Product/jersey",
+    variantId: "gid://shopify/ProductVariant/jersey",
     title: "Lowlife Fam Jersey",
     handle: "lowlife-fam-jersey",
     productType: "Apparel",
@@ -48,6 +50,7 @@ export const PRODUCTS = [
   },
   {
     id: "gid://shopify/Product/banner",
+    variantId: "gid://shopify/ProductVariant/banner",
     title: "Windshield Banner",
     handle: "windshield-banner",
     productType: "Auto",
@@ -57,6 +60,7 @@ export const PRODUCTS = [
   },
   {
     id: "gid://shopify/Product/plate",
+    variantId: "gid://shopify/ProductVariant/plate",
     title: "Chain Plate",
     handle: "chain-plate",
     productType: "Accessory",
@@ -68,6 +72,7 @@ export const PRODUCTS = [
   },
   {
     id: "gid://shopify/Product/anime",
+    variantId: "gid://shopify/ProductVariant/anime",
     title: "Anime Tee",
     handle: "anime-tee",
     productType: "Apparel",
@@ -77,6 +82,7 @@ export const PRODUCTS = [
   },
   {
     id: "gid://shopify/Product/stickers",
+    variantId: "gid://shopify/ProductVariant/stickers",
     title: "Sticker Pack",
     handle: "sticker-pack",
     productType: "Accessory",

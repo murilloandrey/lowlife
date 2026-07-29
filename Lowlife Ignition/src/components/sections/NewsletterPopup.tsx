@@ -9,12 +9,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { isShopifyConfigured } from "@/lib/shopify/client";
+import { subscribeToNewsletter } from "@/lib/shopify/newsletter";
 
 const STORAGE_KEY = "lowlife-newsletter-seen-at";
 const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 
 export function NewsletterPopup() {
   const [open, setOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const lastSeen = Number(window.localStorage.getItem(STORAGE_KEY) ?? 0);
@@ -38,12 +41,31 @@ export function NewsletterPopup() {
     };
   }, []);
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // TODO(shopify): POST to customer creation once Storefront API is wired.
+    const form = new FormData(event.currentTarget);
+    const email = String(form.get("email") ?? "").trim();
+    setSubmitting(true);
+    try {
+      if (isShopifyConfigured()) {
+        const result = await subscribeToNewsletter(email);
+        if (result.configured && !result.subscribed) {
+          throw new Error(result.message || "Newsletter signup failed.");
+        }
+      }
+    } catch (error) {
+      toast.error("We couldn't add you yet.", {
+        description:
+          error instanceof Error ? error.message : "Try again in a moment.",
+      });
+      setSubmitting(false);
+      return;
+    }
+
     toast.success("You're on the list.", {
       description: "Use WELCOME10 for 10% off your first order.",
     });
+    setSubmitting(false);
     setOpen(false);
   };
 
@@ -79,8 +101,12 @@ export function NewsletterPopup() {
               placeholder="you@email.com"
               className="h-12 rounded-none border-border bg-background text-base focus-visible:ring-primary"
             />
-            <button type="submit" className="btn-brand w-full">
-              Unlock 10% Off
+            <button
+              type="submit"
+              disabled={submitting}
+              className="btn-brand w-full disabled:cursor-wait disabled:opacity-60"
+            >
+              {submitting ? "Joining…" : "Unlock 10% Off"}
             </button>
           </form>
           <p className="mt-3 text-center text-[10px] uppercase tracking-widest text-muted-foreground">

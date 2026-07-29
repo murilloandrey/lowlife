@@ -3,7 +3,9 @@
 // with the client before this section ships to production.
 
 import { Award, Instagram } from "lucide-react";
+import { useShopifyGallery } from "@/lib/shopify/hooks";
 import { SPOTLIGHT_BUILDS } from "@/lib/mock-storefront-data";
+import type { SpotlightBuild } from "@/lib/shopify-types";
 import {
   Carousel,
   CarouselContent,
@@ -14,6 +16,10 @@ import {
 import { SectionHeader } from "./SectionHeader";
 
 export function OwnerSpotlight() {
+  const { data } = useShopifyGallery();
+  const spotlightBuilds: SpotlightBuild[] =
+    data?.spotlights ?? SPOTLIGHT_BUILDS;
+
   return (
     <section
       id="owner-spotlight"
@@ -29,7 +35,7 @@ export function OwnerSpotlight() {
 
         <Carousel opts={{ align: "start", loop: true }} className="sm:px-12">
           <CarouselContent>
-            {SPOTLIGHT_BUILDS.map((build, index) => {
+            {spotlightBuilds.map((build, index) => {
               const ownerLabel = build.ownerName || "Member Build";
               return (
                 <CarouselItem key={build.id}>

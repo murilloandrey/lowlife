@@ -1,4 +1,5 @@
 import { ArrowRight, CalendarDays } from "lucide-react";
+import { useShopifyArticles } from "@/lib/shopify/hooks";
 import { ARTICLES } from "@/lib/mock-storefront-data";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,7 +14,9 @@ function articleDate(value: string) {
 }
 
 export function MonthlyMag() {
-  const [featured, ...recent] = ARTICLES;
+  const { data } = useShopifyArticles();
+  const articles = data ?? ARTICLES;
+  const [featured, ...recent] = articles;
   return (
     <section
       id="mag"
