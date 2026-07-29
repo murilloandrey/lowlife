@@ -47,12 +47,53 @@ type Product = {
 };
 
 const PRODUCTS: Product[] = [
-  { id: "tee", name: "Lowlife Tee", category: "Apparel", price: 30, image: productTee, tag: "Best Seller" },
-  { id: "jersey", name: "Lowlife Fam Jersey", category: "Apparel", price: 45, image: productJersey, tag: "Limited Drop" },
-  { id: "banner", name: "Windshield Banner", category: "Auto", price: 25, image: productBanner, tag: "New" },
-  { id: "plate", name: "Chain Plate", category: "Accessory", price: 20, image: productPlate },
-  { id: "anime", name: "Anime Tee", category: "Apparel", price: 30, image: productAnime, tag: "Limited Drop" },
-  { id: "stickers", name: "Sticker Pack", category: "Accessory", price: 15, image: productStickers, tag: "Best Seller" },
+  {
+    id: "tee",
+    name: "Lowlife Tee",
+    category: "Apparel",
+    price: 30,
+    image: productTee,
+    tag: "Best Seller",
+  },
+  {
+    id: "jersey",
+    name: "Lowlife Fam Jersey",
+    category: "Apparel",
+    price: 45,
+    image: productJersey,
+    tag: "Limited Drop",
+  },
+  {
+    id: "banner",
+    name: "Windshield Banner",
+    category: "Auto",
+    price: 25,
+    image: productBanner,
+    tag: "New",
+  },
+  {
+    id: "plate",
+    name: "Chain Plate",
+    category: "Accessory",
+    price: 20,
+    image: productPlate,
+  },
+  {
+    id: "anime",
+    name: "Anime Tee",
+    category: "Apparel",
+    price: 30,
+    image: productAnime,
+    tag: "Limited Drop",
+  },
+  {
+    id: "stickers",
+    name: "Sticker Pack",
+    category: "Accessory",
+    price: 15,
+    image: productStickers,
+    tag: "Best Seller",
+  },
 ];
 
 const EVENTS = [
@@ -86,12 +127,39 @@ const EVENTS = [
 ];
 
 const RAFFLES = [
-  { id: "r1", title: "Merch Bundle Raffle", prize: "$250 Lowlife Bundle", ends: "Ends Apr 30", tag: "Active" },
-  { id: "r2", title: "Event Ticket Giveaway", prize: "2× Night Meet Passes", ends: "Ends Apr 10", tag: "Ending Soon" },
-  { id: "r3", title: "Limited Banner Drop", prize: "Numbered 1/50 Banner", ends: "Ends May 05", tag: "Active" },
+  {
+    id: "r1",
+    title: "Merch Bundle Raffle",
+    prize: "$250 Lowlife Bundle",
+    ends: "Ends Apr 30",
+    tag: "Active",
+  },
+  {
+    id: "r2",
+    title: "Event Ticket Giveaway",
+    prize: "2× Night Meet Passes",
+    ends: "Ends Apr 10",
+    tag: "Ending Soon",
+  },
+  {
+    id: "r3",
+    title: "Limited Banner Drop",
+    prize: "Numbered 1/50 Banner",
+    ends: "Ends May 05",
+    tag: "Active",
+  },
 ];
 
-const GALLERY = [gallery1, gallery2, gallery3, gallery4, gallery5, gallery6, gallery7, gallery8];
+const GALLERY = [
+  gallery1,
+  gallery2,
+  gallery3,
+  gallery4,
+  gallery5,
+  gallery6,
+  gallery7,
+  gallery8,
+];
 
 /* ---------- Page ---------- */
 
@@ -171,7 +239,9 @@ function Navbar({
             style={{ filter: "invert(1) brightness(2)" }}
           />
           <span className="hidden sm:flex flex-col leading-none">
-            <span className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Est. 15 • HTX</span>
+            <span className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+              Est. 15 • HTX
+            </span>
           </span>
         </a>
 
@@ -204,7 +274,11 @@ function Navbar({
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Menu"
           >
-            {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            {menuOpen ? (
+              <X className="h-4 w-4" />
+            ) : (
+              <Menu className="h-4 w-4" />
+            )}
           </button>
         </div>
       </div>
@@ -230,7 +304,10 @@ function Navbar({
 
 function Hero() {
   return (
-    <section id="top" className="relative isolate min-h-[100svh] overflow-hidden pt-20">
+    <section
+      id="top"
+      className="relative isolate min-h-[100svh] overflow-hidden pt-20"
+    >
       <img
         src={heroMeet}
         alt="Lowlife Houston car meet at night"
@@ -252,7 +329,8 @@ function Hero() {
             Rep the <span className="italic text-primary">Life.</span>
           </h1>
           <p className="mt-6 max-w-xl text-base text-chrome-dim sm:text-lg">
-            Houston car show culture, limited merch drops, and events built for the lowlife community.
+            Houston car show culture, limited merch drops, and events built for
+            the lowlife community.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href="#shop" className="btn-red">
@@ -270,14 +348,19 @@ function Hero() {
         <div className="marquee-track font-display text-lg tracking-widest text-chrome">
           {Array.from({ length: 2 }).map((_, i) => (
             <span key={i} className="flex items-center gap-6 pr-6">
-              {["EST. 2015", "HOUSTON TX", "CAR SHOW CULTURE", "LOWLIFE", "LIMITED DROPS", "REP THE MOVEMENT"].map(
-                (t) => (
-                  <span key={t} className="flex items-center gap-6">
-                    <span>{t}</span>
-                    <span className="text-primary">✦</span>
-                  </span>
-                ),
-              )}
+              {[
+                "EST. 2015",
+                "HOUSTON TX",
+                "CAR SHOW CULTURE",
+                "LOWLIFE",
+                "LIMITED DROPS",
+                "REP THE MOVEMENT",
+              ].map((t) => (
+                <span key={t} className="flex items-center gap-6">
+                  <span>{t}</span>
+                  <span className="text-primary">✦</span>
+                </span>
+              ))}
             </span>
           ))}
         </div>
@@ -302,8 +385,12 @@ function StatsBar() {
             key={s.v}
             className={`px-6 py-8 text-center ${i < stats.length - 1 ? "border-b border-border md:border-b-0" : ""}`}
           >
-            <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">{s.k}</div>
-            <div className="mt-2 font-display text-2xl tracking-wider text-chrome sm:text-3xl">{s.v}</div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
+              {s.k}
+            </div>
+            <div className="mt-2 font-display text-2xl tracking-wider text-chrome sm:text-3xl">
+              {s.v}
+            </div>
           </div>
         ))}
       </div>
@@ -324,12 +411,18 @@ function SectionHeader({
     <div className="mb-10 flex flex-col gap-3 sm:mb-14">
       <div className="flex items-center gap-3 text-primary">
         <div className="h-px w-8 bg-primary" />
-        <span className="text-[10px] font-bold uppercase tracking-[0.3em]">{eyebrow}</span>
+        <span className="text-[10px] font-bold uppercase tracking-[0.3em]">
+          {eyebrow}
+        </span>
       </div>
       <h2 className="max-w-2xl font-serif text-4xl font-black leading-[0.95] sm:text-6xl">
         {title}
       </h2>
-      {subtitle && <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">{subtitle}</p>}
+      {subtitle && (
+        <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
+          {subtitle}
+        </p>
+      )}
     </div>
   );
 }
@@ -344,7 +437,10 @@ function Products({ onAdd }: { onAdd: (id: string) => void }) {
             title="Fresh from the garage."
             subtitle="Limited pieces built for the scene. When it's gone, it's gone."
           />
-          <a href="#" className="hidden shrink-0 pb-2 text-[10px] font-bold uppercase tracking-[0.25em] text-chrome-dim hover:text-primary sm:inline-flex sm:items-center sm:gap-2">
+          <a
+            href="#"
+            className="hidden shrink-0 pb-2 text-[10px] font-bold uppercase tracking-[0.25em] text-chrome-dim hover:text-primary sm:inline-flex sm:items-center sm:gap-2"
+          >
             View Full Shop <ArrowRight className="h-3 w-3" />
           </a>
         </div>
@@ -356,14 +452,22 @@ function Products({ onAdd }: { onAdd: (id: string) => void }) {
         </div>
 
         <div className="mt-10 flex justify-center sm:hidden">
-          <a href="#" className="btn-ghost w-full">View Full Shop</a>
+          <a href="#" className="btn-ghost w-full">
+            View Full Shop
+          </a>
         </div>
       </div>
     </section>
   );
 }
 
-function ProductCard({ product, onAdd }: { product: Product; onAdd: () => void }) {
+function ProductCard({
+  product,
+  onAdd,
+}: {
+  product: Product;
+  onAdd: () => void;
+}) {
   return (
     <div className="group relative overflow-hidden chrome-border">
       <div className="relative aspect-[4/5] overflow-hidden bg-surface-2">
@@ -398,10 +502,14 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: () => void }
           <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
             {product.category}
           </div>
-          <div className="mt-1 truncate font-display text-lg tracking-wide">{product.name}</div>
+          <div className="mt-1 truncate font-display text-lg tracking-wide">
+            {product.name}
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-3">
-          <span className="font-display text-xl text-chrome">${product.price}</span>
+          <span className="font-display text-xl text-chrome">
+            ${product.price}
+          </span>
           <button
             onClick={onAdd}
             className="grid h-9 w-9 place-items-center rounded-sm bg-primary text-primary-foreground transition-all hover:bg-red-700 hover:red-glow"
@@ -417,7 +525,10 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: () => void }
 
 function Events() {
   return (
-    <section id="events" className="relative border-b border-border bg-surface py-20 sm:py-28">
+    <section
+      id="events"
+      className="relative border-b border-border bg-surface py-20 sm:py-28"
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeader
           eyebrow="Upcoming Events"
@@ -427,18 +538,27 @@ function Events() {
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {EVENTS.map((e) => (
-            <article key={e.id} className="group relative flex flex-col justify-between overflow-hidden chrome-border p-6">
+            <article
+              key={e.id}
+              className="group relative flex flex-col justify-between overflow-hidden chrome-border p-6"
+            >
               <div>
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-sm bg-primary text-primary-foreground">
-                    <span className="font-display text-xs tracking-widest">{e.date.m}</span>
-                    <span className="font-display text-2xl leading-none">{e.date.d}</span>
+                    <span className="font-display text-xs tracking-widest">
+                      {e.date.m}
+                    </span>
+                    <span className="font-display text-2xl leading-none">
+                      {e.date.d}
+                    </span>
                   </div>
                   <span className="rounded-sm border border-chrome/30 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-chrome">
                     ${e.price}
                   </span>
                 </div>
-                <h3 className="mt-6 font-display text-2xl tracking-wide">{e.name}</h3>
+                <h3 className="mt-6 font-display text-2xl tracking-wide">
+                  {e.name}
+                </h3>
                 <div className="mt-3 space-y-1.5 text-xs text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-3.5 w-3.5 text-primary" /> {e.location}
@@ -447,7 +567,8 @@ function Events() {
                     <Clock className="h-3.5 w-3.5 text-primary" /> {e.time}
                   </div>
                   <div className="flex items-center gap-2">
-                    <Calendar className="h-3.5 w-3.5 text-primary" /> Doors open early
+                    <Calendar className="h-3.5 w-3.5 text-primary" /> Doors open
+                    early
                   </div>
                 </div>
                 <p className="mt-4 text-sm text-chrome-dim">{e.desc}</p>
@@ -476,7 +597,10 @@ function Raffles() {
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {RAFFLES.map((r) => (
-            <div key={r.id} className="group relative overflow-hidden chrome-border p-6 transition-all hover:red-glow">
+            <div
+              key={r.id}
+              className="group relative overflow-hidden chrome-border p-6 transition-all hover:red-glow"
+            >
               <div className="flex items-center justify-between">
                 <span
                   className={`rounded-sm border px-2 py-1 text-[10px] font-bold uppercase tracking-widest ${
@@ -491,9 +615,13 @@ function Raffles() {
                   {r.ends}
                 </span>
               </div>
-              <h3 className="mt-6 font-display text-2xl tracking-wide">{r.title}</h3>
+              <h3 className="mt-6 font-display text-2xl tracking-wide">
+                {r.title}
+              </h3>
               <div className="mt-2 text-sm text-chrome-dim">Prize</div>
-              <div className="font-serif text-2xl italic text-chrome">{r.prize}</div>
+              <div className="font-serif text-2xl italic text-chrome">
+                {r.prize}
+              </div>
               <button className="btn-ghost mt-6 w-full">Enter Raffle</button>
             </div>
           ))}
@@ -511,7 +639,10 @@ function Raffles() {
 
 function Gallery() {
   return (
-    <section id="gallery" className="border-b border-border bg-surface py-20 sm:py-28">
+    <section
+      id="gallery"
+      className="border-b border-border bg-surface py-20 sm:py-28"
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeader eyebrow="The Culture" title="From the meets." />
         <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4">
@@ -519,7 +650,9 @@ function Gallery() {
             <div
               key={i}
               className={`group relative overflow-hidden ${
-                i === 0 || i === 5 ? "row-span-2 aspect-square md:aspect-auto" : "aspect-square"
+                i === 0 || i === 5
+                  ? "row-span-2 aspect-square md:aspect-auto"
+                  : "aspect-square"
               }`}
             >
               <img
@@ -546,10 +679,16 @@ function About() {
   const values = [
     { t: "Community First", d: "Built by and for the people in the scene." },
     { t: "Limited Drops", d: "Small runs, real numbers, no restocks." },
-    { t: "Car Show Culture", d: "Every piece rooted in the meet, the build, the movement." },
+    {
+      t: "Car Show Culture",
+      d: "Every piece rooted in the meet, the build, the movement.",
+    },
   ];
   return (
-    <section id="about" className="relative border-b border-border py-20 sm:py-28">
+    <section
+      id="about"
+      className="relative border-b border-border py-20 sm:py-28"
+    >
       <div className="mx-auto grid max-w-7xl gap-14 px-4 sm:px-6 lg:grid-cols-2 lg:gap-20">
         <div className="relative">
           <img
@@ -560,7 +699,9 @@ function About() {
           />
           <div className="absolute -bottom-6 -right-2 rounded-sm border border-primary bg-background px-4 py-3 text-center sm:-right-6">
             <div className="font-display text-4xl text-primary">10+</div>
-            <div className="text-[10px] font-bold uppercase tracking-widest text-chrome-dim">Years Deep</div>
+            <div className="text-[10px] font-bold uppercase tracking-widest text-chrome-dim">
+              Years Deep
+            </div>
           </div>
         </div>
         <div>
@@ -569,18 +710,26 @@ function About() {
             title="Built in Houston. Repped everywhere."
           />
           <p className="text-base leading-relaxed text-chrome-dim">
-            Lowlife Est. 15 started as more than a merch brand — it became a way to represent
-            car show culture, custom builds, and the community behind them. From Houston meets to
-            shows across Texas, every drop is built for the people who live the lifestyle, support
-            the scene, and rep the movement.
+            Lowlife Est. 15 started as more than a merch brand — it became a way
+            to represent car show culture, custom builds, and the community
+            behind them. From Houston meets to shows across Texas, every drop is
+            built for the people who live the lifestyle, support the scene, and
+            rep the movement.
           </p>
 
           <div className="mt-10 space-y-4">
             {values.map((v, i) => (
-              <div key={v.t} className="flex items-start gap-4 border-l border-primary bg-surface p-5">
-                <span className="font-display text-2xl text-primary">0{i + 1}</span>
+              <div
+                key={v.t}
+                className="flex items-start gap-4 border-l border-primary bg-surface p-5"
+              >
+                <span className="font-display text-2xl text-primary">
+                  0{i + 1}
+                </span>
                 <div>
-                  <div className="font-display text-lg tracking-wide">{v.t}</div>
+                  <div className="font-display text-lg tracking-wide">
+                    {v.t}
+                  </div>
                   <div className="text-sm text-muted-foreground">{v.d}</div>
                 </div>
               </div>
@@ -596,7 +745,12 @@ function SocialCTA() {
   return (
     <section className="relative overflow-hidden border-b border-border bg-black py-20 sm:py-28">
       <div className="absolute inset-0 opacity-40">
-        <img src={gallery8} alt="" className="h-full w-full object-cover" loading="lazy" />
+        <img
+          src={gallery8}
+          alt=""
+          className="h-full w-full object-cover"
+          loading="lazy"
+        />
       </div>
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/40" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
@@ -605,17 +759,20 @@ function SocialCTA() {
             <div className="h-px w-8 bg-primary" /> Stay Connected
           </div>
           <h2 className="font-serif text-4xl font-black leading-[0.95] sm:text-6xl">
-            Don't just watch the scene. <span className="italic text-primary">Be part of it.</span>
+            Don't just watch the scene.{" "}
+            <span className="italic text-primary">Be part of it.</span>
           </h2>
           <p className="mt-5 max-w-lg text-base text-chrome-dim">
-            Follow Lowlife Est. 15 for event announcements, new merch drops, raffles, and
-            behind-the-scenes car show content.
+            Follow Lowlife Est. 15 for event announcements, new merch drops,
+            raffles, and behind-the-scenes car show content.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href="#" className="btn-red">
               <Instagram className="h-4 w-4" /> Follow on Instagram
             </a>
-            <a href="#" className="btn-ghost">Follow on TikTok</a>
+            <a href="#" className="btn-ghost">
+              Follow on TikTok
+            </a>
           </div>
         </div>
       </div>
@@ -642,15 +799,17 @@ function Footer() {
                 style={{ filter: "invert(1) brightness(2)" }}
               />
               <div className="leading-none">
-                <div className="font-display text-2xl tracking-widest text-chrome">LOWLIFE</div>
+                <div className="font-display text-2xl tracking-widest text-chrome">
+                  LOWLIFE
+                </div>
                 <div className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
                   Est. 2015 • Houston, TX
                 </div>
               </div>
             </div>
             <p className="mt-5 max-w-sm text-sm text-chrome-dim">
-              Houston car show culture. Limited merch drops, events, and community — built by the
-              people who live the life.
+              Houston car show culture. Limited merch drops, events, and
+              community — built by the people who live the life.
             </p>
           </div>
           <div className="grid grid-cols-3 gap-8">
@@ -662,7 +821,9 @@ function Footer() {
                 <ul className="space-y-2 text-sm text-chrome-dim">
                   {c.links.map((l) => (
                     <li key={l}>
-                      <a href="#" className="hover:text-white">{l}</a>
+                      <a href="#" className="hover:text-white">
+                        {l}
+                      </a>
                     </li>
                   ))}
                 </ul>
@@ -672,7 +833,9 @@ function Footer() {
         </div>
         <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
           <div>© 2026 Lowlife Est. 15. All rights reserved.</div>
-          <div className="font-display tracking-widest text-chrome-dim">REP THE LIFE.</div>
+          <div className="font-display tracking-widest text-chrome-dim">
+            REP THE LIFE.
+          </div>
         </div>
       </div>
     </footer>
