@@ -9,6 +9,7 @@ import { Hero, StatsBar } from "@/components/sections/Hero";
 import { MonthlyMag } from "@/components/sections/MonthlyMag";
 import { Navbar } from "@/components/sections/Navbar";
 import { NewsletterPopup } from "@/components/sections/NewsletterPopup";
+import { OwnerSpotlight } from "@/components/sections/OwnerSpotlight";
 import { Raffles } from "@/components/sections/Raffles";
 import { Shop } from "@/components/sections/Shop";
 import { SocialCTA } from "@/components/sections/SocialCTA";
@@ -53,6 +54,7 @@ function LowlifeHome() {
         <MonthlyMag />
         <VideoCarousel />
         <Gallery />
+        <OwnerSpotlight />
         <About />
         <SocialCTA />
       </main>

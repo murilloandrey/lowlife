@@ -38,6 +38,18 @@ export type GalleryMetaobject = {
   caption: string;
 };
 
+export type SpotlightBuild = {
+  id: string;
+  image: {
+    url: string;
+    altText: string;
+  };
+  ownerName: string;
+  buildNickname?: string;
+  caption: string;
+  instagramHandle?: string;
+};
+
 export type EventMetaobject = {
   id: string;
   handle: string;

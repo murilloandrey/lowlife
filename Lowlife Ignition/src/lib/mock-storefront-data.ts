@@ -23,6 +23,7 @@ import type {
   GalleryMetaobject,
   ShopifyArticle,
   ShopifyProduct,
+  SpotlightBuild,
   VideoPost,
 } from "@/lib/shopify-types";
 
@@ -193,22 +194,6 @@ export const GALLERY = [
     caption: "Garage-built and ready for the street.",
   },
   {
-    id: "gid://shopify/Metaobject/gallery-9",
-    image: {
-      url: gallery9,
-      altText: "Red modified Nissan 180SX parked on a wet street",
-    },
-    caption: "Rain only makes the red hit harder.",
-  },
-  {
-    id: "gid://shopify/Metaobject/gallery-10",
-    image: {
-      url: gallery10,
-      altText: "Red Mazda RX-7 displayed in a bright studio",
-    },
-    caption: "Rotary icon under studio light.",
-  },
-  {
     id: "gid://shopify/Metaobject/gallery-11",
     image: {
       url: gallery11,
@@ -224,15 +209,43 @@ export const GALLERY = [
     },
     caption: "The evening lineup starts low.",
   },
+] satisfies GalleryMetaobject[];
+
+export const SPOTLIGHT_BUILDS = [
   {
-    id: "gid://shopify/Metaobject/gallery-13",
+    id: "gid://shopify/Metaobject/spotlight-build-1",
+    image: {
+      url: gallery9,
+      altText: "Red modified Nissan 180SX parked on a wet street",
+    },
+    // TODO(owner-data): Owner name and build nickname TBD — confirm with client.
+    ownerName: "Member Build",
+    // TODO(owner-data): Replace this fallback with the owner's approved story.
+    caption: "Owner and build details coming soon.",
+  },
+  {
+    id: "gid://shopify/Metaobject/spotlight-build-2",
+    image: {
+      url: gallery10,
+      altText: "Red Mazda RX-7 displayed in a bright studio",
+    },
+    // TODO(owner-data): Owner name and build nickname TBD — confirm with client.
+    ownerName: "Member Build",
+    // TODO(owner-data): Replace this fallback with the owner's approved story.
+    caption: "Owner and build details coming soon.",
+  },
+  {
+    id: "gid://shopify/Metaobject/spotlight-build-3",
     image: {
       url: gallery13,
       altText: "White Acura NSX beneath colorful neon signs at night",
     },
-    caption: "Neon nights and a timeless silhouette.",
+    // TODO(owner-data): Owner name and build nickname TBD — confirm with client.
+    ownerName: "Member Build",
+    // TODO(owner-data): Replace this fallback with the owner's approved story.
+    caption: "Owner and build details coming soon.",
   },
-] satisfies GalleryMetaobject[];
+] satisfies SpotlightBuild[];
 
 export const ARTICLES = [
   {
