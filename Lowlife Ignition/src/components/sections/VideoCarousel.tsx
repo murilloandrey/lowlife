@@ -1,5 +1,6 @@
 import { Instagram, Play } from "lucide-react";
 import { VIDEO_POSTS } from "@/lib/mock-storefront-data";
+import { TikTokIcon } from "@/components/icons/TikTokIcon";
 import {
   Carousel,
   CarouselContent,
@@ -73,7 +74,7 @@ export function VideoCarousel() {
                         {video.platform === "instagram" ? (
                           <Instagram className="h-4 w-4" />
                         ) : (
-                          <span className="font-display text-xs">TK</span>
+                          <TikTokIcon className="h-4 w-4" />
                         )}
                       </span>
                     </div>

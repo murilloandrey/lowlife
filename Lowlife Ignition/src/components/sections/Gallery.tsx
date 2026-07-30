@@ -71,7 +71,12 @@ export function Gallery() {
           ))}
         </div>
         <div className="mt-10 flex justify-center">
-          <a href="#social" className="btn-ghost">
+          <a
+            href="https://www.instagram.com/lowlife_est15/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-ghost"
+          >
             <Instagram className="h-4 w-4" /> Follow the Culture on Instagram
           </a>
         </div>

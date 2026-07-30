@@ -126,6 +126,8 @@ export function OwnerSpotlight() {
                           {build.instagramHandle ? (
                             <a
                               href={`https://instagram.com/${build.instagramHandle.replace("@", "")}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-chrome hover:text-primary"
                             >
                               <Instagram className="h-4 w-4" />
@@ -220,6 +222,8 @@ export function OwnerSpotlight() {
                   {selectedBuild.instagramHandle && (
                     <a
                       href={`https://instagram.com/${selectedBuild.instagramHandle.replace("@", "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="mt-4 inline-flex min-h-11 items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-chrome hover:text-primary"
                     >
                       <Instagram className="h-4 w-4" />
