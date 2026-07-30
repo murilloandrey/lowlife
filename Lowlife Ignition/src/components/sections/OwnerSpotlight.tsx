@@ -2,7 +2,14 @@
 // recognition captions are placeholders. Collect and approve real owner credits
 // with the client before this section ships to production.
 
-import { Award, Instagram } from "lucide-react";
+import { useState } from "react";
+import {
+  Award,
+  ChevronLeft,
+  ChevronRight,
+  Instagram,
+  Play,
+} from "lucide-react";
 import { useShopifyGallery } from "@/lib/shopify/hooks";
 import { SPOTLIGHT_BUILDS } from "@/lib/mock-storefront-data";
 import type { SpotlightBuild } from "@/lib/shopify-types";
@@ -13,12 +20,50 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { SectionHeader } from "./SectionHeader";
+
+function isEmbeddable(url: string | null) {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    return (
+      parsed.hostname.endsWith("instagram.com") ||
+      parsed.hostname.endsWith("tiktok.com")
+    );
+  } catch {
+    return false;
+  }
+}
 
 export function OwnerSpotlight() {
   const { data } = useShopifyGallery();
   const spotlightBuilds: SpotlightBuild[] =
     data?.spotlights ?? SPOTLIGHT_BUILDS;
+  const [selectedBuild, setSelectedBuild] = useState<SpotlightBuild | null>(
+    null,
+  );
+  const [photoIndex, setPhotoIndex] = useState(0);
+
+  const openBuild = (build: SpotlightBuild) => {
+    setPhotoIndex(0);
+    setSelectedBuild(build);
+  };
+
+  const movePhoto = (direction: -1 | 1) => {
+    if (!selectedBuild) return;
+    setPhotoIndex(
+      (current) =>
+        (current + direction + selectedBuild.images.length) %
+        selectedBuild.images.length,
+    );
+  };
 
   return (
     <section
@@ -43,8 +88,8 @@ export function OwnerSpotlight() {
                     <div className="grid overflow-hidden bg-card lg:grid-cols-[1.35fr_0.65fr]">
                       <div className="relative min-h-80 overflow-hidden sm:min-h-[32rem]">
                         <img
-                          src={build.image.url}
-                          alt={build.image.altText}
+                          src={build.images[0].url}
+                          alt={build.images[0].altText}
                           loading="lazy"
                           className="absolute inset-0 h-full w-full object-cover"
                         />
@@ -70,7 +115,14 @@ export function OwnerSpotlight() {
                         <p className="mt-5 text-sm leading-relaxed text-chrome-dim sm:text-base">
                           {build.caption}
                         </p>
-                        <div className="mt-8 border-t border-border pt-5">
+                        <button
+                          type="button"
+                          onClick={() => openBuild(build)}
+                          className="btn-brand mt-7 w-full sm:w-auto"
+                        >
+                          Read Full Story
+                        </button>
+                        <div className="mt-6 border-t border-border pt-5">
                           {build.instagramHandle ? (
                             <a
                               href={`https://instagram.com/${build.instagramHandle.replace("@", "")}`}
@@ -100,6 +152,128 @@ export function OwnerSpotlight() {
           Swipe to meet the builds
         </p>
       </div>
+
+      <Dialog
+        open={Boolean(selectedBuild)}
+        onOpenChange={(open) => !open && setSelectedBuild(null)}
+      >
+        <DialogContent className="max-h-[calc(100svh-1rem)] w-[calc(100%-1rem)] max-w-6xl overflow-y-auto border-primary/40 bg-card p-0 [&>button]:z-20 [&>button]:grid [&>button]:h-11 [&>button]:w-11 [&>button]:place-items-center [&>button]:border [&>button]:border-white/30 [&>button]:bg-black/70 [&>button]:text-white [&>button]:opacity-100 sm:max-h-[calc(100svh-2rem)] sm:w-[calc(100%-2rem)]">
+          {selectedBuild && (
+            <>
+              <DialogHeader className="sr-only">
+                <DialogTitle>
+                  {selectedBuild.buildNickname ||
+                    selectedBuild.ownerName ||
+                    "Member Build"}
+                </DialogTitle>
+                <DialogDescription>
+                  Full owner spotlight story and build media
+                </DialogDescription>
+              </DialogHeader>
+              <div className="h-1.5 bg-gradient-brand" />
+              <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
+                <div className="relative flex min-h-72 items-center justify-center overflow-hidden bg-black sm:min-h-[34rem]">
+                  <img
+                    src={selectedBuild.images[photoIndex].url}
+                    alt={selectedBuild.images[photoIndex].altText}
+                    className="absolute inset-0 h-full w-full object-contain"
+                  />
+                  {selectedBuild.images.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => movePhoto(-1)}
+                        aria-label="Previous build photo"
+                        className="absolute left-3 grid h-11 w-11 place-items-center border border-white/30 bg-black/65 text-white backdrop-blur hover:border-primary"
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => movePhoto(1)}
+                        aria-label="Next build photo"
+                        className="absolute right-3 grid h-11 w-11 place-items-center border border-white/30 bg-black/65 text-white backdrop-blur hover:border-primary"
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </button>
+                    </>
+                  )}
+                  <span className="absolute bottom-3 right-3 bg-black/65 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white backdrop-blur">
+                    {photoIndex + 1} / {selectedBuild.images.length}
+                  </span>
+                </div>
+
+                <div className="p-5 sm:p-8 lg:p-10">
+                  <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">
+                    Owner Spotlight
+                  </div>
+                  <h3 className="mt-3 pr-8 font-serif text-4xl font-black leading-none sm:text-5xl">
+                    {selectedBuild.buildNickname ||
+                      selectedBuild.ownerName ||
+                      "Member Build"}
+                  </h3>
+                  {selectedBuild.buildNickname && (
+                    <p className="mt-2 font-display text-xl tracking-wide text-chrome">
+                      {selectedBuild.ownerName || "Member Build"}
+                    </p>
+                  )}
+                  {selectedBuild.instagramHandle && (
+                    <a
+                      href={`https://instagram.com/${selectedBuild.instagramHandle.replace("@", "")}`}
+                      className="mt-4 inline-flex min-h-11 items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-chrome hover:text-primary"
+                    >
+                      <Instagram className="h-4 w-4" />
+                      {selectedBuild.instagramHandle}
+                    </a>
+                  )}
+
+                  <p className="mt-6 whitespace-pre-line text-sm leading-relaxed text-chrome-dim sm:text-base">
+                    {selectedBuild.fullStory}
+                  </p>
+
+                  {selectedBuild.video && (
+                    <div className="mt-8 border-t border-border pt-6">
+                      <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.22em] text-primary">
+                        Build video
+                      </div>
+                      <div className="relative aspect-video overflow-hidden bg-surface-2">
+                        {isEmbeddable(selectedBuild.video.embedUrl) ? (
+                          <iframe
+                            src={selectedBuild.video.embedUrl!}
+                            title={selectedBuild.video.caption}
+                            loading="lazy"
+                            allow="autoplay; encrypted-media; picture-in-picture"
+                            className="h-full w-full border-0"
+                          />
+                        ) : (
+                          <>
+                            <img
+                              src={selectedBuild.video.thumbnail.url}
+                              alt={
+                                selectedBuild.video.thumbnail.altText ??
+                                selectedBuild.video.caption
+                              }
+                              loading="lazy"
+                              className="h-full w-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/45" />
+                            <span className="brand-glow absolute left-1/2 top-1/2 grid h-14 w-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-white/60 bg-gradient-brand text-white">
+                              <Play className="ml-1 h-5 w-5 fill-current" />
+                            </span>
+                            <span className="absolute inset-x-3 bottom-3 text-xs font-medium text-white">
+                              {selectedBuild.video.caption}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

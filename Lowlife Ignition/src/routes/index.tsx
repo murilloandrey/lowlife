@@ -10,7 +10,6 @@ import { MonthlyMag } from "@/components/sections/MonthlyMag";
 import { Navbar } from "@/components/sections/Navbar";
 import { NewsletterPopup } from "@/components/sections/NewsletterPopup";
 import { OwnerSpotlight } from "@/components/sections/OwnerSpotlight";
-import { Raffles } from "@/components/sections/Raffles";
 import { Shop } from "@/components/sections/Shop";
 import { SocialCTA } from "@/components/sections/SocialCTA";
 import { VideoCarousel } from "@/components/sections/VideoCarousel";
@@ -43,14 +42,15 @@ function LowlifeHome() {
       <main>
         <Hero />
         <StatsBar />
+        <About />
         <Shop onAdd={addProduct} />
         <Events />
-        <Raffles />
+        {/* Raffles are paused for now. Keep the section component/data available
+            so it can be restored when the client is ready to run them. */}
         <MonthlyMag />
         <VideoCarousel />
         <Gallery />
         <OwnerSpotlight />
-        <About />
         <SocialCTA />
       </main>
       <Footer />
