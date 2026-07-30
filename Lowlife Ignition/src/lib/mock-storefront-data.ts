@@ -19,12 +19,12 @@ import productStickers from "@/assets/product-stickers.jpg";
 import productTee from "@/assets/product-tee.jpg";
 
 import type {
-  EventMetaobject,
   GalleryMetaobject,
   ShopifyArticle,
+  ShopifyEventMetaobject,
   ShopifyProduct,
+  ShopifyVideoPostMetaobject,
   SpotlightBuild,
-  VideoPost,
 } from "@/lib/shopify-types";
 
 export const PRODUCTS = [
@@ -132,7 +132,7 @@ export const EVENTS = [
     description:
       "Chill Sunday cruise-in. Slammed, stanced, and static builds welcome.",
   },
-] satisfies EventMetaobject[];
+] satisfies ShopifyEventMetaobject[];
 
 export const GALLERY = [
   {
@@ -354,7 +354,7 @@ export const VIDEO_POSTS = [
     },
     caption: "One night. A hundred stories.",
   },
-] satisfies VideoPost[];
+] satisfies ShopifyVideoPostMetaobject[];
 
 export const RAFFLES = [
   {

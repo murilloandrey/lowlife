@@ -51,7 +51,7 @@ export type SpotlightBuild = {
   instagramHandle?: string;
 };
 
-export type EventMetaobject = {
+export type ShopifyEventMetaobject = {
   id: string;
   handle: string;
   name: string;
@@ -64,7 +64,7 @@ export type EventMetaobject = {
   checkoutUrl: string;
 };
 
-export type VideoPost = {
+export type ShopifyVideoPostMetaobject = {
   id: string;
   platform: "tiktok" | "instagram";
   embedUrl: string | null;

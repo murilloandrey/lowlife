@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Calendar, Clock, MapPin, Ticket } from "lucide-react";
+import { useShopifyEvents } from "@/lib/shopify/hooks";
 import { EVENTS } from "@/lib/mock-storefront-data";
-import type { EventMetaobject, EventTicket } from "@/lib/shopify-types";
+import type { EventTicket, ShopifyEventMetaobject } from "@/lib/shopify-types";
 import {
   Dialog,
   DialogContent,
@@ -65,8 +66,10 @@ function QrPlaceholder() {
 }
 
 export function Events() {
+  const { data } = useShopifyEvents();
+  const events = data ?? EVENTS;
   const [ticket, setTicket] = useState<EventTicket | null>(null);
-  const selectTicket = (event: EventMetaobject) => {
+  const selectTicket = (event: ShopifyEventMetaobject) => {
     // TODO(shopify): replace with real ShopTickets/Ticket Spot checkout flow.
     setTicket({
       ticketId: `LL-${event.handle.toUpperCase()}-DEMO`,
@@ -87,7 +90,7 @@ export function Events() {
           subtitle="Tickets, vendor passes, and limited event merch — all online. First come, first served."
         />
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {EVENTS.map((event) => {
+          {events.map((event) => {
             const date = dateParts(event.startsAt);
             return (
               <article
