@@ -51,6 +51,11 @@ export type SpotlightBuild = {
   fullStory: string;
   instagramHandle?: string;
   video?: VideoPost;
+  favoriteSong?: {
+    title: string;
+    artist: string;
+    embedUrl?: string;
+  };
 };
 
 export type EventMetaobject = {
