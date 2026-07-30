@@ -19,10 +19,10 @@ import productStickers from "@/assets/product-stickers.jpg";
 import productTee from "@/assets/product-tee.jpg";
 
 import type {
-  EventMetaobject,
   GalleryMetaobject,
   ShopifyArticle,
   ShopifyProduct,
+  ShopifyTicketProduct,
   SpotlightBuild,
   VideoPost,
 } from "@/lib/shopify-types";
@@ -94,45 +94,65 @@ export const PRODUCTS = [
 
 export const EVENTS = [
   {
-    id: "gid://shopify/Metaobject/event-1",
+    id: "gid://shopify/Product/event-1",
+    variantId: "gid://shopify/ProductVariant/event-1-general-admission",
     handle: "lowlife-night-meet",
-    name: "Lowlife Night Meet",
+    title: "Lowlife Night Meet",
+    productType: "Event Ticket",
+    tags: ["ShopTickets"],
+    images: [{ url: gallery1, altText: "Cars gathered at a Lowlife meet" }],
+    price: { amount: "15.00", currencyCode: "USD" },
+    availableForSale: true,
+    collectionHandle: "events",
     startsAt: "2026-04-12T21:00:00-05:00",
     location: "Houston, TX",
+    address: "1001 Avenida De Las Americas, Houston, TX 77010",
     timeLabel: "9:00 PM — 1:00 AM",
-    ticketPrice: { amount: "15.00", currencyCode: "USD" },
     ticketType: "General Admission",
-    checkoutUrl: "https://example.com/tickets/lowlife-night-meet",
     description:
       "The signature Lowlife takeover. Custom builds, vendor booths, and the loudest speakers in H-Town.",
   },
   {
-    id: "gid://shopify/Metaobject/event-2",
+    id: "gid://shopify/Product/event-2",
+    variantId: "gid://shopify/ProductVariant/event-2-show-pass",
     handle: "texas-car-culture-showcase",
-    name: "Texas Car Culture Showcase",
+    title: "Texas Car Culture Showcase",
+    productType: "Event Ticket",
+    tags: ["ShopTickets"],
+    images: [
+      { url: gallery4, altText: "Show car displayed beneath event tents" },
+    ],
+    price: { amount: "25.00", currencyCode: "USD" },
+    availableForSale: true,
+    collectionHandle: "events",
     startsAt: "2026-05-03T17:00:00-05:00",
     location: "Dallas, TX",
+    address: "650 S Griffin St, Dallas, TX 75202",
     timeLabel: "5:00 PM — 11:00 PM",
-    ticketPrice: { amount: "25.00", currencyCode: "USD" },
     ticketType: "Show Pass",
-    checkoutUrl: "https://example.com/tickets/texas-showcase",
     description:
       "Statewide showcase — lowriders, JDM, euro, and everything between under one roof.",
   },
   {
-    id: "gid://shopify/Metaobject/event-3",
+    id: "gid://shopify/Product/event-3",
+    variantId: "gid://shopify/ProductVariant/event-3-cruise-in-pass",
     handle: "low-clean-sunday",
-    name: "Low & Clean Sunday",
+    title: "Low & Clean Sunday",
+    productType: "Event Ticket",
+    tags: ["ShopTickets"],
+    images: [{ url: gallery8, altText: "Cars lined up at an outdoor meet" }],
+    price: { amount: "10.00", currencyCode: "USD" },
+    availableForSale: true,
+    collectionHandle: "events",
     startsAt: "2026-05-18T14:00:00-05:00",
     location: "San Antonio, TX",
+    address: "900 E Market St, San Antonio, TX 78205",
     timeLabel: "2:00 PM — 8:00 PM",
-    ticketPrice: { amount: "10.00", currencyCode: "USD" },
     ticketType: "Cruise-In Pass",
-    checkoutUrl: "https://example.com/tickets/low-clean-sunday",
     description:
       "Chill Sunday cruise-in. Slammed, stanced, and static builds welcome.",
   },
-] satisfies EventMetaobject[];
+] satisfies ShopifyTicketProduct[];
 
 export const GALLERY = [
   {

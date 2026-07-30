@@ -1,7 +1,20 @@
 import { useState } from "react";
-import { Calendar, Clock, MapPin, Ticket } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  ExternalLink,
+  LoaderCircle,
+  MapPin,
+  Ticket,
+} from "lucide-react";
+import { toast } from "sonner";
+import { useShopifyEvents } from "@/lib/shopify/hooks";
 import { EVENTS } from "@/lib/mock-storefront-data";
-import type { EventMetaobject, EventTicket } from "@/lib/shopify-types";
+import type {
+  EventTicket,
+  ShopifyProduct,
+  ShopifyTicketProduct,
+} from "@/lib/shopify-types";
 import {
   Dialog,
   DialogContent,
@@ -64,15 +77,42 @@ function QrPlaceholder() {
   );
 }
 
-export function Events() {
+export function Events({
+  onAdd,
+  isLive,
+}: {
+  onAdd: (product: ShopifyProduct) => Promise<string | null>;
+  isLive: boolean;
+}) {
+  const { data } = useShopifyEvents();
+  const events = data ?? EVENTS;
   const [ticket, setTicket] = useState<EventTicket | null>(null);
-  const selectTicket = (event: EventMetaobject) => {
-    // TODO(shopify): replace with real ShopTickets/Ticket Spot checkout flow.
+  const [purchasingId, setPurchasingId] = useState<string | null>(null);
+
+  const selectTicket = async (event: ShopifyTicketProduct) => {
+    if (isLive) {
+      setPurchasingId(event.id);
+      try {
+        const checkoutUrl = await onAdd(event);
+        if (!checkoutUrl) {
+          throw new Error("Shopify did not return a checkout URL.");
+        }
+        window.location.assign(checkoutUrl);
+      } catch (error) {
+        console.error("Could not start ShopTickets checkout.", error);
+        toast.error("Could not start ticket checkout.", {
+          description: "Try again in a moment.",
+        });
+        setPurchasingId(null);
+      }
+      return;
+    }
+
     setTicket({
       ticketId: `LL-${event.handle.toUpperCase()}-DEMO`,
-      eventName: event.name,
+      eventName: event.title,
       ticketType: event.ticketType,
-      qrCodeUrl: event.checkoutUrl,
+      qrCodeUrl: `https://example.com/tickets/${event.handle}`,
     });
   };
   return (
@@ -87,8 +127,10 @@ export function Events() {
           subtitle="Tickets, vendor passes, and limited event merch — all online. First come, first served."
         />
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {EVENTS.map((event) => {
+          {events.map((event) => {
             const date = dateParts(event.startsAt);
+            const directionsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address)}`;
+            const purchasing = purchasingId === event.id;
             return (
               <article
                 key={event.id}
@@ -105,11 +147,11 @@ export function Events() {
                       </span>
                     </div>
                     <span className="rounded-sm border border-primary/50 bg-primary/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
-                      ${Number(event.ticketPrice.amount)}
+                      ${Number(event.price.amount)}
                     </span>
                   </div>
                   <h3 className="mt-6 font-display text-2xl tracking-wide">
-                    {event.name}
+                    {event.title}
                   </h3>
                   <div className="mt-3 space-y-1.5 text-xs text-muted-foreground">
                     <div className="flex items-center gap-2">
@@ -128,13 +170,37 @@ export function Events() {
                   <p className="mt-4 text-sm text-chrome-dim">
                     {event.description}
                   </p>
+                  <a
+                    href={directionsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex min-h-11 items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-chrome transition-colors hover:text-primary"
+                    aria-label={`Get directions to ${event.title} at ${event.address}`}
+                  >
+                    <MapPin className="h-4 w-4 text-primary" />
+                    Get Directions
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    {event.address}
+                  </p>
                 </div>
                 <button
                   type="button"
-                  onClick={() => selectTicket(event)}
+                  onClick={() => void selectTicket(event)}
+                  disabled={!event.availableForSale || purchasing}
                   className="btn-brand mt-6 w-full"
                 >
-                  <Ticket className="h-4 w-4" /> Buy Tickets
+                  {purchasing ? (
+                    <LoaderCircle className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Ticket className="h-4 w-4" />
+                  )}
+                  {purchasing
+                    ? "Opening Checkout"
+                    : event.availableForSale
+                      ? "Buy Tickets"
+                      : "Sold Out"}
                 </button>
               </article>
             );
