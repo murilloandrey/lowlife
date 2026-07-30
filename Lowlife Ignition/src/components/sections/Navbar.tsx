@@ -2,11 +2,12 @@ import { Menu, ShoppingBag, X } from "lucide-react";
 import lowlifeLogo from "@/assets/lowlife-logo.png";
 
 const links = [
+  { href: "#about", label: "About" },
   { href: "#shop", label: "Shop" },
   { href: "#events", label: "Events" },
   { href: "#mag", label: "Monthly Mag" },
   { href: "#gallery", label: "Gallery" },
-  { href: "#about", label: "About" },
+  { href: "#owner-spotlight", label: "Spotlight" },
 ];
 
 export function Navbar({
