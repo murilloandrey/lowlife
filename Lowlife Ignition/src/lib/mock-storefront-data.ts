@@ -220,36 +220,78 @@ export const GALLERY = [
 export const SPOTLIGHT_BUILDS = [
   {
     id: "gid://shopify/Metaobject/spotlight-build-1",
-    image: {
-      url: gallery9,
-      altText: "Red modified Nissan 180SX parked on a wet street",
-    },
+    images: [
+      {
+        url: gallery9,
+        altText: "Red modified Nissan 180SX parked on a wet street",
+      },
+    ],
     // TODO(owner-data): Owner name and build nickname TBD — confirm with client.
     ownerName: "Member Build",
     // TODO(owner-data): Replace this fallback with the owner's approved story.
     caption: "Owner and build details coming soon.",
+    fullStory:
+      "This full build story is ready for the owner's history, process, and favorite details once the client supplies and approves them.",
+    video: {
+      id: "spotlight-video-1",
+      platform: "instagram",
+      embedUrl: null,
+      thumbnail: {
+        url: gallery9,
+        altText: "Video placeholder for the red Nissan 180SX",
+      },
+      caption: "Build video coming soon.",
+    },
   },
   {
     id: "gid://shopify/Metaobject/spotlight-build-2",
-    image: {
-      url: gallery10,
-      altText: "Red Mazda RX-7 displayed in a bright studio",
-    },
+    images: [
+      {
+        url: gallery10,
+        altText: "Red Mazda RX-7 displayed in a bright studio",
+      },
+    ],
     // TODO(owner-data): Owner name and build nickname TBD — confirm with client.
     ownerName: "Member Build",
     // TODO(owner-data): Replace this fallback with the owner's approved story.
     caption: "Owner and build details coming soon.",
+    fullStory:
+      "This full build story is ready for the owner's history, process, and favorite details once the client supplies and approves them.",
+    video: {
+      id: "spotlight-video-2",
+      platform: "tiktok",
+      embedUrl: null,
+      thumbnail: {
+        url: gallery10,
+        altText: "Video placeholder for the red Mazda RX-7",
+      },
+      caption: "Build video coming soon.",
+    },
   },
   {
     id: "gid://shopify/Metaobject/spotlight-build-3",
-    image: {
-      url: gallery13,
-      altText: "White Acura NSX beneath colorful neon signs at night",
-    },
+    images: [
+      {
+        url: gallery13,
+        altText: "White Acura NSX beneath colorful neon signs at night",
+      },
+    ],
     // TODO(owner-data): Owner name and build nickname TBD — confirm with client.
     ownerName: "Member Build",
     // TODO(owner-data): Replace this fallback with the owner's approved story.
     caption: "Owner and build details coming soon.",
+    fullStory:
+      "This full build story is ready for the owner's history, process, and favorite details once the client supplies and approves them.",
+    video: {
+      id: "spotlight-video-3",
+      platform: "instagram",
+      embedUrl: null,
+      thumbnail: {
+        url: gallery13,
+        altText: "Video placeholder for the white Acura NSX",
+      },
+      caption: "Build video coming soon.",
+    },
   },
 ] satisfies SpotlightBuild[];
 

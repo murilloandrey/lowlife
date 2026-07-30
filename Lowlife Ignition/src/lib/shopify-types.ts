@@ -41,14 +41,16 @@ export type GalleryMetaobject = {
 
 export type SpotlightBuild = {
   id: string;
-  image: {
+  images: Array<{
     url: string;
     altText: string;
-  };
+  }>;
   ownerName: string;
   buildNickname?: string;
   caption: string;
+  fullStory: string;
   instagramHandle?: string;
+  video?: VideoPost;
 };
 
 export type EventMetaobject = {
