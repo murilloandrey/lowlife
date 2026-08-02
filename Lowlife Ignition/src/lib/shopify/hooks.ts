@@ -1,19 +1,29 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   ARTICLES,
+  EVENTS,
   GALLERY,
   PRODUCTS,
   SPOTLIGHT_BUILDS,
+  VIDEO_POSTS,
 } from "@/lib/mock-storefront-data";
 import type {
   GalleryMetaobject,
   ShopifyArticle,
+  ShopifyEventMetaobject,
   ShopifyImage,
   ShopifyProduct,
+  ShopifyVideoPostMetaobject,
   SpotlightBuild,
 } from "@/lib/shopify-types";
 import { isShopifyConfigured, shopifyFetch } from "./client";
-import { ARTICLES_QUERY, GALLERY_QUERY, PRODUCTS_QUERY } from "./operations";
+import {
+  ARTICLES_QUERY,
+  EVENTS_QUERY,
+  GALLERY_QUERY,
+  PRODUCTS_QUERY,
+  VIDEO_POSTS_QUERY,
+} from "./operations";
 
 type ProductsResponse = {
   products: {
@@ -63,12 +73,21 @@ type MetaobjectField = {
 
 type MetaobjectNode = {
   id: string;
+  handle: string;
   fields: MetaobjectField[];
+};
+
+type EventsResponse = {
+  events: { nodes: MetaobjectNode[] };
 };
 
 type GalleryResponse = {
   gallery: { nodes: MetaobjectNode[] };
   spotlights: { nodes: MetaobjectNode[] };
+};
+
+type VideoPostsResponse = {
+  videoPosts: { nodes: MetaobjectNode[] };
 };
 
 function fallbackOnError<T>(label: string, fallback: T) {
@@ -131,8 +150,45 @@ function fieldMap(node: MetaobjectNode) {
   return new Map(node.fields.map((field) => [field.key, field]));
 }
 
-function imageFrom(fields: Map<string, MetaobjectField>) {
-  return fields.get("image")?.reference?.image ?? null;
+function imageFrom(
+  fields: Map<string, MetaobjectField>,
+  key: string = "image",
+) {
+  return fields.get(key)?.reference?.image ?? null;
+}
+
+async function fetchEvents(): Promise<ShopifyEventMetaobject[]> {
+  try {
+    const data = await shopifyFetch<EventsResponse>(EVENTS_QUERY, {
+      first: 24,
+    });
+    const events = data.events.nodes.flatMap((node) => {
+      const fields = fieldMap(node);
+      const name = fields.get("name")?.value;
+      const startsAt = fields.get("starts_at")?.value;
+      if (!name || !startsAt) return [];
+      return [
+        {
+          id: node.id,
+          handle: node.handle,
+          name,
+          startsAt,
+          location: fields.get("location")?.value ?? "",
+          timeLabel: fields.get("time_label")?.value ?? "",
+          description: fields.get("description")?.value ?? "",
+          ticketPrice: {
+            amount: fields.get("ticket_price")?.value ?? "0",
+            currencyCode: fields.get("ticket_currency_code")?.value ?? "USD",
+          },
+          ticketType: fields.get("ticket_type")?.value ?? "General Admission",
+          checkoutUrl: fields.get("checkout_url")?.value ?? "",
+        },
+      ];
+    });
+    return events.length > 0 ? events : EVENTS;
+  } catch (error) {
+    return fallbackOnError("events", EVENTS)(error);
+  }
 }
 
 async function fetchCommunityImages(): Promise<{
@@ -214,6 +270,35 @@ async function fetchCommunityImages(): Promise<{
   }
 }
 
+async function fetchVideoPosts(): Promise<ShopifyVideoPostMetaobject[]> {
+  try {
+    const data = await shopifyFetch<VideoPostsResponse>(VIDEO_POSTS_QUERY, {
+      first: 24,
+    });
+    const videoPosts: ShopifyVideoPostMetaobject[] =
+      data.videoPosts.nodes.flatMap((node) => {
+        const fields = fieldMap(node);
+        const thumbnail = imageFrom(fields, "thumbnail");
+        const platform = fields.get("platform")?.value?.toLowerCase();
+        if (!thumbnail || (platform !== "instagram" && platform !== "tiktok")) {
+          return [];
+        }
+        return [
+          {
+            id: node.id,
+            platform,
+            embedUrl: fields.get("embed_url")?.value || null,
+            thumbnail,
+            caption: fields.get("caption")?.value ?? "",
+          },
+        ];
+      });
+    return videoPosts.length > 0 ? videoPosts : VIDEO_POSTS;
+  } catch (error) {
+    return fallbackOnError("video posts", VIDEO_POSTS)(error);
+  }
+}
+
 export function useShopifyProducts() {
   const configured = isShopifyConfigured();
   return useQuery({
@@ -236,6 +321,17 @@ export function useShopifyArticles() {
   });
 }
 
+export function useShopifyEvents() {
+  const configured = isShopifyConfigured();
+  return useQuery({
+    queryKey: ["shopify", "events", configured],
+    queryFn: configured ? fetchEvents : async () => EVENTS,
+    initialData: EVENTS,
+    initialDataUpdatedAt: 0,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
 export function useShopifyGallery() {
   const configured = isShopifyConfigured();
   const fallback = { gallery: GALLERY, spotlights: SPOTLIGHT_BUILDS };
@@ -243,6 +339,17 @@ export function useShopifyGallery() {
     queryKey: ["shopify", "community-images", configured],
     queryFn: configured ? fetchCommunityImages : async () => fallback,
     initialData: fallback,
+    initialDataUpdatedAt: 0,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useShopifyVideoPosts() {
+  const configured = isShopifyConfigured();
+  return useQuery({
+    queryKey: ["shopify", "video-posts", configured],
+    queryFn: configured ? fetchVideoPosts : async () => VIDEO_POSTS,
+    initialData: VIDEO_POSTS,
     initialDataUpdatedAt: 0,
     staleTime: 5 * 60 * 1000,
   });
