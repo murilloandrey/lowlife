@@ -8,7 +8,9 @@ export function ProductCard({
   product: ShopifyProduct;
   onAdd: () => void;
 }) {
-  const tag = product.tags[0];
+  const tag = product.tags.find(
+    (productTag) => productTag.trim().toLowerCase() !== "big-cartel-import",
+  );
   const price = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: product.price.currencyCode,
