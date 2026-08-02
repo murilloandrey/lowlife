@@ -166,13 +166,23 @@ environment settings for previews and production. Never commit real tokens.
 | ------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `VITE_SHOPIFY_DOMAIN`           | Browser-visible    | Shopify domain in `store.myshopify.com` form. It is used to construct Storefront API URLs and is also the server-side fallback domain for newsletter calls.                                                  |
 | `VITE_SHOPIFY_STOREFRONT_TOKEN` | Browser-visible    | Storefront API access token used by product, content, and cart requests. The `VITE_` prefix deliberately makes it available to client code; grant only Storefront scopes intended for public storefront use. |
-| `SHOPIFY_ADMIN_DOMAIN`          | Server-only        | Shopify domain used by the newsletter Admin API endpoint. It may be omitted when the runtime also exposes `VITE_SHOPIFY_DOMAIN`, but setting it explicitly keeps server configuration clear.                 |
-| `SHOPIFY_ADMIN_ACCESS_TOKEN`    | Server-only secret | Admin API token used to upsert customers and record email marketing consent. It requires `write_customers` and protected customer-data access. Never prefix it with `VITE_` or expose it to browser code.    |
+| `SHOPIFY_ADMIN_DOMAIN`          | Server-only        | Shopify domain used by the newsletter Admin API endpoint, set to `lowlife-8113.myshopify.com`. It may be omitted when the runtime also exposes `VITE_SHOPIFY_DOMAIN`, but setting it explicitly keeps server configuration clear.                 |
+| `SHOPIFY_ADMIN_ACCESS_TOKEN`    | Server-only secret | Admin API access token used to upsert customers and record email marketing consent. Generated via Shopify's Dev Dashboard → Lowlife Website app → "App automation token," scoped to `read_customers` and `write_customers`. Used server-side only, in `newsletter.server.ts`, never bundled to the client — consistent with the `.server.ts` convention above. Never prefix it with `VITE_` or expose it to browser code. |
 
 `isShopifyConfigured()` intentionally considers only the two `VITE_` Storefront
 variables. Newsletter writes additionally require the two server-side Admin
 settings; if they are absent, the popup retains its current graceful,
 toast-only fallback.
+
+**Maintenance reminder — token expiration:** `SHOPIFY_ADMIN_ACCESS_TOKEN` was
+generated through Shopify's automation token flow, which issues tokens with a
+6-month expiration. It must be regenerated in the Dev Dashboard and re-added to
+the Vercel Production and Preview environments before it lapses, or newsletter
+signups will silently stop writing to Shopify again. There is no build-time or
+server-side error when this happens: `isShopifyConfigured()` only checks the
+`VITE_` Storefront variables, so the app still builds and deploys normally, and
+the failure only surfaces as a client-side toast error on signup. Track the
+expiration date and renew proactively rather than waiting for a user report.
 
 ## Branching and continuous integration
 
