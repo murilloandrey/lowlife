@@ -1,18 +1,42 @@
 import { useCallback, useEffect, useState } from "react";
-import type { ShopifyProduct } from "@/lib/shopify-types";
+import type {
+  ShopifyImage,
+  ShopifyMoney,
+  ShopifyProduct,
+} from "@/lib/shopify-types";
 import { isShopifyConfigured, shopifyFetch } from "./client";
 import {
   CART_CREATE_MUTATION,
   CART_LINES_ADD_MUTATION,
+  CART_LINES_REMOVE_MUTATION,
+  CART_LINES_UPDATE_MUTATION,
   CART_QUERY,
 } from "./operations";
 
 const CART_STORAGE_KEY = "lowlife-shopify-cart-id";
 
+type CartLine = {
+  id: string;
+  quantity: number;
+  cost: { totalAmount: ShopifyMoney };
+  merchandise: {
+    id: string;
+    title: string;
+    price: ShopifyMoney;
+    product: {
+      title: string;
+      handle: string;
+      featuredImage: ShopifyImage | null;
+    };
+  };
+};
+
 type Cart = {
   id: string;
   checkoutUrl: string;
   totalQuantity: number;
+  cost: { subtotalAmount: ShopifyMoney };
+  lines: { nodes: CartLine[] };
 };
 
 type CartUserError = {
@@ -32,7 +56,32 @@ type CartMutationResponse = {
     cart: Cart | null;
     userErrors: CartUserError[];
   };
+  cartLinesUpdate?: {
+    cart: Cart | null;
+    userErrors: CartUserError[];
+  };
+  cartLinesRemove?: {
+    cart: Cart | null;
+    userErrors: CartUserError[];
+  };
 };
+
+export type DisplayCartLine = {
+  id: string;
+  title: string;
+  image: ShopifyImage | null;
+  unitPrice: ShopifyMoney;
+  quantity: number;
+  lineTotal: ShopifyMoney;
+};
+
+export function formatMoney(money: ShopifyMoney) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: money.currencyCode,
+    maximumFractionDigits: 0,
+  }).format(Number(money.amount));
+}
 
 function storedCartId() {
   return typeof window === "undefined"
@@ -52,7 +101,7 @@ function clearStoredCart() {
 
 function mutationCart(
   payload: CartMutationResponse,
-  key: "cartCreate" | "cartLinesAdd",
+  key: "cartCreate" | "cartLinesAdd" | "cartLinesUpdate" | "cartLinesRemove",
 ) {
   const result = payload[key];
   if (!result?.cart || result.userErrors.length > 0) {
@@ -87,10 +136,73 @@ async function addCartLine(cartId: string, variantId: string) {
   return mutationCart(payload, "cartLinesAdd");
 }
 
+async function updateCartLine(
+  cartId: string,
+  lineId: string,
+  quantity: number,
+) {
+  const payload = await shopifyFetch<CartMutationResponse>(
+    CART_LINES_UPDATE_MUTATION,
+    {
+      cartId,
+      lines: [{ id: lineId, quantity }],
+    },
+  );
+  return mutationCart(payload, "cartLinesUpdate");
+}
+
+async function removeCartLine(cartId: string, lineId: string) {
+  const payload = await shopifyFetch<CartMutationResponse>(
+    CART_LINES_REMOVE_MUTATION,
+    {
+      cartId,
+      lineIds: [lineId],
+    },
+  );
+  return mutationCart(payload, "cartLinesRemove");
+}
+
+function cartLineToDisplayLine(line: CartLine): DisplayCartLine {
+  return {
+    id: line.id,
+    title: line.merchandise.product.title,
+    image: line.merchandise.product.featuredImage,
+    unitPrice: line.merchandise.price,
+    quantity: line.quantity,
+    lineTotal: line.cost.totalAmount,
+  };
+}
+
+type MockCart = Record<string, { product: ShopifyProduct; quantity: number }>;
+
+function mockCartToDisplayLines(mockCart: MockCart): DisplayCartLine[] {
+  return Object.entries(mockCart).map(([productId, entry]) => ({
+    id: productId,
+    title: entry.product.title,
+    image: entry.product.images[0] ?? null,
+    unitPrice: entry.product.price,
+    quantity: entry.quantity,
+    lineTotal: {
+      amount: String(Number(entry.product.price.amount) * entry.quantity),
+      currencyCode: entry.product.price.currencyCode,
+    },
+  }));
+}
+
+function mockSubtotal(lines: DisplayCartLine[]): ShopifyMoney {
+  const currencyCode = lines[0]?.unitPrice.currencyCode ?? "USD";
+  const amount = lines.reduce(
+    (total, line) => total + Number(line.lineTotal.amount),
+    0,
+  );
+  return { amount: String(amount), currencyCode };
+}
+
 export function useStorefrontCart() {
   const configured = isShopifyConfigured();
   const [shopifyCart, setShopifyCart] = useState<Cart | null>(null);
-  const [mockCart, setMockCart] = useState<Record<string, number>>({});
+  const [mockCart, setMockCart] = useState<MockCart>({});
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
     if (!configured) return;
@@ -116,8 +228,12 @@ export function useStorefrontCart() {
       if (!configured) {
         setMockCart((current) => ({
           ...current,
-          [product.id]: (current[product.id] ?? 0) + 1,
+          [product.id]: {
+            product,
+            quantity: (current[product.id]?.quantity ?? 0) + 1,
+          },
         }));
+        setIsCartOpen(true);
         return null;
       }
 
@@ -128,6 +244,7 @@ export function useStorefrontCart() {
           : await createCart(product.variantId);
         persistCart(cart);
         setShopifyCart(cart);
+        setIsCartOpen(true);
         return cart.checkoutUrl;
       } catch (error) {
         if (!cartId) throw error;
@@ -135,10 +252,42 @@ export function useStorefrontCart() {
         const cart = await createCart(product.variantId);
         persistCart(cart);
         setShopifyCart(cart);
+        setIsCartOpen(true);
         return cart.checkoutUrl;
       }
     },
     [configured, shopifyCart?.id],
+  );
+
+  const updateQuantity = useCallback(
+    async (lineId: string, quantity: number) => {
+      if (!configured) {
+        setMockCart((current) => {
+          if (quantity <= 0) {
+            const { [lineId]: _removed, ...rest } = current;
+            return rest;
+          }
+          const existing = current[lineId];
+          if (!existing) return current;
+          return { ...current, [lineId]: { ...existing, quantity } };
+        });
+        return;
+      }
+
+      if (!shopifyCart) return;
+      const cart =
+        quantity <= 0
+          ? await removeCartLine(shopifyCart.id, lineId)
+          : await updateCartLine(shopifyCart.id, lineId, quantity);
+      persistCart(cart);
+      setShopifyCart(cart);
+    },
+    [configured, shopifyCart],
+  );
+
+  const removeLine = useCallback(
+    (lineId: string) => updateQuantity(lineId, 0),
+    [updateQuantity],
   );
 
   const checkout = useCallback(() => {
@@ -146,16 +295,36 @@ export function useStorefrontCart() {
     window.location.assign(shopifyCart.checkoutUrl);
   }, [configured, shopifyCart?.checkoutUrl]);
 
+  const openCart = useCallback(() => setIsCartOpen(true), []);
+  const closeCart = useCallback(() => setIsCartOpen(false), []);
+
+  const lines = configured
+    ? (shopifyCart?.lines.nodes.map(cartLineToDisplayLine) ?? [])
+    : mockCartToDisplayLines(mockCart);
+
   const mockCount = Object.values(mockCart).reduce(
-    (total, quantity) => total + quantity,
+    (total, entry) => total + entry.quantity,
     0,
   );
 
+  const subtotal = configured
+    ? (shopifyCart?.cost.subtotalAmount ?? null)
+    : lines.length > 0
+      ? mockSubtotal(lines)
+      : null;
+
   return {
     addProduct,
+    updateQuantity,
+    removeLine,
+    lines,
+    subtotal,
     cartCount: configured ? (shopifyCart?.totalQuantity ?? 0) : mockCount,
     checkout,
     checkoutAvailable: configured && Boolean(shopifyCart?.checkoutUrl),
     isLive: configured,
+    isCartOpen,
+    openCart,
+    closeCart,
   };
 }

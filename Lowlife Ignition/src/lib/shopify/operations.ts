@@ -1,6 +1,11 @@
 export const PRODUCTS_QUERY = `#graphql
-  query StorefrontProducts($first: Int!) {
-    products(first: $first, sortKey: CREATED_AT, reverse: true) {
+  query StorefrontProducts($first: Int!, $after: String) {
+    products(
+      first: $first
+      after: $after
+      sortKey: CREATED_AT
+      reverse: true
+    ) {
       nodes {
         id
         title
@@ -24,6 +29,10 @@ export const PRODUCTS_QUERY = `#graphql
         selectedOrFirstAvailableVariant {
           id
         }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
       }
     }
   }
@@ -160,21 +169,56 @@ export const VIDEO_POSTS_QUERY = `#graphql
   }
 `;
 
-export const CART_QUERY = `#graphql
-  query StorefrontCart($id: ID!) {
-    cart(id: $id) {
-      id
-      checkoutUrl
-      totalQuantity
-    }
-  }
-`;
-
 const CART_FIELDS = `#graphql
   fragment StorefrontCartFields on Cart {
     id
     checkoutUrl
     totalQuantity
+    cost {
+      subtotalAmount {
+        amount
+        currencyCode
+      }
+    }
+    lines(first: 50) {
+      nodes {
+        id
+        quantity
+        cost {
+          totalAmount {
+            amount
+            currencyCode
+          }
+        }
+        merchandise {
+          ... on ProductVariant {
+            id
+            title
+            price {
+              amount
+              currencyCode
+            }
+            product {
+              title
+              handle
+              featuredImage {
+                url
+                altText
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const CART_QUERY = `#graphql
+  ${CART_FIELDS}
+  query StorefrontCart($id: ID!) {
+    cart(id: $id) {
+      ...StorefrontCartFields
+    }
   }
 `;
 
@@ -208,6 +252,39 @@ export const CART_LINES_ADD_MUTATION = `#graphql
         message
       }
       warnings {
+        message
+      }
+    }
+  }
+`;
+
+export const CART_LINES_UPDATE_MUTATION = `#graphql
+  ${CART_FIELDS}
+  mutation StorefrontCartLinesUpdate(
+    $cartId: ID!
+    $lines: [CartLineUpdateInput!]!
+  ) {
+    cartLinesUpdate(cartId: $cartId, lines: $lines) {
+      cart {
+        ...StorefrontCartFields
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+export const CART_LINES_REMOVE_MUTATION = `#graphql
+  ${CART_FIELDS}
+  mutation StorefrontCartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
+    cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+      cart {
+        ...StorefrontCartFields
+      }
+      userErrors {
+        field
         message
       }
     }
