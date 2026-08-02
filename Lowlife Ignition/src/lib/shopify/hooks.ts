@@ -222,6 +222,8 @@ async function fetchCommunityImages(): Promise<{
         fields.get("video_platform")?.value?.toLowerCase() === "tiktok"
           ? "tiktok"
           : "instagram";
+      const favoriteSongTitle = fields.get("favorite_song_title")?.value;
+      const favoriteSongArtist = fields.get("favorite_song_artist")?.value;
       return [
         {
           id: node.id,
@@ -247,6 +249,15 @@ async function fetchCommunityImages(): Promise<{
             caption:
               fields.get("video_caption")?.value ?? "Build video coming soon.",
           },
+          favoriteSong:
+            favoriteSongTitle && favoriteSongArtist
+              ? {
+                  title: favoriteSongTitle,
+                  artist: favoriteSongArtist,
+                  embedUrl:
+                    fields.get("favorite_song_embed_url")?.value || undefined,
+                }
+              : undefined,
         },
       ];
     });
