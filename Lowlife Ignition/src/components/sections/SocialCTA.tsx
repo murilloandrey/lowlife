@@ -22,7 +22,7 @@ export function SocialCTA() {
           <div className="mb-4 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-primary">
             <div className="h-px w-8 bg-gradient-brand" /> Stay Connected
           </div>
-          <h2 className="font-heading text-4xl font-black leading-[0.95] sm:text-6xl">
+          <h2 className="font-heading text-4xl font-black uppercase leading-[0.95] sm:text-6xl">
             Don't just watch the scene.{" "}
             <span className="text-gradient-brand italic">Be part of it.</span>
           </h2>

@@ -1,4 +1,4 @@
-import { ArrowRight, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useShopifyProducts } from "@/lib/shopify/hooks";
 import { PRODUCTS } from "@/lib/mock-storefront-data";
@@ -28,33 +28,37 @@ export function Shop({
   return (
     <section id="shop" className="border-b border-border py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 sm:flex sm:justify-between">
+        <div>
           <SectionHeader
             eyebrow="Shop the Drop"
             title="Fresh from the garage."
             subtitle="Limited pieces built for the scene. When it's gone, it's gone."
           />
-          <a
-            href="#shop"
-            className="hidden shrink-0 pb-2 text-[10px] font-bold uppercase tracking-[0.25em] text-chrome-dim hover:text-primary sm:inline-flex sm:items-center sm:gap-2"
-          >
-            View Full Shop <ArrowRight className="h-3 w-3" />
-          </a>
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onAdd={() => void addProduct(product)}
-            />
-          ))}
-        </div>
-        <div className="mt-10 flex justify-center sm:hidden">
-          <a href="#shop" className="btn-ghost w-full">
-            View Full Shop
-          </a>
-        </div>
+        {products.length > 0 ? (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAdd={() => void addProduct(product)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="chrome-border bg-card px-6 py-14 text-center sm:px-10 sm:py-20">
+            <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">
+              Next drop loading
+            </div>
+            <h3 className="mt-3 font-heading text-3xl font-black uppercase sm:text-4xl">
+              Drops coming soon.
+            </h3>
+            <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-chrome-dim sm:text-base">
+              The garage is between releases. Check back soon for the next
+              limited Lowlife drop.
+            </p>
+          </div>
+        )}
       </div>
     </section>
   );

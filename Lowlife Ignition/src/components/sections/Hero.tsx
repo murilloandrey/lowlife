@@ -23,7 +23,7 @@ export function Hero() {
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />{" "}
             Houston Born • Car Show Built • Est. 2015
           </div>
-          <h1 className="font-heading text-6xl font-black leading-[0.9] tracking-tight text-white sm:text-8xl md:text-9xl">
+          <h1 className="font-heading text-6xl font-black uppercase leading-[0.9] tracking-tight text-white sm:text-8xl md:text-9xl">
             Rep the <span className="text-gradient-brand italic">Life.</span>
           </h1>
           <p className="mt-6 max-w-xl text-base text-chrome-dim sm:text-lg">
