@@ -10,18 +10,20 @@ import {
 import type {
   GalleryMetaobject,
   ShopifyArticle,
-  ShopifyEventMetaobject,
   ShopifyImage,
   ShopifyProduct,
+  ShopifyTicketProduct,
   ShopifyVideoPostMetaobject,
   SpotlightBuild,
 } from "@/lib/shopify-types";
 import { isShopifyConfigured, shopifyFetch } from "./client";
 import {
   ARTICLES_QUERY,
-  EVENTS_QUERY,
+  EVENT_TICKETS_QUERY,
   GALLERY_QUERY,
   PRODUCTS_QUERY,
+  SHOPTICKETS_COLLECTION_HANDLE,
+  SHOPTICKETS_EVENT_METAFIELDS,
   VIDEO_POSTS_QUERY,
 } from "./operations";
 
@@ -63,6 +65,42 @@ type ArticlesResponse = {
   };
 };
 
+type EventMetafield = {
+  namespace: string;
+  key: string;
+  value: string;
+  type: string;
+};
+
+type EventTicketsResponse = {
+  collection: {
+    handle: string;
+    products: {
+      nodes: Array<{
+        id: string;
+        title: string;
+        handle: string;
+        description: string;
+        availableForSale: boolean;
+        productType: string;
+        tags: string[];
+        priceRange: {
+          minVariantPrice: {
+            amount: string;
+            currencyCode: string;
+          };
+        };
+        images: { nodes: ShopifyImage[] };
+        selectedOrFirstAvailableVariant: {
+          id: string;
+          availableForSale: boolean;
+        } | null;
+        metafields: Array<EventMetafield | null>;
+      }>;
+    };
+  } | null;
+};
+
 type MetaobjectField = {
   key: string;
   value: string | null;
@@ -73,12 +111,7 @@ type MetaobjectField = {
 
 type MetaobjectNode = {
   id: string;
-  handle: string;
   fields: MetaobjectField[];
-};
-
-type EventsResponse = {
-  events: { nodes: MetaobjectNode[] };
 };
 
 type GalleryResponse = {
@@ -146,6 +179,63 @@ async function fetchArticles(): Promise<ShopifyArticle[]> {
   }
 }
 
+async function fetchEventTickets(): Promise<ShopifyTicketProduct[]> {
+  try {
+    const data = await shopifyFetch<EventTicketsResponse>(EVENT_TICKETS_QUERY, {
+      handle: SHOPTICKETS_COLLECTION_HANDLE,
+      first: 24,
+      metafieldIdentifiers: SHOPTICKETS_EVENT_METAFIELDS,
+    });
+    const products = data.collection?.products.nodes ?? [];
+
+    // TODO(shoptickets): Confirm ShopTickets' real metafield namespace/keys for
+    // event date, time, location, address, and ticket type on a configured store.
+    // Until then, product/variant commerce data is live while display metadata
+    // falls back by card position so the existing event UI remains complete.
+    const tickets = products.flatMap((product, index) => {
+      const variant = product.selectedOrFirstAvailableVariant;
+      if (!variant) return [];
+      const fallback = EVENTS[index % EVENTS.length];
+      const metafields = new Map(
+        product.metafields.flatMap((metafield) =>
+          metafield ? [[metafield.key, metafield.value] as const] : [],
+        ),
+      );
+      const images =
+        product.images.nodes.length > 0
+          ? product.images.nodes
+          : fallback.images;
+
+      return [
+        {
+          id: product.id,
+          variantId: variant.id,
+          title: product.title,
+          handle: product.handle,
+          productType: product.productType || "Event Ticket",
+          tags: product.tags,
+          price: product.priceRange.minVariantPrice,
+          images,
+          description: product.description || fallback.description,
+          availableForSale:
+            product.availableForSale && variant.availableForSale,
+          collectionHandle:
+            data.collection?.handle ?? SHOPTICKETS_COLLECTION_HANDLE,
+          startsAt: metafields.get("event_date") || fallback.startsAt,
+          timeLabel: metafields.get("event_time") || fallback.timeLabel,
+          location: metafields.get("event_location") || fallback.location,
+          address: metafields.get("event_address") || fallback.address,
+          ticketType: metafields.get("ticket_type") || fallback.ticketType,
+        },
+      ];
+    });
+
+    return tickets.length > 0 ? tickets : EVENTS;
+  } catch (error) {
+    return fallbackOnError("ShopTickets event collection", EVENTS)(error);
+  }
+}
+
 function fieldMap(node: MetaobjectNode) {
   return new Map(node.fields.map((field) => [field.key, field]));
 }
@@ -155,40 +245,6 @@ function imageFrom(
   key: string = "image",
 ) {
   return fields.get(key)?.reference?.image ?? null;
-}
-
-async function fetchEvents(): Promise<ShopifyEventMetaobject[]> {
-  try {
-    const data = await shopifyFetch<EventsResponse>(EVENTS_QUERY, {
-      first: 24,
-    });
-    const events = data.events.nodes.flatMap((node) => {
-      const fields = fieldMap(node);
-      const name = fields.get("name")?.value;
-      const startsAt = fields.get("starts_at")?.value;
-      if (!name || !startsAt) return [];
-      return [
-        {
-          id: node.id,
-          handle: node.handle,
-          name,
-          startsAt,
-          location: fields.get("location")?.value ?? "",
-          timeLabel: fields.get("time_label")?.value ?? "",
-          description: fields.get("description")?.value ?? "",
-          ticketPrice: {
-            amount: fields.get("ticket_price")?.value ?? "0",
-            currencyCode: fields.get("ticket_currency_code")?.value ?? "USD",
-          },
-          ticketType: fields.get("ticket_type")?.value ?? "General Admission",
-          checkoutUrl: fields.get("checkout_url")?.value ?? "",
-        },
-      ];
-    });
-    return events.length > 0 ? events : EVENTS;
-  } catch (error) {
-    return fallbackOnError("events", EVENTS)(error);
-  }
 }
 
 async function fetchCommunityImages(): Promise<{
@@ -324,8 +380,13 @@ export function useShopifyArticles() {
 export function useShopifyEvents() {
   const configured = isShopifyConfigured();
   return useQuery({
-    queryKey: ["shopify", "events", configured],
-    queryFn: configured ? fetchEvents : async () => EVENTS,
+    queryKey: [
+      "shopify",
+      "event-tickets",
+      SHOPTICKETS_COLLECTION_HANDLE,
+      configured,
+    ],
+    queryFn: configured ? fetchEventTickets : async () => EVENTS,
     initialData: EVENTS,
     initialDataUpdatedAt: 0,
     staleTime: 5 * 60 * 1000,

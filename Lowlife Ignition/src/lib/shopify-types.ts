@@ -58,17 +58,15 @@ export type SpotlightBuild = {
   };
 };
 
-export type ShopifyEventMetaobject = {
-  id: string;
-  handle: string;
-  name: string;
+export type ShopifyTicketProduct = ShopifyProduct & {
+  description: string;
+  availableForSale: boolean;
+  collectionHandle: string;
   startsAt: string;
   location: string;
+  address: string;
   timeLabel: string;
-  description: string;
-  ticketPrice: ShopifyMoney;
   ticketType: string;
-  checkoutUrl: string;
 };
 
 export type ShopifyVideoPostMetaobject = {

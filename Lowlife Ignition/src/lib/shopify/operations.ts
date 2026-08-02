@@ -29,6 +29,67 @@ export const PRODUCTS_QUERY = `#graphql
   }
 `;
 
+// ShopTickets is expected to sync ticket products into this collection.
+// Change this one value if the app creates a different collection handle.
+export const SHOPTICKETS_COLLECTION_HANDLE = "events";
+
+export const SHOPTICKETS_EVENT_METAFIELDS = [
+  { namespace: "shoptickets", key: "event_date" },
+  { namespace: "shoptickets", key: "event_time" },
+  { namespace: "shoptickets", key: "event_location" },
+  { namespace: "shoptickets", key: "event_address" },
+  { namespace: "shoptickets", key: "ticket_type" },
+] as const;
+
+export const EVENT_TICKETS_QUERY = `#graphql
+  query StorefrontEventTickets(
+    $handle: String!
+    $first: Int!
+    $metafieldIdentifiers: [HasMetafieldsIdentifier!]!
+  ) {
+    collection(handle: $handle) {
+      id
+      handle
+      title
+      products(first: $first, sortKey: COLLECTION_DEFAULT) {
+        nodes {
+          id
+          title
+          handle
+          description
+          availableForSale
+          productType
+          tags
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+          images(first: 8) {
+            nodes {
+              url
+              altText
+              width
+              height
+            }
+          }
+          selectedOrFirstAvailableVariant {
+            id
+            availableForSale
+          }
+          metafields(identifiers: $metafieldIdentifiers) {
+            namespace
+            key
+            value
+            type
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const ARTICLES_QUERY = `#graphql
   query StorefrontArticles($first: Int!) {
     articles(first: $first, sortKey: PUBLISHED_AT, reverse: true) {
@@ -55,7 +116,6 @@ export const ARTICLES_QUERY = `#graphql
 const METAOBJECT_FIELDS = `#graphql
   fragment StorefrontMetaobjectFields on Metaobject {
     id
-    handle
     fields {
       key
       value
@@ -68,17 +128,6 @@ const METAOBJECT_FIELDS = `#graphql
             height
           }
         }
-      }
-    }
-  }
-`;
-
-export const EVENTS_QUERY = `#graphql
-  ${METAOBJECT_FIELDS}
-  query StorefrontEvents($first: Int!) {
-    events: metaobjects(type: "event", first: $first) {
-      nodes {
-        ...StorefrontMetaobjectFields
       }
     }
   }

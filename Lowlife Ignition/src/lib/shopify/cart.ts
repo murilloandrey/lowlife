@@ -118,7 +118,7 @@ export function useStorefrontCart() {
           ...current,
           [product.id]: (current[product.id] ?? 0) + 1,
         }));
-        return;
+        return null;
       }
 
       const cartId = shopifyCart?.id ?? storedCartId();
@@ -128,12 +128,14 @@ export function useStorefrontCart() {
           : await createCart(product.variantId);
         persistCart(cart);
         setShopifyCart(cart);
+        return cart.checkoutUrl;
       } catch (error) {
         if (!cartId) throw error;
         clearStoredCart();
         const cart = await createCart(product.variantId);
         persistCart(cart);
         setShopifyCart(cart);
+        return cart.checkoutUrl;
       }
     },
     [configured, shopifyCart?.id],
