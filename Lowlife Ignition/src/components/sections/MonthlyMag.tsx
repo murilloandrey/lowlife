@@ -45,7 +45,7 @@ export function MonthlyMag() {
               <CalendarDays className="h-3.5 w-3.5 text-primary" />{" "}
               {articleDate(featured.publishedAt)} · {featured.author.name}
             </div>
-            <h3 className="mt-4 font-serif text-3xl font-black leading-tight sm:text-5xl">
+            <h3 className="mt-4 font-heading text-3xl font-black leading-tight sm:text-5xl">
               {featured.title}
             </h3>
             <p className="mt-5 text-sm leading-relaxed text-chrome-dim sm:text-base">

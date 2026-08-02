@@ -104,7 +104,7 @@ export function OwnerSpotlight() {
                         <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">
                           Repping the build
                         </div>
-                        <h3 className="mt-3 font-serif text-4xl font-black leading-none sm:text-5xl">
+                        <h3 className="mt-3 font-heading text-4xl font-black leading-none sm:text-5xl">
                           {build.buildNickname || ownerLabel}
                         </h3>
                         {build.buildNickname && (
@@ -207,7 +207,7 @@ export function OwnerSpotlight() {
                   <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">
                     Owner Spotlight
                   </div>
-                  <h3 className="mt-3 pr-8 font-serif text-4xl font-black leading-none sm:text-5xl">
+                  <h3 className="mt-3 pr-8 font-heading text-4xl font-black leading-none sm:text-5xl">
                     {selectedBuild.buildNickname ||
                       selectedBuild.ownerName ||
                       "Member Build"}
