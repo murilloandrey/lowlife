@@ -7,6 +7,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { formatMoney, type DisplayCartLine } from "@/lib/shopify/cart";
+import { getShopifyStoreUrl } from "@/lib/shopify/client";
 import type { ShopifyMoney } from "@/lib/shopify-types";
 
 export function CartDrawer({
@@ -32,6 +33,19 @@ export function CartDrawer({
   onRemove: (lineId: string) => Promise<void> | void;
   onCheckout: () => void;
 }) {
+  const storeUrl = getShopifyStoreUrl();
+  const shopPayVariants = lines
+    .map((line) => {
+      const variantId = line.variantId.split("/").pop();
+      return variantId && /^\d+$/.test(variantId)
+        ? `${variantId}:${line.quantity}`
+        : null;
+    })
+    .filter((variant): variant is string => Boolean(variant))
+    .join(",");
+  const showShopPay =
+    isLive && Boolean(storeUrl) && Boolean(shopPayVariants) && lines.length > 0;
+
   const handleUpdateQuantity = async (lineId: string, quantity: number) => {
     try {
       await onUpdateQuantity(lineId, quantity);
@@ -146,10 +160,24 @@ export function CartDrawer({
                   {subtotal ? formatMoney(subtotal) : "—"}
                 </span>
               </div>
+              {showShopPay && (
+                <div className="mt-4">
+                  <shop-pay-button
+                    store-url={storeUrl!}
+                    variants={shopPayVariants}
+                    className="shop-pay-button"
+                  />
+                  <div className="my-3 flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                    <span className="h-px flex-1 bg-border" />
+                    or
+                    <span className="h-px flex-1 bg-border" />
+                  </div>
+                </div>
+              )}
               <button
                 onClick={onCheckout}
                 disabled={!checkoutAvailable}
-                className="btn-brand mt-4 w-full disabled:cursor-not-allowed disabled:opacity-50"
+                className={`${showShopPay ? "" : "mt-4"} btn-brand w-full disabled:cursor-not-allowed disabled:opacity-50`}
               >
                 Checkout
               </button>

@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { Link, useLocation } from "@tanstack/react-router";
 import { Menu, ShoppingBag, X } from "lucide-react";
 import lowlifeLogo from "@/assets/lowlife-logo.png";
 
@@ -23,12 +25,29 @@ export function Navbar({
   menuOpen: boolean;
   setMenuOpen: (value: boolean) => void;
 }) {
+  const location = useLocation({
+    select: ({ pathname, hash }) => ({ pathname, hash }),
+  });
+
+  useEffect(() => {
+    if (location.pathname !== "/" || !location.hash) return;
+
+    const sectionId = location.hash.replace(/^#/, "");
+    const keepTargetInView = () =>
+      document.getElementById(sectionId)?.scrollIntoView({ block: "start" });
+    const timers = [250, 1_000, 2_000].map((delay) =>
+      window.setTimeout(keepTargetInView, delay),
+    );
+
+    return () => timers.forEach(window.clearTimeout);
+  }, [location.hash, location.pathname]);
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${scrolled ? "border-b border-border bg-background/95 backdrop-blur-md" : "bg-transparent"}`}
     >
       <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-4 sm:px-6">
-        <a href="#top" className="flex min-w-0 items-center gap-3">
+        <Link to="/" className="flex min-w-0 items-center gap-3">
           <img
             src={lowlifeLogo}
             alt="Lowlife Est. 15"
@@ -38,16 +57,18 @@ export function Navbar({
           <span className="hidden font-heading text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground sm:block">
             Est. 15 • HTX
           </span>
-        </a>
+        </Link>
         <nav className="hidden justify-center gap-7 md:flex">
           {links.map((link) => (
-            <a
+            <Link
               key={link.href}
-              href={link.href}
+              to="/"
+              hash={link.href.slice(1)}
+              hashScrollIntoView={{ behavior: "smooth" }}
               className="text-xs font-bold uppercase tracking-[0.18em] text-chrome-dim transition-colors hover:text-primary"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
         <div className="flex items-center gap-2 justify-self-end">
@@ -81,14 +102,16 @@ export function Navbar({
         <div className="border-t border-border bg-background md:hidden">
           <nav className="mx-auto flex max-w-7xl flex-col px-4 py-4">
             {links.map((link) => (
-              <a
+              <Link
                 key={link.href}
-                href={link.href}
+                to="/"
+                hash={link.href.slice(1)}
+                hashScrollIntoView={{ behavior: "smooth" }}
                 onClick={() => setMenuOpen(false)}
                 className="border-b border-border py-3 text-sm font-bold uppercase tracking-[0.2em] text-chrome-dim hover:text-primary"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>
