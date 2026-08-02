@@ -12,15 +12,15 @@ const HOMEPAGE_PRODUCT_LIMIT = 6;
 export function Shop({
   onAdd,
 }: {
-  onAdd: (product: ShopifyProduct) => Promise<unknown>;
+  onAdd: (product: ShopifyProduct, variantId?: string) => Promise<unknown>;
 }) {
   const { data } = useShopifyProducts();
   const allProducts = data ?? PRODUCTS;
   const products = allProducts.slice(0, HOMEPAGE_PRODUCT_LIMIT);
 
-  const addProduct = async (product: ShopifyProduct) => {
+  const addProduct = async (product: ShopifyProduct, variantId?: string) => {
     try {
-      await onAdd(product);
+      await onAdd(product, variantId);
     } catch (error) {
       console.error("Could not add product to Shopify cart.", error);
       toast.error("Could not add that item.", {
@@ -46,7 +46,7 @@ export function Shop({
                 <ProductCard
                   key={product.id}
                   product={product}
-                  onAdd={() => void addProduct(product)}
+                  onAdd={addProduct}
                 />
               ))}
             </div>
