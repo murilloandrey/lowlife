@@ -15,7 +15,7 @@ export function SectionHeader({
           {eyebrow}
         </span>
       </div>
-      <h2 className="max-w-2xl font-serif text-4xl font-black leading-[0.95] sm:text-6xl">
+      <h2 className="max-w-2xl font-heading text-4xl font-black leading-[0.95] sm:text-6xl">
         {title}
       </h2>
       {subtitle && (

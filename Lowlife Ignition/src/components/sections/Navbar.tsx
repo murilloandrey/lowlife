@@ -35,7 +35,7 @@ export function Navbar({
             className="h-9 w-auto shrink-0"
             style={{ filter: "invert(1) brightness(2)" }}
           />
-          <span className="hidden text-[10px] uppercase tracking-[0.25em] text-muted-foreground sm:block">
+          <span className="hidden font-heading text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground sm:block">
             Est. 15 • HTX
           </span>
         </a>

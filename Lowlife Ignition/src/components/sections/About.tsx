@@ -106,7 +106,7 @@ export function About() {
             <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">
               Behind the movement
             </div>
-            <h3 className="mt-3 font-serif text-3xl font-black sm:text-4xl">
+            <h3 className="mt-3 font-heading text-3xl font-black sm:text-4xl">
               Meet the people building Lowlife.
             </h3>
           </div>

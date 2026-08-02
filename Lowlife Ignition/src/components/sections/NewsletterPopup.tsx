@@ -78,7 +78,7 @@ export function NewsletterPopup() {
             <div className="mb-3 grid h-11 w-11 place-items-center rounded-full bg-primary/10 text-primary">
               <Mail className="h-5 w-5" />
             </div>
-            <DialogTitle className="font-serif text-4xl font-black leading-none">
+            <DialogTitle className="font-heading text-4xl font-black leading-none">
               Welcome to the life.
             </DialogTitle>
             <DialogDescription className="pt-3 text-sm leading-relaxed text-chrome-dim">
