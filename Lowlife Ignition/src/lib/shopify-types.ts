@@ -10,8 +10,28 @@ export type ShopifyMoney = {
   currencyCode: string;
 };
 
+export type ShopifySelectedOption = {
+  name: string;
+  value: string;
+};
+
+export type ShopifyProductVariant = {
+  id: string;
+  availableForSale: boolean;
+  price: ShopifyMoney;
+  selectedOptions: ShopifySelectedOption[];
+};
+
+export type ShopifyProductOption = {
+  name: string;
+  values: string[];
+};
+
 export type ShopifyProduct = {
   id: string;
+  /** Default/fallback variant for callers that don't resolve a specific
+   * selection (e.g. single-variant products). Real add-to-cart flows should
+   * resolve and use a variant from `variants` instead. */
   variantId: string;
   title: string;
   handle: string;
@@ -19,6 +39,11 @@ export type ShopifyProduct = {
   images: ShopifyImage[];
   tags: string[];
   productType: string;
+  variants: ShopifyProductVariant[];
+  /** Selectable option definitions (e.g. Size, Color). Excludes Shopify's
+   * synthetic "Title"/"Default Title" option for products with no real
+   * variants. */
+  options: ShopifyProductOption[];
 };
 
 export type ShopifyArticle = {

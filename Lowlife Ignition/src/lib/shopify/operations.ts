@@ -26,6 +26,24 @@ export const PRODUCTS_QUERY = `#graphql
             height
           }
         }
+        options {
+          name
+          values
+        }
+        variants(first: 20) {
+          nodes {
+            id
+            availableForSale
+            price {
+              amount
+              currencyCode
+            }
+            selectedOptions {
+              name
+              value
+            }
+          }
+        }
         selectedOrFirstAvailableVariant {
           id
         }
