@@ -216,17 +216,37 @@ async function fetchCommunityImages(): Promise<{
       const fields = fieldMap(node);
       const image = imageFrom(fields);
       if (!image) return [];
+      const videoThumbnail =
+        fields.get("video_thumbnail")?.reference?.image ?? image;
+      const videoPlatform: "tiktok" | "instagram" =
+        fields.get("video_platform")?.value?.toLowerCase() === "tiktok"
+          ? "tiktok"
+          : "instagram";
       return [
         {
           id: node.id,
-          image: {
-            url: image.url,
-            altText: image.altText ?? "Lowlife member build",
-          },
+          images: [
+            {
+              url: image.url,
+              altText: image.altText ?? "Lowlife member build",
+            },
+          ],
           ownerName: fields.get("owner_name")?.value ?? "",
           buildNickname: fields.get("build_nickname")?.value || undefined,
           caption: fields.get("caption")?.value ?? "",
+          fullStory:
+            fields.get("full_story")?.value ??
+            fields.get("caption")?.value ??
+            "",
           instagramHandle: fields.get("instagram_handle")?.value || undefined,
+          video: {
+            id: `${node.id}-video`,
+            platform: videoPlatform,
+            embedUrl: fields.get("video_embed_url")?.value ?? null,
+            thumbnail: videoThumbnail,
+            caption:
+              fields.get("video_caption")?.value ?? "Build video coming soon.",
+          },
         },
       ];
     });

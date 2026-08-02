@@ -28,10 +28,11 @@ GraphQL APIs and sends shoppers to Shopify's hosted checkout.
   Admin GraphQL API because creating/updating customers and marketing consent
   requires privileged credentials that must never reach the browser.
 - **Shopify-managed content:** "Monthly Mag" is designed to use Shopify's native
-  blog/articles. Events, video posts, Gallery items, and Owner Spotlight builds
-  are modeled as Shopify metaobjects. This lets non-technical staff update
-  editorial and community content in Shopify without a frontend code
-  deployment.
+  blog/articles. Gallery items, Owner Spotlight builds, and video posts are
+  modeled as Shopify metaobjects. Events are modeled as real Shopify products
+  within an Events collection, synced through the ShopTickets app, not as
+  metaobjects. This lets non-technical staff update editorial and community
+  content in Shopify without a frontend code deployment.
 - **Deployment:** The site is currently deployed through Vercel under the
   development agency's account, not the client's account. Deployment settings
   and environment variables therefore live in that Vercel project rather than
@@ -99,8 +100,8 @@ actual application is nested one level down:
 - `src/lib/shopify/` is the integration layer:
   - `client.ts` reads public Storefront configuration and provides the GraphQL
     fetch wrapper and `isShopifyConfigured()`.
-  - `operations.ts` contains product, article, event/video/gallery metaobject,
-    and cart GraphQL operations.
+  - `operations.ts` contains product, article, video/gallery metaobject, and
+    cart GraphQL operations.
   - `hooks.ts` maps Shopify responses to shared types and provides React Query
     hooks with local fallbacks.
   - `cart.ts` creates/restores carts, adds variant lines, persists the cart ID in
@@ -207,17 +208,19 @@ mandatory, but still require manual setup as described below.
   Instagram handles, and approved captions are placeholders. The
   `TODO(client-content)` and `TODO(owner-data)` comments identify the exact
   component and records that need client-provided information before production.
-- **Ticketing is a demo:** Events can be managed as Shopify metaobjects, but the
-  dialog still displays a generated QR-style SVG that is not a real ticket. The
-  `TODO(shopify)` in `Events.tsx` must be replaced with the actual ShopTickets/
-  Ticket Spot purchase and fulfillment flow.
+- **Ticketing is a demo:** Events are modeled as Shopify products in an Events
+  collection, but the dialog still displays a generated QR-style SVG that is
+  not a real ticket. The `TODO(shopify)` in `Events.tsx` must be replaced with
+  the actual ShopTickets/Ticket Spot purchase and fulfillment flow.
 - **Newsletter needs real Admin credentials:** The server route and mutations
   exist, but require a custom Shopify app, `write_customers`, protected
   customer-data approval, and live end-to-end consent testing.
 - **Metaobjects must be created in Shopify:** The integration expects public
-  metaobject types named `event`, `video_post`, `gallery_item`, and
-  `spotlight_build`, with field keys matching `operations.ts`/`hooks.ts`. Those
-  definitions and Storefront access must be configured in the future store.
+  metaobject types named `video_post`, `gallery_item`, and `spotlight_build`,
+  with field keys matching `operations.ts`/`hooks.ts`. Those definitions and
+  Storefront access must be configured in the future store. Events instead
+  require an Events collection of real Shopify products, synced through the
+  ShopTickets app.
 - **GitHub protection is not yet active:** The authenticated automation token
   lacks repository Administration-write permission. Apply rules for `develop`
   and `main` manually in GitHub's UI (or with an appropriately scoped token) to
