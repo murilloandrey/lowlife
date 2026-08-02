@@ -23,8 +23,8 @@ import type {
   ShopifyArticle,
   ShopifyProduct,
   ShopifyTicketProduct,
+  ShopifyVideoPostMetaobject,
   SpotlightBuild,
-  VideoPost,
 } from "@/lib/shopify-types";
 
 export const PRODUCTS = [
@@ -416,7 +416,7 @@ export const VIDEO_POSTS = [
     },
     caption: "One night. A hundred stories.",
   },
-] satisfies VideoPost[];
+] satisfies ShopifyVideoPostMetaobject[];
 
 export const RAFFLES = [
   {

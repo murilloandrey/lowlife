@@ -5,6 +5,7 @@ import {
   GALLERY,
   PRODUCTS,
   SPOTLIGHT_BUILDS,
+  VIDEO_POSTS,
 } from "@/lib/mock-storefront-data";
 import type {
   GalleryMetaobject,
@@ -12,6 +13,7 @@ import type {
   ShopifyImage,
   ShopifyProduct,
   ShopifyTicketProduct,
+  ShopifyVideoPostMetaobject,
   SpotlightBuild,
 } from "@/lib/shopify-types";
 import { isShopifyConfigured, shopifyFetch } from "./client";
@@ -22,6 +24,7 @@ import {
   PRODUCTS_QUERY,
   SHOPTICKETS_COLLECTION_HANDLE,
   SHOPTICKETS_EVENT_METAFIELDS,
+  VIDEO_POSTS_QUERY,
 } from "./operations";
 
 type ProductsResponse = {
@@ -114,6 +117,10 @@ type MetaobjectNode = {
 type GalleryResponse = {
   gallery: { nodes: MetaobjectNode[] };
   spotlights: { nodes: MetaobjectNode[] };
+};
+
+type VideoPostsResponse = {
+  videoPosts: { nodes: MetaobjectNode[] };
 };
 
 function fallbackOnError<T>(label: string, fallback: T) {
@@ -233,8 +240,11 @@ function fieldMap(node: MetaobjectNode) {
   return new Map(node.fields.map((field) => [field.key, field]));
 }
 
-function imageFrom(fields: Map<string, MetaobjectField>) {
-  return fields.get("image")?.reference?.image ?? null;
+function imageFrom(
+  fields: Map<string, MetaobjectField>,
+  key: string = "image",
+) {
+  return fields.get(key)?.reference?.image ?? null;
 }
 
 async function fetchCommunityImages(): Promise<{
@@ -268,6 +278,8 @@ async function fetchCommunityImages(): Promise<{
         fields.get("video_platform")?.value?.toLowerCase() === "tiktok"
           ? "tiktok"
           : "instagram";
+      const favoriteSongTitle = fields.get("favorite_song_title")?.value;
+      const favoriteSongArtist = fields.get("favorite_song_artist")?.value;
       return [
         {
           id: node.id,
@@ -293,6 +305,15 @@ async function fetchCommunityImages(): Promise<{
             caption:
               fields.get("video_caption")?.value ?? "Build video coming soon.",
           },
+          favoriteSong:
+            favoriteSongTitle && favoriteSongArtist
+              ? {
+                  title: favoriteSongTitle,
+                  artist: favoriteSongArtist,
+                  embedUrl:
+                    fields.get("favorite_song_embed_url")?.value || undefined,
+                }
+              : undefined,
         },
       ];
     });
@@ -302,6 +323,35 @@ async function fetchCommunityImages(): Promise<{
     };
   } catch (error) {
     return fallbackOnError("metaobjects", fallback)(error);
+  }
+}
+
+async function fetchVideoPosts(): Promise<ShopifyVideoPostMetaobject[]> {
+  try {
+    const data = await shopifyFetch<VideoPostsResponse>(VIDEO_POSTS_QUERY, {
+      first: 24,
+    });
+    const videoPosts: ShopifyVideoPostMetaobject[] =
+      data.videoPosts.nodes.flatMap((node) => {
+        const fields = fieldMap(node);
+        const thumbnail = imageFrom(fields, "thumbnail");
+        const platform = fields.get("platform")?.value?.toLowerCase();
+        if (!thumbnail || (platform !== "instagram" && platform !== "tiktok")) {
+          return [];
+        }
+        return [
+          {
+            id: node.id,
+            platform,
+            embedUrl: fields.get("embed_url")?.value || null,
+            thumbnail,
+            caption: fields.get("caption")?.value ?? "",
+          },
+        ];
+      });
+    return videoPosts.length > 0 ? videoPosts : VIDEO_POSTS;
+  } catch (error) {
+    return fallbackOnError("video posts", VIDEO_POSTS)(error);
   }
 }
 
@@ -350,6 +400,17 @@ export function useShopifyGallery() {
     queryKey: ["shopify", "community-images", configured],
     queryFn: configured ? fetchCommunityImages : async () => fallback,
     initialData: fallback,
+    initialDataUpdatedAt: 0,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useShopifyVideoPosts() {
+  const configured = isShopifyConfigured();
+  return useQuery({
+    queryKey: ["shopify", "video-posts", configured],
+    queryFn: configured ? fetchVideoPosts : async () => VIDEO_POSTS,
+    initialData: VIDEO_POSTS,
     initialDataUpdatedAt: 0,
     staleTime: 5 * 60 * 1000,
   });

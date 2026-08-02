@@ -149,6 +149,17 @@ export const GALLERY_QUERY = `#graphql
   }
 `;
 
+export const VIDEO_POSTS_QUERY = `#graphql
+  ${METAOBJECT_FIELDS}
+  query StorefrontVideoPosts($first: Int!) {
+    videoPosts: metaobjects(type: "video_post", first: $first) {
+      nodes {
+        ...StorefrontMetaobjectFields
+      }
+    }
+  }
+`;
+
 export const CART_QUERY = `#graphql
   query StorefrontCart($id: ID!) {
     cart(id: $id) {

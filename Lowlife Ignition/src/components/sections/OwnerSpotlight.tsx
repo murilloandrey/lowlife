@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Instagram,
+  Music2,
   Play,
 } from "lucide-react";
 import { useShopifyGallery } from "@/lib/shopify/hooks";
@@ -40,6 +41,93 @@ function isEmbeddable(url: string | null) {
   } catch {
     return false;
   }
+}
+
+function songEmbedUrl(value?: string) {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    if (url.hostname === "open.spotify.com") {
+      const parts = url.pathname.split("/").filter(Boolean);
+      const embedIndex = parts[0] === "embed" ? 1 : 0;
+      const type = parts[embedIndex];
+      const id = parts[embedIndex + 1];
+      if (["track", "album", "playlist"].includes(type) && id) {
+        return `https://open.spotify.com/embed/${type}/${id}`;
+      }
+    }
+
+    let videoId = "";
+    if (url.hostname === "youtu.be") {
+      videoId = url.pathname.split("/").filter(Boolean)[0] ?? "";
+    }
+    if (
+      url.hostname === "youtube.com" ||
+      url.hostname.endsWith(".youtube.com")
+    ) {
+      videoId =
+        url.searchParams.get("v") ??
+        url.pathname.match(/^\/(?:embed|shorts)\/([^/]+)/)?.[1] ??
+        "";
+    }
+    if (/^[a-zA-Z0-9_-]{6,}$/.test(videoId)) {
+      return `https://www.youtube-nocookie.com/embed/${videoId}`;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+function FavoriteSong({
+  song,
+}: {
+  song: NonNullable<SpotlightBuild["favoriteSong"]>;
+}) {
+  const [showPlayer, setShowPlayer] = useState(false);
+  const embedUrl = songEmbedUrl(song.embedUrl);
+
+  return (
+    <div className="mt-8 border-t border-border pt-6">
+      <div className="flex items-start gap-3">
+        <span className="grid h-10 w-10 shrink-0 place-items-center border border-primary/50 bg-primary/10 text-primary">
+          <Music2 className="h-4 w-4" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-primary">
+            Owner's pick
+          </div>
+          <div className="mt-1 font-display text-xl tracking-wide text-chrome">
+            {song.title}
+          </div>
+          <div className="text-sm text-muted-foreground">{song.artist}</div>
+        </div>
+      </div>
+
+      {embedUrl && (
+        <>
+          <button
+            type="button"
+            onClick={() => setShowPlayer((current) => !current)}
+            aria-expanded={showPlayer}
+            className="mt-4 inline-flex min-h-11 items-center gap-2 border border-border px-4 text-xs font-bold uppercase tracking-[0.18em] text-chrome hover:border-primary hover:text-primary"
+          >
+            <Play className="h-4 w-4" />
+            {showPlayer ? "Hide player" : "Play owner's pick"}
+          </button>
+          {showPlayer && (
+            <iframe
+              src={embedUrl}
+              title={`${song.title} by ${song.artist}`}
+              loading="lazy"
+              allow="encrypted-media; picture-in-picture; fullscreen"
+              className="mt-4 h-40 w-full border-0 bg-surface-2"
+            />
+          )}
+        </>
+      )}
+    </div>
+  );
 }
 
 export function OwnerSpotlight() {
@@ -102,9 +190,9 @@ export function OwnerSpotlight() {
 
                       <div className="flex flex-col justify-center p-6 sm:p-10">
                         <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">
-                          Repping the build
+                          From the driver's seat
                         </div>
-                        <h3 className="mt-3 font-serif text-4xl font-black leading-none sm:text-5xl">
+                        <h3 className="mt-3 font-display text-4xl leading-none tracking-wide sm:text-5xl">
                           {build.buildNickname || ownerLabel}
                         </h3>
                         {build.buildNickname && (
@@ -112,9 +200,9 @@ export function OwnerSpotlight() {
                             {ownerLabel}
                           </p>
                         )}
-                        <p className="mt-5 text-sm leading-relaxed text-chrome-dim sm:text-base">
-                          {build.caption}
-                        </p>
+                        <blockquote className="relative mt-5 border-l border-primary pl-5 text-sm italic leading-relaxed text-chrome-dim sm:text-base">
+                          “{build.caption}”
+                        </blockquote>
                         <button
                           type="button"
                           onClick={() => openBuild(build)}
@@ -126,6 +214,8 @@ export function OwnerSpotlight() {
                           {build.instagramHandle ? (
                             <a
                               href={`https://instagram.com/${build.instagramHandle.replace("@", "")}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-chrome hover:text-primary"
                             >
                               <Instagram className="h-4 w-4" />
@@ -207,7 +297,7 @@ export function OwnerSpotlight() {
                   <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">
                     Owner Spotlight
                   </div>
-                  <h3 className="mt-3 pr-8 font-serif text-4xl font-black leading-none sm:text-5xl">
+                  <h3 className="mt-3 pr-8 font-display text-4xl leading-none tracking-wide sm:text-5xl">
                     {selectedBuild.buildNickname ||
                       selectedBuild.ownerName ||
                       "Member Build"}
@@ -220,6 +310,8 @@ export function OwnerSpotlight() {
                   {selectedBuild.instagramHandle && (
                     <a
                       href={`https://instagram.com/${selectedBuild.instagramHandle.replace("@", "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="mt-4 inline-flex min-h-11 items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-chrome hover:text-primary"
                     >
                       <Instagram className="h-4 w-4" />
@@ -227,9 +319,25 @@ export function OwnerSpotlight() {
                     </a>
                   )}
 
-                  <p className="mt-6 whitespace-pre-line text-sm leading-relaxed text-chrome-dim sm:text-base">
-                    {selectedBuild.fullStory}
-                  </p>
+                  <div className="mt-7">
+                    <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-primary">
+                      In{" "}
+                      {selectedBuild.ownerName &&
+                      selectedBuild.ownerName !== "Member Build"
+                        ? `${selectedBuild.ownerName}'s`
+                        : "the owner's"}{" "}
+                      words
+                    </div>
+                    <blockquote className="relative mt-3 border-l border-primary pl-5 text-base italic leading-relaxed text-chrome-dim before:absolute before:-left-0.5 before:-top-5 before:font-serif before:text-5xl before:text-primary before:content-['“'] sm:text-lg">
+                      <span className="whitespace-pre-line">
+                        {selectedBuild.fullStory}
+                      </span>
+                    </blockquote>
+                  </div>
+
+                  {selectedBuild.favoriteSong && (
+                    <FavoriteSong song={selectedBuild.favoriteSong} />
+                  )}
 
                   {selectedBuild.video && (
                     <div className="mt-8 border-t border-border pt-6">
@@ -242,7 +350,7 @@ export function OwnerSpotlight() {
                             src={selectedBuild.video.embedUrl!}
                             title={selectedBuild.video.caption}
                             loading="lazy"
-                            allow="autoplay; encrypted-media; picture-in-picture"
+                            allow="encrypted-media; picture-in-picture"
                             className="h-full w-full border-0"
                           />
                         ) : (
