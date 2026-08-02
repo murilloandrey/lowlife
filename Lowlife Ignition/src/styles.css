@@ -2,6 +2,12 @@
 @source "../src";
 @import "tw-animate-css";
 
+shop-pay-button.shop-pay-button {
+  display: block;
+  width: 100%;
+  --shop-pay-button-width: 100%;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
