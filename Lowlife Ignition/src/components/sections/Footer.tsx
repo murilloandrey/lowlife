@@ -1,10 +1,38 @@
+import { Instagram } from "lucide-react";
 import lowlifeLogo from "@/assets/lowlife-logo.png";
+import { TikTokIcon } from "@/components/icons/TikTokIcon";
 
 export function Footer() {
   const columns = [
-    { title: "Shop", links: ["Apparel", "Auto", "Accessories", "All Drops"] },
-    { title: "Community", links: ["Events", "Gallery", "Raffles", "Contact"] },
-    { title: "Follow", links: ["Instagram", "TikTok", "YouTube", "Cart"] },
+    {
+      title: "Shop",
+      links: ["Apparel", "Auto", "Accessories", "All Drops"].map((label) => ({
+        label,
+        href: "#top",
+      })),
+    },
+    {
+      title: "Community",
+      links: ["Events", "Gallery", "Raffles", "Contact"].map((label) => ({
+        label,
+        href: "#top",
+      })),
+    },
+    {
+      title: "Follow",
+      links: [
+        {
+          label: "Instagram",
+          href: "https://www.instagram.com/lowlife_est15/",
+          icon: Instagram,
+          external: true,
+        },
+        // TODO(client-content): Confirm the real TikTok handle/URL.
+        { label: "TikTok", href: "#social", icon: TikTokIcon },
+        { label: "YouTube", href: "#top" },
+        { label: "Cart", href: "#top" },
+      ],
+    },
   ];
   return (
     <footer className="bg-background py-14">
@@ -39,13 +67,24 @@ export function Footer() {
                   {column.title}
                 </div>
                 <ul className="space-y-2 text-sm text-chrome-dim">
-                  {column.links.map((link) => (
-                    <li key={link}>
-                      <a href="#top" className="hover:text-white">
-                        {link}
-                      </a>
-                    </li>
-                  ))}
+                  {column.links.map((link) => {
+                    const Icon = link.icon;
+                    return (
+                      <li key={link.label}>
+                        <a
+                          href={link.href}
+                          target={link.external ? "_blank" : undefined}
+                          rel={
+                            link.external ? "noopener noreferrer" : undefined
+                          }
+                          className="inline-flex items-center gap-2 hover:text-white"
+                        >
+                          {Icon && <Icon className="h-4 w-4" />}
+                          {link.label}
+                        </a>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             ))}

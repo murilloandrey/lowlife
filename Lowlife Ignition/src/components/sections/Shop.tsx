@@ -8,7 +8,7 @@ import { SectionHeader } from "./SectionHeader";
 export function Shop({
   onAdd,
 }: {
-  onAdd: (product: ShopifyProduct) => Promise<void>;
+  onAdd: (product: ShopifyProduct) => Promise<unknown>;
 }) {
   const { data } = useShopifyProducts();
   const products = data ?? PRODUCTS;

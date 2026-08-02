@@ -50,23 +50,26 @@ export type SpotlightBuild = {
   caption: string;
   fullStory: string;
   instagramHandle?: string;
-  video?: VideoPost;
+  video?: ShopifyVideoPostMetaobject;
+  favoriteSong?: {
+    title: string;
+    artist: string;
+    embedUrl?: string;
+  };
 };
 
-export type EventMetaobject = {
-  id: string;
-  handle: string;
-  name: string;
+export type ShopifyTicketProduct = ShopifyProduct & {
+  description: string;
+  availableForSale: boolean;
+  collectionHandle: string;
   startsAt: string;
   location: string;
+  address: string;
   timeLabel: string;
-  description: string;
-  ticketPrice: ShopifyMoney;
   ticketType: string;
-  checkoutUrl: string;
 };
 
-export type VideoPost = {
+export type ShopifyVideoPostMetaobject = {
   id: string;
   platform: "tiktok" | "instagram";
   embedUrl: string | null;

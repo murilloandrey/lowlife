@@ -77,7 +77,7 @@ function LowlifeHome() {
         <StatsBar />
         <About />
         <Shop onAdd={addProduct} />
-        <Events />
+        <Events onAdd={addProduct} isLive={isLive} />
         {/* Raffles are paused for now. Keep the section component/data available
             so it can be restored when the client is ready to run them. */}
         <MonthlyMag />

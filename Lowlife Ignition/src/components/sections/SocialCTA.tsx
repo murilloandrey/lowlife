@@ -1,5 +1,6 @@
 import { Instagram } from "lucide-react";
 import gallery8 from "@/assets/gallery-8.jpg";
+import { TikTokIcon } from "@/components/icons/TikTokIcon";
 
 export function SocialCTA() {
   return (
@@ -30,11 +31,17 @@ export function SocialCTA() {
             raffles, and behind-the-scenes car show content.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href="#social" className="btn-brand">
+            <a
+              href="https://www.instagram.com/lowlife_est15/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-brand"
+            >
               <Instagram className="h-4 w-4" /> Follow on Instagram
             </a>
+            {/* TODO(client-content): Confirm the real TikTok handle/URL. */}
             <a href="#social" className="btn-ghost">
-              Follow on TikTok
+              <TikTokIcon className="h-4 w-4" /> Follow on TikTok
             </a>
           </div>
         </div>
