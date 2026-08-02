@@ -63,9 +63,9 @@ function ShopPage() {
       ? products
       : products.filter((product) => product.productType === activeType);
 
-  const addToCart = async (product: ShopifyProduct) => {
+  const addToCart = async (product: ShopifyProduct, variantId?: string) => {
     try {
-      await addProduct(product);
+      await addProduct(product, variantId);
     } catch (error) {
       console.error("Could not add product to Shopify cart.", error);
       toast.error("Could not add that item.", {
@@ -118,7 +118,7 @@ function ShopPage() {
                   <ProductCard
                     key={product.id}
                     product={product}
-                    onAdd={() => void addToCart(product)}
+                    onAdd={addToCart}
                   />
                 ))}
               </div>

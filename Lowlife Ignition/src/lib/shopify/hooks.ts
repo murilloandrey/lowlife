@@ -26,6 +26,7 @@ import {
   SHOPTICKETS_EVENT_METAFIELDS,
   VIDEO_POSTS_QUERY,
 } from "./operations";
+import { selectableProductOptions } from "./variants";
 
 type ProductsResponse = {
   products: {
@@ -43,6 +44,15 @@ type ProductsResponse = {
       };
       images: {
         nodes: ShopifyImage[];
+      };
+      options: Array<{ name: string; values: string[] }>;
+      variants: {
+        nodes: Array<{
+          id: string;
+          availableForSale: boolean;
+          price: { amount: string; currencyCode: string };
+          selectedOptions: Array<{ name: string; value: string }>;
+        }>;
       };
       selectedOrFirstAvailableVariant: {
         id: string;
@@ -158,6 +168,8 @@ async function fetchProductsPage(params: {
       tags: product.tags,
       price: product.priceRange.minVariantPrice,
       images: product.images.nodes,
+      options: selectableProductOptions(product.options),
+      variants: product.variants.nodes,
     }))
     .filter((product) => product.images.length > 0);
   return { products, pageInfo: data.products.pageInfo };
@@ -231,6 +243,15 @@ async function fetchEventTickets(): Promise<ShopifyTicketProduct[]> {
           tags: product.tags,
           price: product.priceRange.minVariantPrice,
           images,
+          options: [],
+          variants: [
+            {
+              id: variant.id,
+              availableForSale: variant.availableForSale,
+              price: product.priceRange.minVariantPrice,
+              selectedOptions: [],
+            },
+          ],
           description: product.description || fallback.description,
           availableForSale:
             product.availableForSale && variant.availableForSale,

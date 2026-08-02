@@ -37,6 +37,15 @@ export const PRODUCTS = [
     price: { amount: "30.00", currencyCode: "USD" },
     images: [{ url: productTee, altText: "Black Lowlife graphic tee" }],
     tags: ["Best Seller"],
+    options: [],
+    variants: [
+      {
+        id: "gid://shopify/ProductVariant/tee",
+        availableForSale: true,
+        price: { amount: "30.00", currencyCode: "USD" },
+        selectedOptions: [],
+      },
+    ],
   },
   {
     id: "gid://shopify/Product/jersey",
@@ -47,6 +56,15 @@ export const PRODUCTS = [
     price: { amount: "45.00", currencyCode: "USD" },
     images: [{ url: productJersey, altText: "Lowlife Fam jersey" }],
     tags: ["Limited Drop"],
+    options: [],
+    variants: [
+      {
+        id: "gid://shopify/ProductVariant/jersey",
+        availableForSale: true,
+        price: { amount: "45.00", currencyCode: "USD" },
+        selectedOptions: [],
+      },
+    ],
   },
   {
     id: "gid://shopify/Product/banner",
@@ -57,6 +75,15 @@ export const PRODUCTS = [
     price: { amount: "25.00", currencyCode: "USD" },
     images: [{ url: productBanner, altText: "Lowlife windshield banner" }],
     tags: ["New"],
+    options: [],
+    variants: [
+      {
+        id: "gid://shopify/ProductVariant/banner",
+        availableForSale: true,
+        price: { amount: "25.00", currencyCode: "USD" },
+        selectedOptions: [],
+      },
+    ],
   },
   {
     id: "gid://shopify/Product/plate",
@@ -69,6 +96,15 @@ export const PRODUCTS = [
       { url: productPlate, altText: "Lowlife chain license plate frame" },
     ],
     tags: [],
+    options: [],
+    variants: [
+      {
+        id: "gid://shopify/ProductVariant/plate",
+        availableForSale: true,
+        price: { amount: "20.00", currencyCode: "USD" },
+        selectedOptions: [],
+      },
+    ],
   },
   {
     id: "gid://shopify/Product/anime",
@@ -79,6 +115,15 @@ export const PRODUCTS = [
     price: { amount: "30.00", currencyCode: "USD" },
     images: [{ url: productAnime, altText: "Lowlife anime graphic tee" }],
     tags: ["Limited Drop"],
+    options: [],
+    variants: [
+      {
+        id: "gid://shopify/ProductVariant/anime",
+        availableForSale: true,
+        price: { amount: "30.00", currencyCode: "USD" },
+        selectedOptions: [],
+      },
+    ],
   },
   {
     id: "gid://shopify/Product/stickers",
@@ -89,6 +134,87 @@ export const PRODUCTS = [
     price: { amount: "15.00", currencyCode: "USD" },
     images: [{ url: productStickers, altText: "Lowlife sticker pack" }],
     tags: ["Best Seller"],
+    options: [],
+    variants: [
+      {
+        id: "gid://shopify/ProductVariant/stickers",
+        availableForSale: true,
+        price: { amount: "15.00", currencyCode: "USD" },
+        selectedOptions: [],
+      },
+    ],
+  },
+  {
+    id: "gid://shopify/Product/rugs",
+    variantId: "gid://shopify/ProductVariant/rugs-classic",
+    title: "Rugs",
+    handle: "rugs",
+    productType: "Accessory",
+    price: { amount: "55.00", currencyCode: "USD" },
+    images: [
+      { url: productBanner, altText: "Lowlife garage rug, Classic style" },
+      { url: productTee, altText: "Lowlife garage rug, Fam style" },
+      { url: productAnime, altText: "Lowlife garage rug, Anime style" },
+      { url: productJersey, altText: "Lowlife garage rug, Jersey style" },
+      { url: productPlate, altText: "Lowlife garage rug, Plate style" },
+    ],
+    tags: ["Best Seller"],
+    options: [
+      {
+        name: "Style",
+        values: [
+          "Classic",
+          "Fam",
+          "Anime",
+          "Jersey",
+          "Plate",
+          "Night Meet",
+          "Chrome",
+        ],
+      },
+    ],
+    variants: [
+      "Classic",
+      "Fam",
+      "Anime",
+      "Jersey",
+      "Plate",
+      "Night Meet",
+      "Chrome",
+    ].map((style) => ({
+      id: `gid://shopify/ProductVariant/rugs-${style.toLowerCase().replace(/\s+/g, "-")}`,
+      availableForSale: style !== "Chrome",
+      price: { amount: "55.00", currencyCode: "USD" },
+      selectedOptions: [{ name: "Style", value: style }],
+    })),
+  },
+  {
+    id: "gid://shopify/Product/hoochie-daddy-shorts",
+    variantId: "gid://shopify/ProductVariant/hoochie-daddy-shorts-s-black",
+    title: "Hoochie Daddy Shorts",
+    handle: "hoochie-daddy-shorts",
+    productType: "Apparel",
+    price: { amount: "35.00", currencyCode: "USD" },
+    images: [
+      { url: productJersey, altText: "Hoochie Daddy Shorts, Black" },
+      { url: productTee, altText: "Hoochie Daddy Shorts, Grey" },
+    ],
+    tags: ["Limited Drop"],
+    options: [
+      { name: "Size", values: ["Small", "Medium", "Large", "XL", "XXL"] },
+      { name: "Color", values: ["Black", "Grey"] },
+    ],
+    variants: ["Small", "Medium", "Large", "XL", "XXL"].flatMap((size) =>
+      ["Black", "Grey"].map((color) => ({
+        id: `gid://shopify/ProductVariant/hoochie-daddy-shorts-${size.toLowerCase()}-${color.toLowerCase()}`,
+        availableForSale: !(size === "XXL" && color === "Grey"),
+        price: { amount: "35.00", currencyCode: "USD" },
+        selectedOptions: [
+          { name: "Size", value: size },
+          { name: "Color", value: color },
+        ],
+      })),
+    ),
   },
 ] satisfies ShopifyProduct[];
 
@@ -102,6 +228,15 @@ export const EVENTS = [
     tags: ["ShopTickets"],
     images: [{ url: gallery1, altText: "Cars gathered at a Lowlife meet" }],
     price: { amount: "15.00", currencyCode: "USD" },
+    options: [],
+    variants: [
+      {
+        id: "gid://shopify/ProductVariant/event-1-general-admission",
+        availableForSale: true,
+        price: { amount: "15.00", currencyCode: "USD" },
+        selectedOptions: [],
+      },
+    ],
     availableForSale: true,
     collectionHandle: "events",
     startsAt: "2026-04-12T21:00:00-05:00",
@@ -123,6 +258,15 @@ export const EVENTS = [
       { url: gallery4, altText: "Show car displayed beneath event tents" },
     ],
     price: { amount: "25.00", currencyCode: "USD" },
+    options: [],
+    variants: [
+      {
+        id: "gid://shopify/ProductVariant/event-2-show-pass",
+        availableForSale: true,
+        price: { amount: "25.00", currencyCode: "USD" },
+        selectedOptions: [],
+      },
+    ],
     availableForSale: true,
     collectionHandle: "events",
     startsAt: "2026-05-03T17:00:00-05:00",
@@ -142,6 +286,15 @@ export const EVENTS = [
     tags: ["ShopTickets"],
     images: [{ url: gallery8, altText: "Cars lined up at an outdoor meet" }],
     price: { amount: "10.00", currencyCode: "USD" },
+    options: [],
+    variants: [
+      {
+        id: "gid://shopify/ProductVariant/event-3-cruise-in-pass",
+        availableForSale: true,
+        price: { amount: "10.00", currencyCode: "USD" },
+        selectedOptions: [],
+      },
+    ],
     availableForSale: true,
     collectionHandle: "events",
     startsAt: "2026-05-18T14:00:00-05:00",

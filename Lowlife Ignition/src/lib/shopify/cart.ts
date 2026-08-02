@@ -175,21 +175,38 @@ function cartLineToDisplayLine(line: CartLine): DisplayCartLine {
   };
 }
 
-type MockCart = Record<string, { product: ShopifyProduct; quantity: number }>;
+type MockCart = Record<
+  string,
+  { product: ShopifyProduct; variantId: string; quantity: number }
+>;
+
+function mockCartLineTitle(product: ShopifyProduct, variantId: string) {
+  const variant = product.variants.find((v) => v.id === variantId);
+  const variantLabel = variant?.selectedOptions
+    .map((option) => option.value)
+    .join(" / ");
+  return variantLabel ? `${product.title} — ${variantLabel}` : product.title;
+}
 
 function mockCartToDisplayLines(mockCart: MockCart): DisplayCartLine[] {
-  return Object.entries(mockCart).map(([productId, entry]) => ({
-    id: productId,
-    variantId: entry.product.variantId,
-    title: entry.product.title,
-    image: entry.product.images[0] ?? null,
-    unitPrice: entry.product.price,
-    quantity: entry.quantity,
-    lineTotal: {
-      amount: String(Number(entry.product.price.amount) * entry.quantity),
-      currencyCode: entry.product.price.currencyCode,
-    },
-  }));
+  return Object.entries(mockCart).map(([lineId, entry]) => {
+    const variant = entry.product.variants.find(
+      (v) => v.id === entry.variantId,
+    );
+    const unitPrice = variant?.price ?? entry.product.price;
+    return {
+      id: lineId,
+      variantId: entry.variantId,
+      title: mockCartLineTitle(entry.product, entry.variantId),
+      image: entry.product.images[0] ?? null,
+      unitPrice,
+      quantity: entry.quantity,
+      lineTotal: {
+        amount: String(Number(unitPrice.amount) * entry.quantity),
+        currencyCode: unitPrice.currencyCode,
+      },
+    };
+  });
 }
 
 function mockSubtotal(lines: DisplayCartLine[]): ShopifyMoney {
@@ -227,13 +244,17 @@ export function useStorefrontCart() {
   }, [configured]);
 
   const addProduct = useCallback(
-    async (product: ShopifyProduct) => {
+    async (product: ShopifyProduct, variantId?: string) => {
+      const resolvedVariantId = variantId ?? product.variantId;
+
       if (!configured) {
+        const lineId = `${product.id}::${resolvedVariantId}`;
         setMockCart((current) => ({
           ...current,
-          [product.id]: {
+          [lineId]: {
             product,
-            quantity: (current[product.id]?.quantity ?? 0) + 1,
+            variantId: resolvedVariantId,
+            quantity: (current[lineId]?.quantity ?? 0) + 1,
           },
         }));
         setIsCartOpen(true);
@@ -243,8 +264,8 @@ export function useStorefrontCart() {
       const cartId = shopifyCart?.id ?? storedCartId();
       try {
         const cart = cartId
-          ? await addCartLine(cartId, product.variantId)
-          : await createCart(product.variantId);
+          ? await addCartLine(cartId, resolvedVariantId)
+          : await createCart(resolvedVariantId);
         persistCart(cart);
         setShopifyCart(cart);
         setIsCartOpen(true);
@@ -252,7 +273,7 @@ export function useStorefrontCart() {
       } catch (error) {
         if (!cartId) throw error;
         clearStoredCart();
-        const cart = await createCart(product.variantId);
+        const cart = await createCart(resolvedVariantId);
         persistCart(cart);
         setShopifyCart(cart);
         setIsCartOpen(true);
