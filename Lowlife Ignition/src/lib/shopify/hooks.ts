@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import {
   ARTICLES,
   EVENTS,
@@ -48,7 +48,16 @@ type ProductsResponse = {
         id: string;
       } | null;
     }>;
+    pageInfo: {
+      hasNextPage: boolean;
+      endCursor: string | null;
+    };
   };
+};
+
+type ProductsPage = {
+  products: ShopifyProduct[];
+  pageInfo: { hasNextPage: boolean; endCursor: string | null };
 };
 
 type ArticlesResponse = {
@@ -133,24 +142,30 @@ function fallbackOnError<T>(label: string, fallback: T) {
   };
 }
 
+async function fetchProductsPage(params: {
+  first: number;
+  after?: string;
+}): Promise<ProductsPage> {
+  const data = await shopifyFetch<ProductsResponse>(PRODUCTS_QUERY, params);
+  const products = data.products.nodes
+    .filter((product) => product.selectedOrFirstAvailableVariant)
+    .map((product) => ({
+      id: product.id,
+      variantId: product.selectedOrFirstAvailableVariant!.id,
+      title: product.title,
+      handle: product.handle,
+      productType: product.productType,
+      tags: product.tags,
+      price: product.priceRange.minVariantPrice,
+      images: product.images.nodes,
+    }))
+    .filter((product) => product.images.length > 0);
+  return { products, pageInfo: data.products.pageInfo };
+}
+
 async function fetchProducts(): Promise<ShopifyProduct[]> {
   try {
-    const data = await shopifyFetch<ProductsResponse>(PRODUCTS_QUERY, {
-      first: 24,
-    });
-    const products = data.products.nodes
-      .filter((product) => product.selectedOrFirstAvailableVariant)
-      .map((product) => ({
-        id: product.id,
-        variantId: product.selectedOrFirstAvailableVariant!.id,
-        title: product.title,
-        handle: product.handle,
-        productType: product.productType,
-        tags: product.tags,
-        price: product.priceRange.minVariantPrice,
-        images: product.images.nodes,
-      }))
-      .filter((product) => product.images.length > 0);
+    const { products } = await fetchProductsPage({ first: 24 });
     return products;
   } catch (error) {
     return fallbackOnError("products", PRODUCTS)(error);
@@ -362,6 +377,41 @@ export function useShopifyProducts() {
     queryFn: configured ? fetchProducts : async () => PRODUCTS,
     initialData: PRODUCTS,
     initialDataUpdatedAt: 0,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+const CATALOG_FIRST_PAGE_SIZE = 16;
+const CATALOG_PAGE_SIZE = 12;
+
+export function useShopifyProductCatalog() {
+  const configured = isShopifyConfigured();
+  return useInfiniteQuery({
+    queryKey: ["shopify", "product-catalog", configured],
+    initialPageParam: undefined as string | undefined,
+    queryFn: async ({ pageParam }): Promise<ProductsPage> => {
+      if (!configured) {
+        return {
+          products: PRODUCTS,
+          pageInfo: { hasNextPage: false, endCursor: null },
+        };
+      }
+      try {
+        return await fetchProductsPage({
+          first: pageParam ? CATALOG_PAGE_SIZE : CATALOG_FIRST_PAGE_SIZE,
+          after: pageParam,
+        });
+      } catch (error) {
+        return fallbackOnError("product catalog", {
+          products: PRODUCTS,
+          pageInfo: { hasNextPage: false, endCursor: null },
+        })(error);
+      }
+    },
+    getNextPageParam: (lastPage) =>
+      lastPage.pageInfo.hasNextPage
+        ? (lastPage.pageInfo.endCursor ?? undefined)
+        : undefined,
     staleTime: 5 * 60 * 1000,
   });
 }
