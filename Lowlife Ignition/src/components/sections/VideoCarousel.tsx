@@ -1,4 +1,5 @@
 import { Instagram, Play } from "lucide-react";
+import { useShopifyVideoPosts } from "@/lib/shopify/hooks";
 import { VIDEO_POSTS } from "@/lib/mock-storefront-data";
 import {
   Carousel,
@@ -23,6 +24,8 @@ function isEmbeddable(url: string | null) {
 }
 
 export function VideoCarousel() {
+  const { data } = useShopifyVideoPosts();
+  const videoPosts = data ?? VIDEO_POSTS;
   return (
     <section className="overflow-hidden border-b border-border py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -36,7 +39,7 @@ export function VideoCarousel() {
           className="px-0 sm:px-10"
         >
           <CarouselContent className="-ml-3">
-            {VIDEO_POSTS.map((video) => (
+            {videoPosts.map((video) => (
               <CarouselItem
                 key={video.id}
                 className="basis-[84%] pl-3 sm:basis-1/2 lg:basis-1/3"

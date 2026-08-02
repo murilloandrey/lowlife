@@ -55,6 +55,7 @@ export const ARTICLES_QUERY = `#graphql
 const METAOBJECT_FIELDS = `#graphql
   fragment StorefrontMetaobjectFields on Metaobject {
     id
+    handle
     fields {
       key
       value
@@ -72,6 +73,17 @@ const METAOBJECT_FIELDS = `#graphql
   }
 `;
 
+export const EVENTS_QUERY = `#graphql
+  ${METAOBJECT_FIELDS}
+  query StorefrontEvents($first: Int!) {
+    events: metaobjects(type: "event", first: $first) {
+      nodes {
+        ...StorefrontMetaobjectFields
+      }
+    }
+  }
+`;
+
 export const GALLERY_QUERY = `#graphql
   ${METAOBJECT_FIELDS}
   query StorefrontCommunityImages($first: Int!) {
@@ -81,6 +93,17 @@ export const GALLERY_QUERY = `#graphql
       }
     }
     spotlights: metaobjects(type: "spotlight_build", first: $first) {
+      nodes {
+        ...StorefrontMetaobjectFields
+      }
+    }
+  }
+`;
+
+export const VIDEO_POSTS_QUERY = `#graphql
+  ${METAOBJECT_FIELDS}
+  query StorefrontVideoPosts($first: Int!) {
+    videoPosts: metaobjects(type: "video_post", first: $first) {
       nodes {
         ...StorefrontMetaobjectFields
       }

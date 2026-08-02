@@ -28,7 +28,9 @@ GraphQL APIs and sends shoppers to Shopify's hosted checkout.
   Admin GraphQL API because creating/updating customers and marketing consent
   requires privileged credentials that must never reach the browser.
 - **Shopify-managed content:** "Monthly Mag" is designed to use Shopify's native
-  blog/articles. Gallery items and Owner Spotlight builds are modeled as Shopify
+  blog/articles. Gallery items, Owner Spotlight builds, and video posts are
+  modeled as Shopify metaobjects. Events are modeled as real Shopify products
+  within an Events collection, synced through the ShopTickets app, not as
   metaobjects. This lets non-technical staff update editorial and community
   content in Shopify without a frontend code deployment.
 - **Deployment:** The site is currently deployed through Vercel under the
@@ -98,8 +100,8 @@ actual application is nested one level down:
 - `src/lib/shopify/` is the integration layer:
   - `client.ts` reads public Storefront configuration and provides the GraphQL
     fetch wrapper and `isShopifyConfigured()`.
-  - `operations.ts` contains product, article, gallery/metaobject, and cart
-    GraphQL operations.
+  - `operations.ts` contains product, article, video/gallery metaobject, and
+    cart GraphQL operations.
   - `hooks.ts` maps Shopify responses to shared types and provides React Query
     hooks with local fallbacks.
   - `cart.ts` creates/restores carts, adds variant lines, persists the cart ID in
@@ -121,8 +123,9 @@ data came from local files or Shopify.
 `shopify-types.ts` defines component-facing types that mirror the fields selected
 by the Storefront API queries. The mock arrays in `mock-storefront-data.ts`
 satisfy those same types. Hooks such as `useShopifyProducts()`,
-`useShopifyArticles()`, and `useShopifyGallery()` call
-`isShopifyConfigured()` before making a network request:
+`useShopifyArticles()`, `useShopifyEvents()`, `useShopifyGallery()`, and
+`useShopifyVideoPosts()` call `isShopifyConfigured()` before making a network
+request:
 
 1. With both public Storefront variables present, the hook requests Shopify,
    maps the GraphQL response to the shared type, and returns it through React
@@ -136,19 +139,14 @@ satisfy those same types. Hooks such as `useShopifyProducts()`,
 This is why mock data must not be deleted merely because Shopify is connected.
 It keeps local development, previews, and outage behavior functional. Once a
 store is provisioned, setting environment variables activates the existing live
-path; Shop, Monthly Mag, Gallery, and Owner Spotlight should not need component
-rewrites.
+path; Shop, Monthly Mag, Events, Video Carousel, Gallery, and Owner Spotlight
+should not need component rewrites.
 
 Cart behavior follows the same gate. With Shopify configured,
 `useStorefrontCart()` uses `cartCreate`/`cartLinesAdd`, stores the cart ID under
 `lowlife-shopify-cart-id`, and redirects to Shopify checkout. Without
 configuration it maintains the current in-memory cart count and performs no
 Shopify calls.
-
-Events and the video carousel are currently exceptions: both read local arrays
-directly. Events have only a demo QR flow, and video posts have placeholder
-thumbnails with null embed URLs. They need dedicated data/integration work
-before they are remotely managed.
 
 Comments beginning with `TODO(shopify)`, `TODO(owner-data)`, or
 `TODO(client-content)` mark known handoff points, not abandoned code. Search
@@ -210,17 +208,19 @@ mandatory, but still require manual setup as described below.
   Instagram handles, and approved captions are placeholders. The
   `TODO(client-content)` and `TODO(owner-data)` comments identify the exact
   component and records that need client-provided information before production.
-- **Ticketing is a demo:** Events render from local mock data, and the dialog
-  displays a generated QR-style SVG that is not a real ticket. The
-  `TODO(shopify)` in `Events.tsx` must be replaced with the actual
-  ShopTickets/Ticket Spot purchase and fulfillment flow.
+- **Ticketing is a demo:** Events are modeled as Shopify products in an Events
+  collection, but the dialog still displays a generated QR-style SVG that is
+  not a real ticket. The `TODO(shopify)` in `Events.tsx` must be replaced with
+  the actual ShopTickets/Ticket Spot purchase and fulfillment flow.
 - **Newsletter needs real Admin credentials:** The server route and mutations
   exist, but require a custom Shopify app, `write_customers`, protected
   customer-data approval, and live end-to-end consent testing.
 - **Metaobjects must be created in Shopify:** The integration expects public
-  metaobject types named `gallery_item` and `spotlight_build`, with field keys
-  matching `operations.ts`/`hooks.ts`. Those definitions and Storefront access
-  must be configured in the future store.
+  metaobject types named `video_post`, `gallery_item`, and `spotlight_build`,
+  with field keys matching `operations.ts`/`hooks.ts`. Those definitions and
+  Storefront access must be configured in the future store. Events instead
+  require an Events collection of real Shopify products, synced through the
+  ShopTickets app.
 - **GitHub protection is not yet active:** The authenticated automation token
   lacks repository Administration-write permission. Apply rules for `develop`
   and `main` manually in GitHub's UI (or with an appropriately scoped token) to
