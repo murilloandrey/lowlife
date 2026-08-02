@@ -151,7 +151,7 @@ async function fetchProducts(): Promise<ShopifyProduct[]> {
         images: product.images.nodes,
       }))
       .filter((product) => product.images.length > 0);
-    return products.length > 0 ? products : PRODUCTS;
+    return products;
   } catch (error) {
     return fallbackOnError("products", PRODUCTS)(error);
   }

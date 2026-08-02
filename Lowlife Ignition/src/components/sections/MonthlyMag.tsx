@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { ArrowRight, CalendarDays } from "lucide-react";
 import { useShopifyArticles } from "@/lib/shopify/hooks";
 import { ARTICLES } from "@/lib/mock-storefront-data";
@@ -45,7 +46,7 @@ export function MonthlyMag() {
               <div className="text-[10px] font-bold uppercase tracking-[0.34em] text-primary">
                 Lowlife editorial
               </div>
-              <h2 className="mt-1 font-heading text-5xl font-black leading-none sm:text-7xl lg:text-8xl">
+              <h2 className="mt-1 font-heading text-5xl font-black uppercase leading-none sm:text-7xl lg:text-8xl">
                 Monthly Mag
               </h2>
             </div>
@@ -81,18 +82,19 @@ export function MonthlyMag() {
 
           <div className="grid gap-7 border-b border-border py-8 sm:py-10 lg:grid-cols-[1.35fr_0.65fr] lg:gap-14">
             <div>
-              <h3 className="max-w-5xl font-heading text-4xl font-black leading-[0.95] sm:text-6xl lg:text-7xl">
+              <h3 className="max-w-5xl font-heading text-4xl font-black uppercase leading-[0.95] sm:text-6xl lg:text-7xl">
                 {featured.title}
               </h3>
               <p className="mt-6 max-w-3xl text-base leading-relaxed text-chrome-dim sm:text-lg">
                 {featured.excerpt}
               </p>
-              <a
-                href={`#article-${featured.handle}`}
+              <Link
+                to="/mag/$handle"
+                params={{ handle: featured.handle }}
                 className="mt-7 inline-flex min-h-11 items-center gap-2 border-b border-primary text-xs font-bold uppercase tracking-[0.2em] text-chrome transition-colors hover:text-primary"
               >
                 Read the feature <ArrowRight className="h-4 w-4" />
-              </a>
+              </Link>
             </div>
             <blockquote className="self-end border-l border-primary pl-5 font-serif text-xl font-bold italic leading-relaxed text-chrome sm:text-2xl">
               “{articleIntro(featured.contentHtml, featured.excerpt)}”
@@ -103,7 +105,7 @@ export function MonthlyMag() {
         {recentArticles.length > 0 && (
           <div className="pt-10 sm:pt-14">
             <div className="mb-6 flex items-center justify-between gap-4">
-              <h3 className="font-heading text-3xl font-black sm:text-4xl">
+              <h3 className="font-heading text-3xl font-black uppercase sm:text-4xl">
                 Inside this issue
               </h3>
               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
@@ -132,20 +134,21 @@ export function MonthlyMag() {
                     <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
                       {articleDate(article.publishedAt)} · {article.author.name}
                     </div>
-                    <h4 className="mt-2 font-heading text-2xl font-black leading-tight sm:text-3xl">
+                    <h4 className="mt-2 font-heading text-2xl font-black uppercase leading-tight sm:text-3xl">
                       {article.title}
                     </h4>
                     <p className="mt-2 line-clamp-2 text-sm text-chrome-dim">
                       {article.excerpt}
                     </p>
                   </div>
-                  <a
-                    href={`#article-${article.handle}`}
+                  <Link
+                    to="/mag/$handle"
+                    params={{ handle: article.handle }}
                     aria-label={`Read ${article.title}`}
                     className="inline-flex min-h-11 items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-chrome hover:text-primary"
                   >
                     Read <ArrowRight className="h-4 w-4" />
-                  </a>
+                  </Link>
                 </article>
               ))}
             </div>
