@@ -50,7 +50,7 @@ export type SpotlightBuild = {
   caption: string;
   fullStory: string;
   instagramHandle?: string;
-  video?: VideoPost;
+  video?: ShopifyVideoPostMetaobject;
 };
 
 export type ShopifyEventMetaobject = {
