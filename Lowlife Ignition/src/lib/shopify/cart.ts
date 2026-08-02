@@ -68,6 +68,7 @@ type CartMutationResponse = {
 
 export type DisplayCartLine = {
   id: string;
+  variantId: string;
   title: string;
   image: ShopifyImage | null;
   unitPrice: ShopifyMoney;
@@ -165,6 +166,7 @@ async function removeCartLine(cartId: string, lineId: string) {
 function cartLineToDisplayLine(line: CartLine): DisplayCartLine {
   return {
     id: line.id,
+    variantId: line.merchandise.id,
     title: line.merchandise.product.title,
     image: line.merchandise.product.featuredImage,
     unitPrice: line.merchandise.price,
@@ -178,6 +180,7 @@ type MockCart = Record<string, { product: ShopifyProduct; quantity: number }>;
 function mockCartToDisplayLines(mockCart: MockCart): DisplayCartLine[] {
   return Object.entries(mockCart).map(([productId, entry]) => ({
     id: productId,
+    variantId: entry.product.variantId,
     title: entry.product.title,
     image: entry.product.images[0] ?? null,
     unitPrice: entry.product.price,

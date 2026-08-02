@@ -16,6 +16,11 @@ export function isShopifyConfigured() {
   return domain.length > 0 && token.length > 0;
 }
 
+export function getShopifyStoreUrl() {
+  const { domain } = readStorefrontConfig();
+  return domain ? `https://${normalizeDomain(domain)}` : null;
+}
+
 type GraphQLError = {
   message: string;
 };
