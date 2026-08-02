@@ -9,38 +9,65 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as CrewOpsRouteImport } from './routes/crew-ops'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MagHandleRouteImport } from './routes/mag.$handle'
 
+const CrewOpsRoute = CrewOpsRouteImport.update({
+  id: '/crew-ops',
+  path: '/crew-ops',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MagHandleRoute = MagHandleRouteImport.update({
+  id: '/mag/$handle',
+  path: '/mag/$handle',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/crew-ops': typeof CrewOpsRoute
+  '/mag/$handle': typeof MagHandleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/crew-ops': typeof CrewOpsRoute
+  '/mag/$handle': typeof MagHandleRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/crew-ops': typeof CrewOpsRoute
+  '/mag/$handle': typeof MagHandleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/crew-ops' | '/mag/$handle'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/crew-ops' | '/mag/$handle'
+  id: '__root__' | '/' | '/crew-ops' | '/mag/$handle'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CrewOpsRoute: typeof CrewOpsRoute
+  MagHandleRoute: typeof MagHandleRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/crew-ops': {
+      id: '/crew-ops'
+      path: '/crew-ops'
+      fullPath: '/crew-ops'
+      preLoaderRoute: typeof CrewOpsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mag/$handle': {
+      id: '/mag/$handle'
+      path: '/mag/$handle'
+      fullPath: '/mag/$handle'
+      preLoaderRoute: typeof MagHandleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CrewOpsRoute: CrewOpsRoute,
+  MagHandleRoute: MagHandleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
