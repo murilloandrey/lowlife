@@ -1,32 +1,88 @@
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
+import chrisTorresFounder from "@/assets/chris-torres-founder.png";
 import gallery11 from "@/assets/gallery-11.jpg";
-import lowlifeLogo from "@/assets/lowlife-logo.png";
 import { SectionHeader } from "./SectionHeader";
 
-// TODO(client-content): Confirm how many owners/founders should be featured,
-// then replace these placeholder names, photos, roles, and bios with approved
-// client content before production.
 const FOUNDERS = [
   {
-    id: "founder-placeholder-1",
-    name: "Founder name pending",
+    id: "chris-torres",
+    name: "Chris Torres",
     role: "Owner / Founder",
     photo: {
-      url: lowlifeLogo,
-      altText: "Lowlife logo placeholder for founder portrait",
+      url: chrisTorresFounder,
+      altText: "Chris Torres, founder of Lowlife Est. 15",
     },
-    bio: "Founder bio and personal connection to the Lowlife community will be added after client approval.",
-  },
-  {
-    id: "founder-placeholder-2",
-    name: "Founder name pending",
-    role: "Owner / Founder",
-    photo: {
-      url: lowlifeLogo,
-      altText: "Lowlife logo placeholder for founder portrait",
-    },
-    bio: "Founder bio and personal connection to the Lowlife community will be added after client approval.",
+    teaser:
+      "Chris Torres is the founder of LOWLIFE EST.15, a brand and community built around the belief that cars are more than machines—they're a reflection of the people who build them.",
+    fullBio: [
+      "What started as a passion for automotive culture has grown into a nationally recognized brand that celebrates creativity, individuality, and the dedication behind every build.",
+      "Since launching LOWLIFE in 2015, Chris has worked tirelessly to create more than just apparel or events. He's built a movement that brings enthusiasts together through car shows, collaborations, exclusive merchandise, and features that shine a spotlight on builders from every corner of the scene. His goal has always been simple: give people a place where their passion is recognized and respected.",
+      "Behind the scenes, Chris has worn every hat imaginable—designer, promoter, event organizer, marketer, and entrepreneur. Through countless long nights, financial risks, and years of persistence, he has continued to grow LOWLIFE while staying true to the culture that inspired it from day one.",
+      "Today, LOWLIFE represents authenticity, quality, and community. Chris remains committed to pushing the brand forward, creating unforgettable experiences, supporting fellow enthusiasts, and proving that with enough determination, a passion can become a legacy.",
+    ],
+    quote:
+      "\"It's never just about the cars—it's about the people, the journey, and the culture we build together.\"",
   },
 ];
+
+function FounderCard({ founder }: { founder: (typeof FOUNDERS)[number] }) {
+  const [expanded, setExpanded] = useState(false);
+  const bioId = `${founder.id}-full-bio`;
+
+  return (
+    <article className="overflow-hidden border border-border bg-surface lg:grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+      <div className="relative min-h-80 overflow-hidden bg-black sm:min-h-[30rem] lg:min-h-full">
+        <img
+          src={founder.photo.url}
+          alt={founder.photo.altText}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-black/20" />
+      </div>
+      <div className="self-center p-6 sm:p-10 lg:p-12">
+        <div className="text-[10px] font-bold uppercase tracking-[0.24em] text-primary">
+          {founder.role}
+        </div>
+        <h4 className="mt-2 font-display text-4xl tracking-wide text-chrome sm:text-5xl">
+          {founder.name}
+        </h4>
+        <p className="mt-5 text-sm leading-relaxed text-chrome-dim sm:text-base">
+          {founder.teaser}
+        </p>
+
+        {expanded && (
+          <div id={bioId} className="mt-5 space-y-4">
+            {founder.fullBio.map((paragraph) => (
+              <p
+                key={paragraph}
+                className="text-sm leading-relaxed text-chrome-dim sm:text-base"
+              >
+                {paragraph}
+              </p>
+            ))}
+            <blockquote className="border-l border-primary pl-5 font-serif text-lg font-bold italic leading-relaxed text-chrome sm:text-xl">
+              {founder.quote}
+            </blockquote>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setExpanded((current) => !current)}
+          aria-expanded={expanded}
+          aria-controls={bioId}
+          className="mt-6 inline-flex min-h-11 items-center gap-2 border border-border px-4 text-xs font-bold uppercase tracking-[0.18em] text-chrome transition-colors hover:border-primary hover:text-primary"
+        >
+          {expanded ? "Read less" : "Read more"}
+          <ChevronDown
+            className={`h-4 w-4 transition-transform ${expanded ? "rotate-180" : ""}`}
+          />
+        </button>
+      </div>
+    </article>
+  );
+}
 
 export function About() {
   const values = [
@@ -107,34 +163,12 @@ export function About() {
               Behind the movement
             </div>
             <h3 className="mt-3 font-heading text-3xl font-black uppercase sm:text-4xl">
-              Meet the people building Lowlife.
+              Meet the founder behind Lowlife.
             </h3>
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="mx-auto max-w-5xl">
             {FOUNDERS.map((founder) => (
-              <article
-                key={founder.id}
-                className="grid grid-cols-[6rem_1fr] gap-5 border border-border bg-surface p-4 sm:grid-cols-[8rem_1fr] sm:p-5"
-              >
-                <div className="grid aspect-square place-items-center overflow-hidden bg-black p-4">
-                  <img
-                    src={founder.photo.url}
-                    alt={founder.photo.altText}
-                    className="h-full w-full object-contain"
-                  />
-                </div>
-                <div className="self-center">
-                  <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
-                    {founder.role}
-                  </div>
-                  <h4 className="mt-1 font-display text-xl tracking-wide text-chrome">
-                    {founder.name}
-                  </h4>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {founder.bio}
-                  </p>
-                </div>
-              </article>
+              <FounderCard key={founder.id} founder={founder} />
             ))}
           </div>
         </div>
