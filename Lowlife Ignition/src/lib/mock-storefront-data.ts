@@ -27,6 +27,14 @@ import type {
   SpotlightBuild,
 } from "@/lib/shopify-types";
 
+const PRODUCTS_RUG_IMAGES = [
+  { url: productBanner, altText: "Lowlife garage rug, Classic style" },
+  { url: productTee, altText: "Lowlife garage rug, Fam style" },
+  { url: productAnime, altText: "Lowlife garage rug, Anime style" },
+  { url: productJersey, altText: "Lowlife garage rug, Jersey style" },
+  { url: productPlate, altText: "Lowlife garage rug, Plate style" },
+];
+
 export const PRODUCTS = [
   {
     id: "gid://shopify/Product/tee",
@@ -151,13 +159,7 @@ export const PRODUCTS = [
     handle: "rugs",
     productType: "Accessory",
     price: { amount: "55.00", currencyCode: "USD" },
-    images: [
-      { url: productBanner, altText: "Lowlife garage rug, Classic style" },
-      { url: productTee, altText: "Lowlife garage rug, Fam style" },
-      { url: productAnime, altText: "Lowlife garage rug, Anime style" },
-      { url: productJersey, altText: "Lowlife garage rug, Jersey style" },
-      { url: productPlate, altText: "Lowlife garage rug, Plate style" },
-    ],
+    images: PRODUCTS_RUG_IMAGES,
     tags: ["Best Seller"],
     options: [
       {
@@ -181,11 +183,12 @@ export const PRODUCTS = [
       "Plate",
       "Night Meet",
       "Chrome",
-    ].map((style) => ({
+    ].map((style, index) => ({
       id: `gid://shopify/ProductVariant/rugs-${style.toLowerCase().replace(/\s+/g, "-")}`,
       availableForSale: style !== "Chrome",
       price: { amount: "55.00", currencyCode: "USD" },
       selectedOptions: [{ name: "Style", value: style }],
+      ...(index < 5 ? { image: PRODUCTS_RUG_IMAGES[index] } : {}),
     })),
   },
   {

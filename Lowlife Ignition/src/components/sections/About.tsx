@@ -31,8 +31,8 @@ function FounderCard({ founder }: { founder: (typeof FOUNDERS)[number] }) {
   const bioId = `${founder.id}-full-bio`;
 
   return (
-    <article className="overflow-hidden border border-border bg-surface lg:grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-      <div className="relative min-h-80 overflow-hidden bg-black sm:min-h-[30rem] lg:min-h-full">
+    <article className="overflow-hidden border border-border bg-surface lg:grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
+      <div className="relative aspect-square self-start overflow-hidden bg-black">
         <img
           src={founder.photo.url}
           alt={founder.photo.altText}

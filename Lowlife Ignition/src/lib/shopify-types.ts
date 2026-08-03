@@ -20,6 +20,7 @@ export type ShopifyProductVariant = {
   availableForSale: boolean;
   price: ShopifyMoney;
   selectedOptions: ShopifySelectedOption[];
+  image?: ShopifyImage | null;
 };
 
 export type ShopifyProductOption = {
