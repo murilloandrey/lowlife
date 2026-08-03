@@ -52,6 +52,7 @@ type ProductsResponse = {
           availableForSale: boolean;
           price: { amount: string; currencyCode: string };
           selectedOptions: Array<{ name: string; value: string }>;
+          image: ShopifyImage | null;
         }>;
       };
       selectedOrFirstAvailableVariant: {

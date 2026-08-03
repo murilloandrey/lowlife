@@ -42,6 +42,12 @@ export const PRODUCTS_QUERY = `#graphql
               name
               value
             }
+            image {
+              url
+              altText
+              width
+              height
+            }
           }
         }
         selectedOrFirstAvailableVariant {
