@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import type { ShopifyProduct } from "@/lib/shopify-types";
 import {
   Carousel,
+  type CarouselApi,
   CarouselContent,
   CarouselItem,
   CarouselNext,
@@ -41,6 +42,7 @@ export function ProductQuickView({
     defaultSelections(product),
   );
   const [isAdding, setIsAdding] = useState(false);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
 
   useEffect(() => {
     if (open) {
@@ -53,6 +55,25 @@ export function ProductQuickView({
     () => resolveVariant(product, selections),
     [product, selections],
   );
+
+  const displayImages = useMemo(() => {
+    const variantImage = selectedVariant?.image;
+    if (!variantImage) return product.images;
+
+    const matchingImage = product.images.find(
+      (image) => image.url === variantImage.url,
+    );
+    return [
+      matchingImage ?? variantImage,
+      ...product.images.filter((image) => image.url !== variantImage.url),
+    ];
+  }, [product.images, selectedVariant?.image]);
+
+  useEffect(() => {
+    if (!carouselApi) return;
+    carouselApi.reInit();
+    carouselApi.scrollTo(0, true);
+  }, [carouselApi, displayImages]);
 
   const price = selectedVariant?.price ?? product.price;
   const displayPrice = new Intl.NumberFormat("en-US", {
@@ -88,10 +109,14 @@ export function ProductQuickView({
           <DialogDescription>Quick view for {product.title}</DialogDescription>
         </DialogHeader>
 
-        <Carousel className="bg-black" opts={{ align: "start" }}>
+        <Carousel
+          className="bg-black"
+          opts={{ align: "start" }}
+          setApi={setCarouselApi}
+        >
           <CarouselContent className="ml-0">
-            {product.images.map((image, index) => (
-              <CarouselItem key={index} className="pl-0">
+            {displayImages.map((image, index) => (
+              <CarouselItem key={`${image.url}-${index}`} className="pl-0">
                 <div className="aspect-square bg-surface-2">
                   <img
                     src={image.url}
@@ -102,7 +127,7 @@ export function ProductQuickView({
               </CarouselItem>
             ))}
           </CarouselContent>
-          {product.images.length > 1 && (
+          {displayImages.length > 1 && (
             <>
               <CarouselPrevious className="left-2 border-border bg-card hover:border-primary" />
               <CarouselNext className="right-2 border-border bg-card hover:border-primary" />
