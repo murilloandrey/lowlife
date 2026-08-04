@@ -9,9 +9,13 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
+import lowlifeLogo from "@/assets/lowlife-logo.png";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { canonicalUrl } from "../lib/seo";
 import { isShopifyConfigured } from "../lib/shopify/client";
+
+const socialImageUrl = canonicalUrl(lowlifeLogo);
 
 function NotFoundComponent() {
   return (
@@ -112,14 +116,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         },
         {
           property: "og:image",
-          content:
-            "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ffc36be8-e866-4c64-8354-96f982f84106/id-preview-f86f426a--7699341c-0e69-4305-8de9-4e4d192a86a2.lovable.app-1783477323839.png",
+          content: socialImageUrl,
         },
+        { property: "og:image:alt", content: "Lowlife Est. 15 wordmark" },
         {
           name: "twitter:image",
-          content:
-            "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ffc36be8-e866-4c64-8354-96f982f84106/id-preview-f86f426a--7699341c-0e69-4305-8de9-4e4d192a86a2.lovable.app-1783477323839.png",
+          content: socialImageUrl,
         },
+        { name: "twitter:image:alt", content: "Lowlife Est. 15 wordmark" },
       ],
       links: [
         { rel: "stylesheet", href: appCss },

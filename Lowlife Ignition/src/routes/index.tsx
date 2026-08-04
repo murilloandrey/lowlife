@@ -15,8 +15,13 @@ import { Shop } from "@/components/sections/Shop";
 import { SocialCTA } from "@/components/sections/SocialCTA";
 import { VideoCarousel } from "@/components/sections/VideoCarousel";
 import { useStorefrontCart } from "@/lib/shopify/cart";
+import { canonicalUrl } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    links: [{ rel: "canonical", href: canonicalUrl("/") }],
+    meta: [{ property: "og:url", content: canonicalUrl("/") }],
+  }),
   component: LowlifeHome,
 });
 

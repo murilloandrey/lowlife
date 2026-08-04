@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /cart
+Disallow: /crew-ops
+Sitemap: https://lowlifeest15.net/sitemap.xml
