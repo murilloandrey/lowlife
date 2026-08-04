@@ -11,9 +11,11 @@ import { Toaster } from "@/components/ui/sonner";
 import { useStorefrontCart } from "@/lib/shopify/cart";
 import { useShopifyProductCatalog } from "@/lib/shopify/hooks";
 import type { ShopifyProduct } from "@/lib/shopify-types";
+import { canonicalUrl } from "@/lib/seo";
 
 export const Route = createFileRoute("/shop")({
   head: () => ({
+    links: [{ rel: "canonical", href: canonicalUrl("/shop") }],
     meta: [
       { title: "Shop All — Lowlife Est. 15" },
       {
@@ -21,6 +23,7 @@ export const Route = createFileRoute("/shop")({
         content:
           "Browse the full Lowlife Est. 15 catalog — apparel, accessories, banners, and decals.",
       },
+      { property: "og:url", content: canonicalUrl("/shop") },
     ],
   }),
   component: ShopPage,

@@ -3,14 +3,25 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, CalendarDays } from "lucide-react";
 import { Footer } from "@/components/sections/Footer";
 import { useShopifyArticles } from "@/lib/shopify/hooks";
+import { canonicalUrl } from "@/lib/seo";
 
 export const Route = createFileRoute("/mag/$handle")({
-  head: () => ({
+  head: ({ params }) => ({
+    links: [
+      {
+        rel: "canonical",
+        href: canonicalUrl(`/mag/${encodeURIComponent(params.handle)}`),
+      },
+    ],
     meta: [
       { title: "Monthly Mag — Lowlife Est. 15" },
       {
         name: "description",
         content: "Stories from the cars, builders, and culture behind Lowlife.",
+      },
+      {
+        property: "og:url",
+        content: canonicalUrl(`/mag/${encodeURIComponent(params.handle)}`),
       },
     ],
   }),
