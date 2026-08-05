@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+import { ChevronDown, Plus } from "lucide-react";
 import { toast } from "sonner";
 import type { ShopifyProduct } from "@/lib/shopify-types";
 import {
@@ -42,12 +42,14 @@ export function ProductQuickView({
     defaultSelections(product),
   );
   const [isAdding, setIsAdding] = useState(false);
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
 
   useEffect(() => {
     if (open) {
       setSelections(defaultSelections(product));
       setIsAdding(false);
+      setDescriptionExpanded(false);
     }
   }, [open, product]);
 
@@ -85,6 +87,10 @@ export function ProductQuickView({
   const outOfStock =
     Boolean(selectedVariant) && !selectedVariant?.availableForSale;
   const canAdd = Boolean(selectedVariant?.availableForSale) && !isAdding;
+  const description = product.description?.trim() ?? "";
+  const descriptionIsLong =
+    description.length > 180 || description.split(/\r?\n/).length > 3;
+  const descriptionId = `product-${product.id.replace(/[^a-zA-Z0-9_-]/g, "-")}-description`;
 
   const handleAdd = async () => {
     if (!selectedVariant) return;
@@ -149,6 +155,38 @@ export function ProductQuickView({
               </span>
             </div>
           </div>
+
+          {description && (
+            <div className="border-t border-border pt-5">
+              <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                Details
+              </div>
+              <p
+                id={descriptionId}
+                className={`whitespace-pre-line text-sm leading-relaxed text-chrome-dim ${
+                  descriptionIsLong && !descriptionExpanded
+                    ? "line-clamp-3"
+                    : ""
+                }`}
+              >
+                {description}
+              </p>
+              {descriptionIsLong && (
+                <button
+                  type="button"
+                  onClick={() => setDescriptionExpanded((current) => !current)}
+                  aria-expanded={descriptionExpanded}
+                  aria-controls={descriptionId}
+                  className="mt-4 inline-flex min-h-11 items-center gap-2 border border-border px-4 text-xs font-bold uppercase tracking-[0.18em] text-chrome transition-colors hover:border-primary hover:text-primary"
+                >
+                  {descriptionExpanded ? "Read less" : "Read more"}
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${descriptionExpanded ? "rotate-180" : ""}`}
+                  />
+                </button>
+              )}
+            </div>
+          )}
 
           {options.map((option) => (
             <div key={option.name}>
