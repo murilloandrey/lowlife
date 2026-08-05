@@ -57,7 +57,7 @@ export function Gallery() {
               key={item.id}
               onClick={() => setActiveIndex(index)}
               aria-label={`Open photo ${index + 1}: ${item.caption}`}
-              className={`group relative overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${index === 0 || index === 5 ? "row-span-2 aspect-square md:aspect-auto" : "aspect-square"}`}
+              className="group relative aspect-square overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <img
                 src={item.image.url}
