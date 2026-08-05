@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   Calendar,
+  CheckCircle2,
   Clock,
   ExternalLink,
   LoaderCircle,
@@ -131,6 +132,7 @@ export function Events({
             const date = dateParts(event.startsAt);
             const directionsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address)}`;
             const purchasing = purchasingId === event.id;
+            const isAttendanceOnly = Number(event.price.amount) === 0;
             return (
               <article
                 key={event.id}
@@ -146,9 +148,11 @@ export function Events({
                         {date.day}
                       </span>
                     </div>
-                    <span className="rounded-sm border border-primary/50 bg-primary/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
-                      ${Number(event.price.amount)}
-                    </span>
+                    {!isAttendanceOnly && (
+                      <span className="rounded-sm border border-primary/50 bg-primary/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
+                        ${Number(event.price.amount)}
+                      </span>
+                    )}
                   </div>
                   <h3 className="mt-6 font-display text-2xl tracking-wide">
                     {event.title}
@@ -185,23 +189,30 @@ export function Events({
                     {event.address}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => void selectTicket(event)}
-                  disabled={!event.availableForSale || purchasing}
-                  className="btn-brand mt-6 w-full"
-                >
-                  {purchasing ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Ticket className="h-4 w-4" />
-                  )}
-                  {purchasing
-                    ? "Opening Checkout"
-                    : event.availableForSale
-                      ? "Buy Tickets"
-                      : "Sold Out"}
-                </button>
+                {isAttendanceOnly ? (
+                  <span className="btn-ghost mt-6 w-full cursor-default justify-center">
+                    <CheckCircle2 className="h-4 w-4" />
+                    We'll Be There
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => void selectTicket(event)}
+                    disabled={!event.availableForSale || purchasing}
+                    className="btn-brand mt-6 w-full"
+                  >
+                    {purchasing ? (
+                      <LoaderCircle className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Ticket className="h-4 w-4" />
+                    )}
+                    {purchasing
+                      ? "Opening Checkout"
+                      : event.availableForSale
+                        ? "Buy Tickets"
+                        : "Sold Out"}
+                  </button>
+                )}
               </article>
             );
           })}
