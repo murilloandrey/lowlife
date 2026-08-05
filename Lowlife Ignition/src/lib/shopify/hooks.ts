@@ -1,4 +1,5 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import articleFallbackImage from "@/assets/hero-fusion.jpg";
 import {
   ARTICLES,
   EVENTS,
@@ -34,6 +35,7 @@ type ProductsResponse = {
       id: string;
       title: string;
       handle: string;
+      description: string;
       productType: string;
       tags: string[];
       priceRange: {
@@ -143,6 +145,13 @@ type VideoPostsResponse = {
   videoPosts: { nodes: MetaobjectNode[] };
 };
 
+const ARTICLE_FALLBACK_IMAGE: ShopifyImage = {
+  url: articleFallbackImage,
+  altText: "Lowlife car at a community meet — article image coming soon",
+  width: 1224,
+  height: 1944,
+};
+
 function fallbackOnError<T>(label: string, fallback: T) {
   return (error: unknown) => {
     console.warn(
@@ -165,6 +174,7 @@ async function fetchProductsPage(params: {
       variantId: product.selectedOrFirstAvailableVariant!.id,
       title: product.title,
       handle: product.handle,
+      description: product.description,
       productType: product.productType,
       tags: product.tags,
       price: product.priceRange.minVariantPrice,
@@ -190,17 +200,15 @@ async function fetchArticles(): Promise<ShopifyArticle[]> {
     const data = await shopifyFetch<ArticlesResponse>(ARTICLES_QUERY, {
       first: 12,
     });
-    const articles = data.articles.nodes
-      .filter((article) => article.image)
-      .map((article) => ({
-        handle: article.handle,
-        title: article.title,
-        excerpt: article.excerpt ?? "",
-        contentHtml: article.contentHtml,
-        image: article.image!,
-        publishedAt: article.publishedAt,
-        author: { name: article.authorV2?.name ?? "Lowlife Editorial" },
-      }));
+    const articles = data.articles.nodes.map((article) => ({
+      handle: article.handle,
+      title: article.title,
+      excerpt: article.excerpt ?? "",
+      contentHtml: article.contentHtml,
+      image: article.image ?? ARTICLE_FALLBACK_IMAGE,
+      publishedAt: article.publishedAt,
+      author: { name: article.authorV2?.name ?? "Lowlife Editorial" },
+    }));
     return articles.length > 0 ? articles : ARTICLES;
   } catch (error) {
     return fallbackOnError("articles", ARTICLES)(error);

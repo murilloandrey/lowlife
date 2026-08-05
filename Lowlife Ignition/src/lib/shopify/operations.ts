@@ -10,6 +10,7 @@ export const PRODUCTS_QUERY = `#graphql
         id
         title
         handle
+        description
         productType
         tags
         priceRange {
