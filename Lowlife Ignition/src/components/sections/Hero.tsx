@@ -1,5 +1,6 @@
 import { ArrowRight, Flame } from "lucide-react";
-import heroMeet from "@/assets/hero-meet.jpg";
+import heroFusion from "@/assets/hero-fusion.jpg";
+import lowlifeLogo from "@/assets/lowlife-logo.png";
 
 export function Hero() {
   return (
@@ -8,10 +9,10 @@ export function Hero() {
       className="relative isolate min-h-[100svh] overflow-hidden pt-20"
     >
       <img
-        src={heroMeet}
-        alt="Red and black Nissan 370Z at a Lowlife evening car meet"
-        width={1556}
-        height={1148}
+        src={heroFusion}
+        alt="Blue Ford Fusion with a Lowlife windshield decal at a Houston car show"
+        width={1467}
+        height={2200}
         className="absolute inset-0 h-full w-full object-cover opacity-70"
       />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,#050505_80%)]" />
@@ -23,9 +24,14 @@ export function Hero() {
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />{" "}
             Houston Born • Car Show Built • Est. 2015
           </div>
-          <h1 className="font-heading text-6xl font-black uppercase leading-[0.9] tracking-tight text-white sm:text-8xl md:text-9xl">
-            Rep the <span className="text-gradient-brand italic">Life.</span>
-          </h1>
+          <img
+            src={lowlifeLogo}
+            alt="Lowlife Est. 15"
+            width={1376}
+            height={768}
+            className="h-auto w-64 max-w-full sm:w-96 md:w-[30rem] lg:w-[34rem]"
+            style={{ filter: "invert(1) brightness(2)" }}
+          />
           <p className="mt-6 max-w-xl text-base text-chrome-dim sm:text-lg">
             Houston car show culture, limited merch drops, and events built for
             the lowlife community.
