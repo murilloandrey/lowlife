@@ -41,6 +41,8 @@ export const PRODUCTS = [
     variantId: "gid://shopify/ProductVariant/tee",
     title: "Lowlife Tee",
     handle: "lowlife-tee",
+    description:
+      "Built for long nights at the meet and everyday wear between shows. This heavyweight tee carries the Lowlife attitude without sacrificing comfort.\n\nFeatures:\n• Premium heavyweight cotton\n• Relaxed unisex fit\n• Screen-printed Lowlife artwork\n• Designed in Houston\n\nWash cold with like colors and hang dry to preserve the print.",
     productType: "Apparel",
     price: { amount: "30.00", currencyCode: "USD" },
     images: [{ url: productTee, altText: "Black Lowlife graphic tee" }],

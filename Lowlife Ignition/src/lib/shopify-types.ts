@@ -36,6 +36,7 @@ export type ShopifyProduct = {
   variantId: string;
   title: string;
   handle: string;
+  description?: string;
   price: ShopifyMoney;
   images: ShopifyImage[];
   tags: string[];
