@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import chrisTorresFounder from "@/assets/chris-torres-founder.png";
 import gallery11 from "@/assets/gallery-11.jpg";
+import { useClampedOverflow } from "@/hooks/use-clamped-overflow";
 import { SectionHeader } from "./SectionHeader";
 
 const FOUNDERS = [
@@ -29,6 +30,18 @@ const FOUNDERS = [
 function FounderCard({ founder }: { founder: (typeof FOUNDERS)[number] }) {
   const [expanded, setExpanded] = useState(false);
   const bioId = `${founder.id}-full-bio`;
+  const bioText = useMemo(
+    () => [founder.teaser, ...founder.fullBio, founder.quote].join("\n\n"),
+    [founder],
+  );
+  const { measurementRef, isOverflowing: bioOverflows } =
+    useClampedOverflow<HTMLParagraphElement>(bioText);
+
+  useEffect(() => {
+    if (!bioOverflows) setExpanded(false);
+  }, [bioOverflows]);
+
+  const showFullBio = expanded || !bioOverflows;
 
   return (
     <article className="overflow-hidden border border-border bg-surface lg:grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
@@ -47,38 +60,55 @@ function FounderCard({ founder }: { founder: (typeof FOUNDERS)[number] }) {
         <h4 className="mt-2 font-display text-4xl tracking-wide text-chrome sm:text-5xl">
           {founder.name}
         </h4>
-        <p className="mt-5 text-sm leading-relaxed text-chrome-dim sm:text-base">
-          {founder.teaser}
-        </p>
-
-        {expanded && (
-          <div id={bioId} className="mt-5 space-y-4">
-            {founder.fullBio.map((paragraph) => (
-              <p
-                key={paragraph}
-                className="text-sm leading-relaxed text-chrome-dim sm:text-base"
-              >
-                {paragraph}
+        <div className="relative mt-5">
+          {showFullBio ? (
+            <div id={bioId} className="space-y-4">
+              <p className="text-sm leading-relaxed text-chrome-dim sm:text-base">
+                {founder.teaser}
               </p>
-            ))}
-            <blockquote className="border-l border-primary pl-5 font-serif text-lg font-bold italic leading-relaxed text-chrome sm:text-xl">
-              {founder.quote}
-            </blockquote>
-          </div>
-        )}
+              {founder.fullBio.map((paragraph) => (
+                <p
+                  key={paragraph}
+                  className="text-sm leading-relaxed text-chrome-dim sm:text-base"
+                >
+                  {paragraph}
+                </p>
+              ))}
+              <blockquote className="border-l border-primary pl-5 font-serif text-lg font-bold italic leading-relaxed text-chrome sm:text-xl">
+                {founder.quote}
+              </blockquote>
+            </div>
+          ) : (
+            <p
+              id={bioId}
+              className="line-clamp-3 whitespace-pre-line text-sm leading-relaxed text-chrome-dim sm:text-base"
+            >
+              {bioText}
+            </p>
+          )}
+          <p
+            ref={measurementRef}
+            aria-hidden="true"
+            className="invisible absolute inset-x-0 top-0 line-clamp-3 whitespace-pre-line text-sm leading-relaxed sm:text-base"
+          >
+            {bioText}
+          </p>
+        </div>
 
-        <button
-          type="button"
-          onClick={() => setExpanded((current) => !current)}
-          aria-expanded={expanded}
-          aria-controls={bioId}
-          className="mt-6 inline-flex min-h-11 items-center gap-2 border border-border px-4 text-xs font-bold uppercase tracking-[0.18em] text-chrome transition-colors hover:border-primary hover:text-primary"
-        >
-          {expanded ? "Read less" : "Read more"}
-          <ChevronDown
-            className={`h-4 w-4 transition-transform ${expanded ? "rotate-180" : ""}`}
-          />
-        </button>
+        {bioOverflows && (
+          <button
+            type="button"
+            onClick={() => setExpanded((current) => !current)}
+            aria-expanded={expanded}
+            aria-controls={bioId}
+            className="mt-6 inline-flex min-h-11 items-center gap-2 border border-border px-4 text-xs font-bold uppercase tracking-[0.18em] text-chrome transition-colors hover:border-primary hover:text-primary"
+          >
+            {expanded ? "Read less" : "Read more"}
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${expanded ? "rotate-180" : ""}`}
+            />
+          </button>
+        )}
       </div>
     </article>
   );

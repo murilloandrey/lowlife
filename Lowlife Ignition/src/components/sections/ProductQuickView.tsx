@@ -22,6 +22,7 @@ import {
   resolveVariant,
   selectableProductOptions,
 } from "@/lib/shopify/variants";
+import { useClampedOverflow } from "@/hooks/use-clamped-overflow";
 
 export function ProductQuickView({
   product,
@@ -88,9 +89,13 @@ export function ProductQuickView({
     Boolean(selectedVariant) && !selectedVariant?.availableForSale;
   const canAdd = Boolean(selectedVariant?.availableForSale) && !isAdding;
   const description = product.description?.trim() ?? "";
-  const descriptionIsLong =
-    description.length > 180 || description.split(/\r?\n/).length > 3;
+  const { measurementRef, isOverflowing: descriptionOverflows } =
+    useClampedOverflow<HTMLParagraphElement>(description, open);
   const descriptionId = `product-${product.id.replace(/[^a-zA-Z0-9_-]/g, "-")}-description`;
+
+  useEffect(() => {
+    if (!descriptionOverflows) setDescriptionExpanded(false);
+  }, [descriptionOverflows]);
 
   const handleAdd = async () => {
     if (!selectedVariant) return;
@@ -161,17 +166,26 @@ export function ProductQuickView({
               <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
                 Details
               </div>
-              <p
-                id={descriptionId}
-                className={`whitespace-pre-line text-sm leading-relaxed text-chrome-dim ${
-                  descriptionIsLong && !descriptionExpanded
-                    ? "line-clamp-3"
-                    : ""
-                }`}
-              >
-                {description}
-              </p>
-              {descriptionIsLong && (
+              <div className="relative">
+                <p
+                  id={descriptionId}
+                  className={`whitespace-pre-line text-sm leading-relaxed text-chrome-dim ${
+                    descriptionOverflows && !descriptionExpanded
+                      ? "line-clamp-3"
+                      : ""
+                  }`}
+                >
+                  {description}
+                </p>
+                <p
+                  ref={measurementRef}
+                  aria-hidden="true"
+                  className="invisible absolute inset-x-0 top-0 line-clamp-3 whitespace-pre-line text-sm leading-relaxed"
+                >
+                  {description}
+                </p>
+              </div>
+              {descriptionOverflows && (
                 <button
                   type="button"
                   onClick={() => setDescriptionExpanded((current) => !current)}

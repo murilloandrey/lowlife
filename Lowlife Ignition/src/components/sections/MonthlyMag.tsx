@@ -20,12 +20,16 @@ function issueMonth(value: string) {
     .toUpperCase();
 }
 
-function articleIntro(contentHtml: string, fallback: string) {
-  const text = contentHtml
+function meaningfulArticleText(value?: string | null) {
+  const text = (value ?? "")
     .replace(/<[^>]*>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
-  return text || fallback;
+  return /[\p{L}\p{N}]/u.test(text) ? text : "";
+}
+
+function articleIntro(contentHtml?: string | null, fallback?: string | null) {
+  return meaningfulArticleText(contentHtml) || meaningfulArticleText(fallback);
 }
 
 export function MonthlyMag() {
@@ -33,6 +37,7 @@ export function MonthlyMag() {
   const articles = data ?? ARTICLES;
   const [featured, ...recent] = articles;
   const recentArticles = recent.slice(0, 3);
+  const featuredIntro = articleIntro(featured.contentHtml, featured.excerpt);
 
   return (
     <section
@@ -96,9 +101,11 @@ export function MonthlyMag() {
                 Read the feature <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
-            <blockquote className="self-end border-l border-primary pl-5 font-serif text-xl font-bold italic leading-relaxed text-chrome sm:text-2xl">
-              “{articleIntro(featured.contentHtml, featured.excerpt)}”
-            </blockquote>
+            {featuredIntro && (
+              <blockquote className="self-end border-l border-primary pl-5 font-serif text-xl font-bold italic leading-relaxed text-chrome sm:text-2xl">
+                “{featuredIntro}”
+              </blockquote>
+            )}
           </div>
         </article>
 
