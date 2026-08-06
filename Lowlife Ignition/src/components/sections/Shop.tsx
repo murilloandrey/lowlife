@@ -35,8 +35,8 @@ export function Shop({
         <div>
           <SectionHeader
             eyebrow="Shop the Drop"
-            title="Premium apparel and accessories inspired by the automotive lifestyle."
-            subtitle="Limited pieces built for the scene. When it's gone, it's gone."
+            title="Fresh from the garage."
+            subtitle="Premium apparel and accessories inspired by the automotive lifestyle."
           />
         </div>
         {products.length > 0 ? (
