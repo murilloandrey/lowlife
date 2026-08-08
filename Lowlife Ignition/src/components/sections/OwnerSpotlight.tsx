@@ -162,7 +162,7 @@ export function OwnerSpotlight() {
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeader
           eyebrow="Owner Spotlight"
-          title="Built by you. Repped by all."
+          title="Owner Spotlight"
           subtitle="Giving the builders behind the scene their flowers — one owner, one car, one story at a time."
         />
 
