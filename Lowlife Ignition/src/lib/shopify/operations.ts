@@ -147,6 +147,13 @@ export const ARTICLES_QUERY = `#graphql
   }
 `;
 
+// Max images pulled from a "List of files" field (e.g. spotlight_build.build_photos).
+const METAOBJECT_REFERENCE_LIST_SIZE = 20;
+
+// `reference` resolves single-reference fields; `references` resolves list
+// fields. Both are always valid on MetaobjectField and simply return null when
+// a field isn't of that shape, so this fragment stays safe on metaobject
+// definitions that don't have the newer file/list fields yet.
 const METAOBJECT_FIELDS = `#graphql
   fragment StorefrontMetaobjectFields on Metaobject {
     id
@@ -160,6 +167,28 @@ const METAOBJECT_FIELDS = `#graphql
             altText
             width
             height
+          }
+        }
+        ... on Video {
+          sources {
+            url
+            mimeType
+          }
+        }
+        ... on GenericFile {
+          url
+          mimeType
+        }
+      }
+      references(first: ${METAOBJECT_REFERENCE_LIST_SIZE}) {
+        nodes {
+          ... on MediaImage {
+            image {
+              url
+              altText
+              width
+              height
+            }
           }
         }
       }
