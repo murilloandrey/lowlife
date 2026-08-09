@@ -12,6 +12,7 @@ import {
   Play,
 } from "lucide-react";
 import { useShopifyGallery } from "@/lib/shopify/hooks";
+import { embeddableUrl } from "@/lib/embeds";
 import { SPOTLIGHT_BUILDS } from "@/lib/mock-storefront-data";
 import type { SpotlightBuild } from "@/lib/shopify-types";
 import {
@@ -29,19 +30,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { SectionHeader } from "./SectionHeader";
-
-function isEmbeddable(url: string | null) {
-  if (!url) return false;
-  try {
-    const parsed = new URL(url);
-    return (
-      parsed.hostname.endsWith("instagram.com") ||
-      parsed.hostname.endsWith("tiktok.com")
-    );
-  } catch {
-    return false;
-  }
-}
 
 function songEmbedUrl(value?: string) {
   if (!value) return null;
@@ -345,9 +333,9 @@ export function OwnerSpotlight() {
                         Build video
                       </div>
                       <div className="relative aspect-video overflow-hidden bg-surface-2">
-                        {isEmbeddable(selectedBuild.video.embedUrl) ? (
+                        {embeddableUrl(selectedBuild.video.embedUrl) ? (
                           <iframe
-                            src={selectedBuild.video.embedUrl!}
+                            src={embeddableUrl(selectedBuild.video.embedUrl)!}
                             title={selectedBuild.video.caption}
                             loading="lazy"
                             allow="encrypted-media; picture-in-picture"
