@@ -65,7 +65,7 @@ export function MonthlyMag() {
         <article id={`article-${featured.handle}`} className="pt-8 sm:pt-12">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">
-              This month's ride
+              Feature of the month
             </div>
             <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
               <CalendarDays className="h-3.5 w-3.5 text-primary" />
