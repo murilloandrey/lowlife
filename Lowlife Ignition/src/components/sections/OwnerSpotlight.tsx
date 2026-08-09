@@ -17,6 +17,7 @@ import { useShopifyGallery } from "@/lib/shopify/hooks";
 import { embeddableUrl } from "@/lib/embeds";
 import { SPOTLIGHT_BUILDS } from "@/lib/mock-storefront-data";
 import type { SpotlightBuild } from "@/lib/shopify-types";
+import { HlsVideo } from "@/components/media/HlsVideo";
 import {
   Carousel,
   CarouselContent,
@@ -123,8 +124,7 @@ function FavoriteSong({
 /**
  * The Caption field is meant to be a short pull-quote for the carousel card. A
  * long-form story pasted into it would otherwise balloon the card, so clamp it
- * and offer a toggle only when it actually overflows. The modal keeps rendering
- * `fullStory` untruncated.
+ * and offer a toggle only when it actually overflows.
  */
 function BuildCaption({ build }: { build: SpotlightBuild }) {
   const [expanded, setExpanded] = useState(false);
@@ -171,6 +171,59 @@ function BuildCaption({ build }: { build: SpotlightBuild }) {
         </button>
       )}
     </div>
+  );
+}
+
+/**
+ * Client override on the original spec: the modal's Full story used to render
+ * untruncated, which left long stories driving the whole modal's height. It now
+ * clamps like every other long-form field, with a toggle that only appears when
+ * the story actually overflows.
+ */
+function FullStory({ build }: { build: SpotlightBuild }) {
+  const [expanded, setExpanded] = useState(false);
+  const { measurementRef, isOverflowing } =
+    useClampedOverflow<HTMLQuoteElement>(build.fullStory);
+  const storyId = `spotlight-${build.id.replace(/[^a-zA-Z0-9_-]/g, "-")}-story`;
+
+  useEffect(() => {
+    if (!isOverflowing) setExpanded(false);
+  }, [isOverflowing]);
+
+  return (
+    <>
+      <div className="relative mt-3">
+        <blockquote
+          id={storyId}
+          className={`relative border-l border-primary pl-5 text-base italic leading-relaxed text-chrome-dim before:absolute before:-left-0.5 before:-top-5 before:font-serif before:text-5xl before:text-primary before:content-['“'] sm:text-lg ${
+            isOverflowing && !expanded ? "line-clamp-6" : ""
+          }`}
+        >
+          <span className="whitespace-pre-line">{build.fullStory}</span>
+        </blockquote>
+        <blockquote
+          ref={measurementRef}
+          aria-hidden="true"
+          className="invisible absolute inset-x-0 top-0 line-clamp-6 border-l border-transparent pl-5 text-base italic leading-relaxed sm:text-lg"
+        >
+          <span className="whitespace-pre-line">{build.fullStory}</span>
+        </blockquote>
+      </div>
+      {isOverflowing && (
+        <button
+          type="button"
+          onClick={() => setExpanded((current) => !current)}
+          aria-expanded={expanded}
+          aria-controls={storyId}
+          className="mt-4 inline-flex min-h-11 items-center gap-2 border border-border px-4 text-xs font-bold uppercase tracking-[0.18em] text-chrome transition-colors hover:border-primary hover:text-primary"
+        >
+          {expanded ? "Read less" : "Read more"}
+          <ChevronDown
+            className={`h-4 w-4 transition-transform ${expanded ? "rotate-180" : ""}`}
+          />
+        </button>
+      )}
+    </>
   );
 }
 
@@ -304,7 +357,11 @@ export function OwnerSpotlight() {
               </DialogHeader>
               <div className="h-1.5 bg-gradient-brand" />
               <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
-                <div className="relative flex min-h-72 items-center justify-center overflow-hidden bg-black sm:min-h-[34rem]">
+                {/* self-start keeps the photo from being stretched to the
+                    story column's height (which used to leave the image
+                    floating in a tall black void), and sticky keeps it framed
+                    while a long story scrolls past it. */}
+                <div className="relative flex min-h-72 items-center justify-center overflow-hidden bg-black sm:min-h-[34rem] lg:sticky lg:top-0 lg:self-start">
                   <img
                     src={selectedBuild.images[photoIndex].url}
                     alt={selectedBuild.images[photoIndex].altText}
@@ -370,11 +427,7 @@ export function OwnerSpotlight() {
                         : "the owner's"}{" "}
                       words
                     </div>
-                    <blockquote className="relative mt-3 border-l border-primary pl-5 text-base italic leading-relaxed text-chrome-dim before:absolute before:-left-0.5 before:-top-5 before:font-serif before:text-5xl before:text-primary before:content-['“'] sm:text-lg">
-                      <span className="whitespace-pre-line">
-                        {selectedBuild.fullStory}
-                      </span>
-                    </blockquote>
+                    <FullStory build={selectedBuild} />
                   </div>
 
                   {selectedBuild.favoriteSong && (
@@ -390,12 +443,9 @@ export function OwnerSpotlight() {
                           Instagram/TikTok embed, then the static thumbnail. */}
                       <div className="relative aspect-video overflow-hidden bg-surface-2">
                         {selectedBuild.video.videoFileUrl ? (
-                          <video
-                            controls
-                            playsInline
-                            preload="metadata"
-                            poster={selectedBuild.video.thumbnail.url}
+                          <HlsVideo
                             src={selectedBuild.video.videoFileUrl}
+                            poster={selectedBuild.video.thumbnail.url}
                             className="h-full w-full object-cover"
                           />
                         ) : embeddableUrl(selectedBuild.video.embedUrl) ? (
