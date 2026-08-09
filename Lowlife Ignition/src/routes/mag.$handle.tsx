@@ -177,7 +177,7 @@ function MagArticle() {
             </div>
             {article.excerpt && <ArticleExcerpt excerpt={article.excerpt} />}
             <div
-              className="mt-10 space-y-6 text-base leading-relaxed text-chrome-dim sm:text-lg [&_a]:text-primary [&_a]:underline [&_blockquote]:border-l [&_blockquote]:border-primary [&_blockquote]:pl-5 [&_h2]:font-heading [&_h2]:text-3xl [&_h2]:font-black [&_h2]:uppercase [&_h3]:font-heading [&_h3]:text-2xl [&_h3]:font-black [&_h3]:uppercase [&_img]:w-full [&_p]:leading-relaxed"
+              className="mt-10 space-y-6 text-base leading-relaxed text-chrome-dim sm:text-lg [&_a]:text-primary [&_a]:underline [&_blockquote]:border-l [&_blockquote]:border-primary [&_blockquote]:pl-5 [&_h2]:font-heading [&_h2]:text-3xl [&_h2]:font-black [&_h2]:uppercase [&_h3]:font-heading [&_h3]:text-2xl [&_h3]:font-black [&_h3]:uppercase [&_iframe]:aspect-video [&_iframe]:h-auto [&_iframe]:w-full [&_iframe]:border-0 [&_img]:w-full [&_p]:leading-relaxed [&_video]:aspect-video [&_video]:h-auto [&_video]:w-full [&_video]:bg-black [&_video]:object-contain"
               dangerouslySetInnerHTML={{ __html: article.contentHtml }}
             />
           </div>
