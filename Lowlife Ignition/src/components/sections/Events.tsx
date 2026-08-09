@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/dialog";
 import { SectionHeader } from "./SectionHeader";
 
+const TICKETS_ENABLED = false;
+
 function dateParts(iso: string) {
   const date = new Date(iso);
   return {
@@ -125,7 +127,7 @@ export function Events({
         <SectionHeader
           eyebrow="Upcoming Events"
           title="Meet us in the streets."
-          subtitle="Tickets, vendor passes, and limited event merch — all online. First come, first served."
+          subtitle="See where LOWLIFE is pulling up next. Catch us at these upcoming events, shop the latest drops, and come kick it with us in person."
         />
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {events.map((event) => {
@@ -148,7 +150,7 @@ export function Events({
                         {date.day}
                       </span>
                     </div>
-                    {!isAttendanceOnly && (
+                    {TICKETS_ENABLED && !isAttendanceOnly && (
                       <span className="rounded-sm border border-primary/50 bg-primary/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
                         ${Number(event.price.amount)}
                       </span>
@@ -189,30 +191,31 @@ export function Events({
                     {event.address}
                   </p>
                 </div>
-                {isAttendanceOnly ? (
-                  <span className="btn-ghost mt-6 w-full cursor-default justify-center">
-                    <CheckCircle2 className="h-4 w-4" />
-                    We'll Be There
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => void selectTicket(event)}
-                    disabled={!event.availableForSale || purchasing}
-                    className="btn-brand mt-6 w-full"
-                  >
-                    {purchasing ? (
-                      <LoaderCircle className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Ticket className="h-4 w-4" />
-                    )}
-                    {purchasing
-                      ? "Opening Checkout"
-                      : event.availableForSale
-                        ? "Buy Tickets"
-                        : "Sold Out"}
-                  </button>
-                )}
+                {TICKETS_ENABLED &&
+                  (isAttendanceOnly ? (
+                    <span className="btn-ghost mt-6 w-full cursor-default justify-center">
+                      <CheckCircle2 className="h-4 w-4" />
+                      We'll Be There
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => void selectTicket(event)}
+                      disabled={!event.availableForSale || purchasing}
+                      className="btn-brand mt-6 w-full"
+                    >
+                      {purchasing ? (
+                        <LoaderCircle className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Ticket className="h-4 w-4" />
+                      )}
+                      {purchasing
+                        ? "Opening Checkout"
+                        : event.availableForSale
+                          ? "Buy Tickets"
+                          : "Sold Out"}
+                    </button>
+                  ))}
               </article>
             );
           })}
