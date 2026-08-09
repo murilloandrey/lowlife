@@ -10,6 +10,7 @@ import { SectionHeader } from "@/components/sections/SectionHeader";
 import { Toaster } from "@/components/ui/sonner";
 import { useStorefrontCart } from "@/lib/shopify/cart";
 import { useShopifyProductCatalog } from "@/lib/shopify/hooks";
+import { groupProductsByType } from "@/lib/shopify/products";
 import type { ShopifyProduct } from "@/lib/shopify-types";
 import { canonicalUrl } from "@/lib/seo";
 
@@ -61,10 +62,15 @@ function ShopPage() {
     return ["All", ...Array.from(distinct).sort()];
   }, [products]);
 
-  const filteredProducts =
-    activeType === "All"
-      ? products
-      : products.filter((product) => product.productType === activeType);
+  // A category pill already narrows the grid to a single type, so grouping only
+  // matters for the default "All" view.
+  const filteredProducts = useMemo(
+    () =>
+      activeType === "All"
+        ? groupProductsByType(products)
+        : products.filter((product) => product.productType === activeType),
+    [activeType, products],
+  );
 
   const addToCart = async (product: ShopifyProduct, variantId?: string) => {
     try {

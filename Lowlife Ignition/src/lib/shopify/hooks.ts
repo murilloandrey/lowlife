@@ -123,12 +123,22 @@ type EventTicketsResponse = {
   } | null;
 };
 
+type MetaobjectReference = {
+  /** Present on MediaImage references. */
+  image?: ShopifyImage | null;
+  /** Present on Video references (an uploaded, Shopify-transcoded video file). */
+  sources?: Array<{ url: string; mimeType: string | null }> | null;
+  /** Present on GenericFile references (an uploaded file Shopify didn't transcode). */
+  url?: string | null;
+  mimeType?: string | null;
+};
+
 type MetaobjectField = {
   key: string;
   value: string | null;
-  reference: {
-    image?: ShopifyImage | null;
-  } | null;
+  reference: MetaobjectReference | null;
+  /** Populated for "List of files"-style fields; null for single references. */
+  references?: { nodes: MetaobjectReference[] } | null;
 };
 
 type MetaobjectNode = {
@@ -292,6 +302,33 @@ function imageFrom(
   return fields.get(key)?.reference?.image ?? null;
 }
 
+/**
+ * Reads every image out of a "List of files" field. Returns an empty array when
+ * the field is absent from the metaobject definition, empty, or holds
+ * non-image references — callers fall back to their single-image path.
+ */
+function imageListFrom(fields: Map<string, MetaobjectField>, key: string) {
+  return (fields.get(key)?.references?.nodes ?? []).flatMap((node) =>
+    node.image ? [node.image] : [],
+  );
+}
+
+/**
+ * Reads the playable URL out of a File-type field holding an uploaded video.
+ * Shopify transcodes uploaded videos into `Video` (with `sources`), but an
+ * untranscoded upload can come back as a `GenericFile` with a plain `url`.
+ * Returns null when the field doesn't exist yet or is empty.
+ */
+function videoFileUrlFrom(fields: Map<string, MetaobjectField>, key: string) {
+  const reference = fields.get(key)?.reference;
+  if (!reference) return null;
+  const source = reference.sources?.find((candidate) => candidate.url);
+  if (source) return source.url;
+  return reference.mimeType?.startsWith("video/") && reference.url
+    ? reference.url
+    : null;
+}
+
 async function fetchCommunityImages(): Promise<{
   gallery: GalleryMetaobject[];
   spotlights: SpotlightBuild[];
@@ -325,15 +362,17 @@ async function fetchCommunityImages(): Promise<{
           : "instagram";
       const favoriteSongTitle = fields.get("favorite_song_title")?.value;
       const favoriteSongArtist = fields.get("favorite_song_artist")?.value;
+      // `build_photos` is a newer multi-image field; entries that predate it (or
+      // stores where it isn't defined yet) keep the single "Image" field.
+      const buildPhotos = imageListFrom(fields, "build_photos");
+      const galleryImages = buildPhotos.length > 0 ? buildPhotos : [image];
       return [
         {
           id: node.id,
-          images: [
-            {
-              url: image.url,
-              altText: image.altText ?? "Lowlife member build",
-            },
-          ],
+          images: galleryImages.map((photo) => ({
+            url: photo.url,
+            altText: photo.altText ?? "Lowlife member build",
+          })),
           ownerName: fields.get("owner_name")?.value ?? "",
           buildNickname: fields.get("build_nickname")?.value || undefined,
           caption: fields.get("caption")?.value ?? "",
@@ -346,6 +385,7 @@ async function fetchCommunityImages(): Promise<{
             id: `${node.id}-video`,
             platform: videoPlatform,
             embedUrl: fields.get("video_embed_url")?.value ?? null,
+            videoFileUrl: videoFileUrlFrom(fields, "video_file"),
             thumbnail: videoThumbnail,
             caption:
               fields.get("video_caption")?.value ?? "Build video coming soon.",
@@ -389,6 +429,7 @@ async function fetchVideoPosts(): Promise<ShopifyVideoPostMetaobject[]> {
             id: node.id,
             platform,
             embedUrl: fields.get("embed_url")?.value || null,
+            videoFileUrl: videoFileUrlFrom(fields, "video_file"),
             thumbnail,
             caption: fields.get("caption")?.value ?? "",
           },
