@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, CalendarDays, ChevronDown } from "lucide-react";
+import { ArrowRight, CalendarDays } from "lucide-react";
 import { useClampedOverflow } from "@/hooks/use-clamped-overflow";
 import { useShopifyArticles } from "@/lib/shopify/hooks";
 import { ARTICLES } from "@/lib/mock-storefront-data";
@@ -37,53 +36,31 @@ function articleIntro(contentHtml?: string | null, fallback?: string | null) {
 /**
  * `articleIntro` falls back to the article's whole contentHtml with the tags
  * stripped, so a real long-form post turns this pull-quote into thousands of
- * characters next to the headline. Clamp it and offer a toggle only when it
- * actually overflows — a short intro renders exactly as it did before.
+ * characters next to the headline. It stays clamped with no toggle of its own:
+ * this is a teaser, and "Read the feature" is the section's single call to
+ * action. A fade at the bottom edge signals the cut when it overflows.
  */
 function FeaturedIntro({ intro }: { intro: string }) {
-  const [expanded, setExpanded] = useState(false);
   const quoted = `“${intro}”`;
   const { measurementRef, isOverflowing } =
     useClampedOverflow<HTMLQuoteElement>(quoted);
-  const introId = "mag-featured-intro";
-
-  useEffect(() => {
-    if (!isOverflowing) setExpanded(false);
-  }, [isOverflowing]);
 
   return (
     <div className="self-end border-l border-primary pl-5">
       <div className="relative">
         <blockquote
-          id={introId}
-          className={`font-serif text-xl font-bold italic leading-relaxed text-chrome sm:text-2xl ${
-            isOverflowing && !expanded ? "line-clamp-5" : ""
-          }`}
-        >
-          {quoted}
-        </blockquote>
-        <blockquote
           ref={measurementRef}
-          aria-hidden="true"
-          className="invisible absolute inset-x-0 top-0 line-clamp-5 font-serif text-xl font-bold italic leading-relaxed sm:text-2xl"
+          className="line-clamp-5 font-serif text-xl font-bold italic leading-relaxed text-chrome sm:text-2xl"
         >
           {quoted}
         </blockquote>
-      </div>
-      {isOverflowing && (
-        <button
-          type="button"
-          onClick={() => setExpanded((current) => !current)}
-          aria-expanded={expanded}
-          aria-controls={introId}
-          className="mt-4 inline-flex min-h-11 items-center gap-2 border border-border px-4 text-xs font-bold uppercase tracking-[0.18em] text-chrome transition-colors hover:border-primary hover:text-primary"
-        >
-          {expanded ? "Read less" : "Read more"}
-          <ChevronDown
-            className={`h-4 w-4 transition-transform ${expanded ? "rotate-180" : ""}`}
+        {isOverflowing && (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-surface to-transparent"
           />
-        </button>
-      )}
+        )}
+      </div>
     </div>
   );
 }
@@ -108,7 +85,7 @@ export function MonthlyMag() {
                 Lowlife editorial
               </div>
               <h2 className="mt-1 font-heading text-5xl font-black uppercase leading-none sm:text-7xl lg:text-8xl">
-                Monthly Mag
+                Feature of the month
               </h2>
             </div>
             <div className="shrink-0 text-right text-[10px] font-bold uppercase leading-relaxed tracking-[0.2em] text-muted-foreground">
@@ -129,11 +106,21 @@ export function MonthlyMag() {
             </div>
           </div>
 
-          <div className="relative aspect-[4/3] overflow-hidden border border-border sm:aspect-[16/9] lg:aspect-[2/1]">
+          {/* Same letterboxing as the article page hero: a blurred object-cover
+              copy fills the banner while the real photo sits on top with
+              object-contain, so the whole car stays visible instead of being
+              cropped to the teaser's aspect ratio. */}
+          <div className="relative aspect-[4/3] overflow-hidden border border-border bg-black sm:aspect-[16/9] lg:aspect-[2/1]">
+            <img
+              src={featured.image.url}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl brightness-[0.45]"
+            />
             <img
               src={featured.image.url}
               alt={featured.image.altText ?? featured.title}
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-contain"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/10" />
             <span className="absolute bottom-4 left-4 border border-white/30 bg-black/65 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.22em] text-white backdrop-blur sm:bottom-6 sm:left-6">

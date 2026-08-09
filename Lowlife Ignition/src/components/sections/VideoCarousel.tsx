@@ -4,6 +4,7 @@ import { embeddableUrl } from "@/lib/embeds";
 import { VIDEO_POSTS } from "@/lib/mock-storefront-data";
 import type { ShopifyVideoPostMetaobject } from "@/lib/shopify-types";
 import { TikTokIcon } from "@/components/icons/TikTokIcon";
+import { HlsVideo } from "@/components/media/HlsVideo";
 import {
   Carousel,
   CarouselContent,
@@ -41,12 +42,9 @@ export function VideoCarousel() {
                   <article className="group overflow-hidden border border-border bg-card">
                     <div className="relative aspect-[9/16] bg-surface-2">
                       {video.videoFileUrl ? (
-                        <video
-                          controls
-                          playsInline
-                          preload="metadata"
-                          poster={video.thumbnail.url}
+                        <HlsVideo
                           src={video.videoFileUrl}
+                          poster={video.thumbnail.url}
                           className="h-full w-full object-cover"
                         />
                       ) : embedSrc ? (
