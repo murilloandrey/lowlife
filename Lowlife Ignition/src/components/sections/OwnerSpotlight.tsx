@@ -2,15 +2,17 @@
 // recognition captions are placeholders. Collect and approve real owner credits
 // with the client before this section ships to production.
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Award,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Instagram,
   Music2,
   Play,
 } from "lucide-react";
+import { useClampedOverflow } from "@/hooks/use-clamped-overflow";
 import { useShopifyGallery } from "@/lib/shopify/hooks";
 import { embeddableUrl } from "@/lib/embeds";
 import { SPOTLIGHT_BUILDS } from "@/lib/mock-storefront-data";
@@ -118,6 +120,60 @@ function FavoriteSong({
   );
 }
 
+/**
+ * The Caption field is meant to be a short pull-quote for the carousel card. A
+ * long-form story pasted into it would otherwise balloon the card, so clamp it
+ * and offer a toggle only when it actually overflows. The modal keeps rendering
+ * `fullStory` untruncated.
+ */
+function BuildCaption({ build }: { build: SpotlightBuild }) {
+  const [expanded, setExpanded] = useState(false);
+  const quoted = `“${build.caption}”`;
+  const { measurementRef, isOverflowing } =
+    useClampedOverflow<HTMLQuoteElement>(quoted);
+  const captionId = `spotlight-${build.id.replace(/[^a-zA-Z0-9_-]/g, "-")}-caption`;
+
+  useEffect(() => {
+    if (!isOverflowing) setExpanded(false);
+  }, [isOverflowing]);
+
+  return (
+    <div className="mt-5 border-l border-primary pl-5">
+      <div className="relative">
+        <blockquote
+          id={captionId}
+          className={`text-sm italic leading-relaxed text-chrome-dim sm:text-base ${
+            isOverflowing && !expanded ? "line-clamp-4" : ""
+          }`}
+        >
+          {quoted}
+        </blockquote>
+        <blockquote
+          ref={measurementRef}
+          aria-hidden="true"
+          className="invisible absolute inset-x-0 top-0 line-clamp-4 text-sm italic leading-relaxed sm:text-base"
+        >
+          {quoted}
+        </blockquote>
+      </div>
+      {isOverflowing && (
+        <button
+          type="button"
+          onClick={() => setExpanded((current) => !current)}
+          aria-expanded={expanded}
+          aria-controls={captionId}
+          className="mt-4 inline-flex min-h-11 items-center gap-2 border border-border px-4 text-xs font-bold uppercase tracking-[0.18em] text-chrome transition-colors hover:border-primary hover:text-primary"
+        >
+          {expanded ? "Read less" : "Read more"}
+          <ChevronDown
+            className={`h-4 w-4 transition-transform ${expanded ? "rotate-180" : ""}`}
+          />
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function OwnerSpotlight() {
   const { data } = useShopifyGallery();
   const spotlightBuilds: SpotlightBuild[] =
@@ -188,9 +244,7 @@ export function OwnerSpotlight() {
                             {ownerLabel}
                           </p>
                         )}
-                        <blockquote className="relative mt-5 border-l border-primary pl-5 text-sm italic leading-relaxed text-chrome-dim sm:text-base">
-                          “{build.caption}”
-                        </blockquote>
+                        <BuildCaption build={build} />
                         <button
                           type="button"
                           onClick={() => openBuild(build)}
