@@ -91,11 +91,21 @@ function MagArticle() {
             </Link>
           </div>
 
-          <div className="relative mx-auto aspect-[4/3] max-w-7xl overflow-hidden border-y border-border sm:aspect-[16/8] lg:aspect-[2/1]">
+          {/* Hero photos arrive in any orientation. A blurred object-cover copy
+              fills the banner while the real photo sits on top with
+              object-contain, so portrait uploads are letterboxed rather than
+              cropped down to a sliver. */}
+          <div className="relative mx-auto aspect-[4/3] max-w-7xl overflow-hidden border-y border-border bg-black sm:aspect-[16/8] lg:aspect-[2/1]">
+            <img
+              src={article.image.url}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl brightness-[0.45]"
+            />
             <img
               src={article.image.url}
               alt={article.image.altText ?? article.title}
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-contain"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-black/20 to-black/10" />
           </div>
