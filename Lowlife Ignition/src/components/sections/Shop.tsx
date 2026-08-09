@@ -3,11 +3,14 @@ import { ArrowRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useShopifyProducts } from "@/lib/shopify/hooks";
-import { groupProductsByType } from "@/lib/shopify/products";
+import {
+  groupProductsByType,
+  partitionProductsByType,
+} from "@/lib/shopify/products";
 import { PRODUCTS } from "@/lib/mock-storefront-data";
 import type { ShopifyProduct } from "@/lib/shopify-types";
 import { SectionHeader } from "./SectionHeader";
-import { ProductCard } from "./ProductCard";
+import { ProductCategoryGrid } from "./ProductCategoryGrid";
 
 const HOMEPAGE_PRODUCT_LIMIT = 6;
 
@@ -18,11 +21,18 @@ export function Shop({
 }) {
   const { data } = useShopifyProducts();
   const allProducts: ShopifyProduct[] = data ?? PRODUCTS;
-  // Group by category first so the teaser row reads as apparel/keychains/banners
-  // instead of whatever interleaved order the Storefront API returned.
-  const products = useMemo(
-    () => groupProductsByType(allProducts).slice(0, HOMEPAGE_PRODUCT_LIMIT),
+  // Cap the teaser first, then split what's left into labelled category groups
+  // so the grouping is actually visible instead of only implied by sort order.
+  const productGroups = useMemo(
+    () =>
+      partitionProductsByType(
+        groupProductsByType(allProducts).slice(0, HOMEPAGE_PRODUCT_LIMIT),
+      ),
     [allProducts],
+  );
+  const productCount = productGroups.reduce(
+    (total, group) => total + group.products.length,
+    0,
   );
 
   const addProduct = async (product: ShopifyProduct, variantId?: string) => {
@@ -46,17 +56,9 @@ export function Shop({
             subtitle="Premium apparel and accessories inspired by the automotive lifestyle."
           />
         </div>
-        {products.length > 0 ? (
+        {productCount > 0 ? (
           <>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onAdd={addProduct}
-                />
-              ))}
-            </div>
+            <ProductCategoryGrid groups={productGroups} onAdd={addProduct} />
             <div className="mt-10 flex justify-center sm:mt-14">
               <Link to="/shop" className="btn-brand">
                 View All Products <ArrowRight className="h-4 w-4" />
