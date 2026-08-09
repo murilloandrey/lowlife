@@ -1,7 +1,9 @@
+import { useMemo } from "react";
 import { ArrowRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useShopifyProducts } from "@/lib/shopify/hooks";
+import { groupProductsByType } from "@/lib/shopify/products";
 import { PRODUCTS } from "@/lib/mock-storefront-data";
 import type { ShopifyProduct } from "@/lib/shopify-types";
 import { SectionHeader } from "./SectionHeader";
@@ -15,8 +17,13 @@ export function Shop({
   onAdd: (product: ShopifyProduct, variantId?: string) => Promise<unknown>;
 }) {
   const { data } = useShopifyProducts();
-  const allProducts = data ?? PRODUCTS;
-  const products = allProducts.slice(0, HOMEPAGE_PRODUCT_LIMIT);
+  const allProducts: ShopifyProduct[] = data ?? PRODUCTS;
+  // Group by category first so the teaser row reads as apparel/keychains/banners
+  // instead of whatever interleaved order the Storefront API returned.
+  const products = useMemo(
+    () => groupProductsByType(allProducts).slice(0, HOMEPAGE_PRODUCT_LIMIT),
+    [allProducts],
+  );
 
   const addProduct = async (product: ShopifyProduct, variantId?: string) => {
     try {
