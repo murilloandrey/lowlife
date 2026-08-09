@@ -332,8 +332,19 @@ export function OwnerSpotlight() {
                       <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.22em] text-primary">
                         Build video
                       </div>
+                      {/* Priority: uploaded video file, then a normalized
+                          Instagram/TikTok embed, then the static thumbnail. */}
                       <div className="relative aspect-video overflow-hidden bg-surface-2">
-                        {embeddableUrl(selectedBuild.video.embedUrl) ? (
+                        {selectedBuild.video.videoFileUrl ? (
+                          <video
+                            controls
+                            playsInline
+                            preload="metadata"
+                            poster={selectedBuild.video.thumbnail.url}
+                            src={selectedBuild.video.videoFileUrl}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : embeddableUrl(selectedBuild.video.embedUrl) ? (
                           <iframe
                             src={embeddableUrl(selectedBuild.video.embedUrl)!}
                             title={selectedBuild.video.caption}

@@ -2,6 +2,7 @@ import { Instagram, Play } from "lucide-react";
 import { useShopifyVideoPosts } from "@/lib/shopify/hooks";
 import { embeddableUrl } from "@/lib/embeds";
 import { VIDEO_POSTS } from "@/lib/mock-storefront-data";
+import type { ShopifyVideoPostMetaobject } from "@/lib/shopify-types";
 import { TikTokIcon } from "@/components/icons/TikTokIcon";
 import {
   Carousel,
@@ -14,7 +15,7 @@ import { SectionHeader } from "./SectionHeader";
 
 export function VideoCarousel() {
   const { data } = useShopifyVideoPosts();
-  const videoPosts = data ?? VIDEO_POSTS;
+  const videoPosts: ShopifyVideoPostMetaobject[] = data ?? VIDEO_POSTS;
   return (
     <section className="overflow-hidden border-b border-border py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -29,6 +30,8 @@ export function VideoCarousel() {
         >
           <CarouselContent className="-ml-3">
             {videoPosts.map((video) => {
+              // An uploaded video file wins over an embed link, which in turn
+              // wins over the static thumbnail placeholder.
               const embedSrc = embeddableUrl(video.embedUrl);
               return (
                 <CarouselItem
@@ -37,7 +40,16 @@ export function VideoCarousel() {
                 >
                   <article className="group overflow-hidden border border-border bg-card">
                     <div className="relative aspect-[9/16] bg-surface-2">
-                      {embedSrc ? (
+                      {video.videoFileUrl ? (
+                        <video
+                          controls
+                          playsInline
+                          preload="metadata"
+                          poster={video.thumbnail.url}
+                          src={video.videoFileUrl}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : embedSrc ? (
                         <iframe
                           src={embedSrc}
                           title={video.caption}
@@ -59,8 +71,16 @@ export function VideoCarousel() {
                           </span>
                         </>
                       )}
-                      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-4">
-                        <p className="text-sm font-medium text-white">
+                      {/* Native controls live along the bottom edge, so the
+                        caption moves to the top for uploaded video files. */}
+                      <div
+                        className={`pointer-events-none absolute inset-x-0 flex justify-between gap-4 p-4 ${
+                          video.videoFileUrl
+                            ? "top-0 items-start"
+                            : "bottom-0 items-end"
+                        }`}
+                      >
+                        <p className="text-sm font-medium text-white [text-shadow:0_1px_6px_rgba(0,0,0,0.9)]">
                           {video.caption}
                         </p>
                         <span className="shrink-0 rounded-full border border-white/30 bg-black/50 p-2 text-white backdrop-blur">
