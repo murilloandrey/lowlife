@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, CalendarDays } from "lucide-react";
+import { ArrowLeft, CalendarDays, ChevronDown } from "lucide-react";
 import { Footer } from "@/components/sections/Footer";
+import { useClampedOverflow } from "@/hooks/use-clamped-overflow";
 import { useShopifyArticles } from "@/lib/shopify/hooks";
 import { canonicalUrl } from "@/lib/seo";
 
@@ -34,6 +35,59 @@ function articleDate(value: string) {
     day: "numeric",
     year: "numeric",
   }).format(new Date(value));
+}
+
+/**
+ * The Excerpt field is meant to hold a short pull-quote, but a full long-form
+ * story pasted into it would otherwise dominate the page before the Content
+ * section starts. Short excerpts never overflow, so they render exactly as
+ * before with no toggle.
+ */
+function ArticleExcerpt({ excerpt }: { excerpt: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const { measurementRef, isOverflowing } =
+    useClampedOverflow<HTMLParagraphElement>(excerpt);
+  const excerptId = "mag-article-excerpt";
+
+  useEffect(() => {
+    if (!isOverflowing) setExpanded(false);
+  }, [isOverflowing]);
+
+  return (
+    <div className="mt-8 border-l border-primary pl-5">
+      <div className="relative">
+        <p
+          id={excerptId}
+          className={`text-lg font-bold leading-relaxed text-chrome sm:text-xl ${
+            isOverflowing && !expanded ? "line-clamp-4" : ""
+          }`}
+        >
+          {excerpt}
+        </p>
+        <p
+          ref={measurementRef}
+          aria-hidden="true"
+          className="invisible absolute inset-x-0 top-0 line-clamp-4 text-lg font-bold leading-relaxed sm:text-xl"
+        >
+          {excerpt}
+        </p>
+      </div>
+      {isOverflowing && (
+        <button
+          type="button"
+          onClick={() => setExpanded((current) => !current)}
+          aria-expanded={expanded}
+          aria-controls={excerptId}
+          className="mt-4 inline-flex min-h-11 items-center gap-2 border border-border px-4 text-xs font-bold uppercase tracking-[0.18em] text-chrome transition-colors hover:border-primary hover:text-primary"
+        >
+          {expanded ? "Read less" : "Read more"}
+          <ChevronDown
+            className={`h-4 w-4 transition-transform ${expanded ? "rotate-180" : ""}`}
+          />
+        </button>
+      )}
+    </div>
+  );
 }
 
 function MagArticle() {
@@ -121,9 +175,7 @@ function MagArticle() {
               <CalendarDays className="h-3.5 w-3.5 text-primary" />
               {articleDate(article.publishedAt)} · By {article.author.name}
             </div>
-            <p className="mt-8 border-l border-primary pl-5 text-lg font-bold leading-relaxed text-chrome sm:text-xl">
-              {article.excerpt}
-            </p>
+            {article.excerpt && <ArticleExcerpt excerpt={article.excerpt} />}
             <div
               className="mt-10 space-y-6 text-base leading-relaxed text-chrome-dim sm:text-lg [&_a]:text-primary [&_a]:underline [&_blockquote]:border-l [&_blockquote]:border-primary [&_blockquote]:pl-5 [&_h2]:font-heading [&_h2]:text-3xl [&_h2]:font-black [&_h2]:uppercase [&_h3]:font-heading [&_h3]:text-2xl [&_h3]:font-black [&_h3]:uppercase [&_img]:w-full [&_p]:leading-relaxed"
               dangerouslySetInnerHTML={{ __html: article.contentHtml }}
