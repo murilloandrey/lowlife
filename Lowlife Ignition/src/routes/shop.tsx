@@ -6,11 +6,12 @@ import { CartDrawer } from "@/components/sections/CartDrawer";
 import { Footer } from "@/components/sections/Footer";
 import { Navbar } from "@/components/sections/Navbar";
 import { ProductCard } from "@/components/sections/ProductCard";
+import { ProductCategoryGrid } from "@/components/sections/ProductCategoryGrid";
 import { SectionHeader } from "@/components/sections/SectionHeader";
 import { Toaster } from "@/components/ui/sonner";
 import { useStorefrontCart } from "@/lib/shopify/cart";
 import { useShopifyProductCatalog } from "@/lib/shopify/hooks";
-import { groupProductsByType } from "@/lib/shopify/products";
+import { partitionProductsByType } from "@/lib/shopify/products";
 import type { ShopifyProduct } from "@/lib/shopify-types";
 import { canonicalUrl } from "@/lib/seo";
 
@@ -62,14 +63,19 @@ function ShopPage() {
     return ["All", ...Array.from(distinct).sort()];
   }, [products]);
 
-  // A category pill already narrows the grid to a single type, so grouping only
-  // matters for the default "All" view.
+  // A category pill already narrows the grid to a single type, so the grouped
+  // layout only applies to the default "All" view.
+  const showGrouped = activeType === "All";
   const filteredProducts = useMemo(
     () =>
-      activeType === "All"
-        ? groupProductsByType(products)
+      showGrouped
+        ? products
         : products.filter((product) => product.productType === activeType),
-    [activeType, products],
+    [activeType, products, showGrouped],
+  );
+  const productGroups = useMemo(
+    () => (showGrouped ? partitionProductsByType(products) : []),
+    [products, showGrouped],
   );
 
   const addToCart = async (product: ShopifyProduct, variantId?: string) => {
@@ -122,15 +128,19 @@ function ShopPage() {
                 Loading catalog…
               </div>
             ) : filteredProducts.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    onAdd={addToCart}
-                  />
-                ))}
-              </div>
+              showGrouped ? (
+                <ProductCategoryGrid groups={productGroups} onAdd={addToCart} />
+              ) : (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {filteredProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onAdd={addToCart}
+                    />
+                  ))}
+                </div>
+              )
             ) : (
               <div className="chrome-border bg-card px-6 py-14 text-center sm:px-10 sm:py-20">
                 <h3 className="font-heading text-2xl font-black uppercase sm:text-3xl">

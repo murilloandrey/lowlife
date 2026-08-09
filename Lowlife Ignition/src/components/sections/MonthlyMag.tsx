@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, CalendarDays } from "lucide-react";
+import { ArrowRight, CalendarDays, ChevronDown } from "lucide-react";
+import { useClampedOverflow } from "@/hooks/use-clamped-overflow";
 import { useShopifyArticles } from "@/lib/shopify/hooks";
 import { ARTICLES } from "@/lib/mock-storefront-data";
 
@@ -30,6 +32,60 @@ function meaningfulArticleText(value?: string | null) {
 
 function articleIntro(contentHtml?: string | null, fallback?: string | null) {
   return meaningfulArticleText(contentHtml) || meaningfulArticleText(fallback);
+}
+
+/**
+ * `articleIntro` falls back to the article's whole contentHtml with the tags
+ * stripped, so a real long-form post turns this pull-quote into thousands of
+ * characters next to the headline. Clamp it and offer a toggle only when it
+ * actually overflows — a short intro renders exactly as it did before.
+ */
+function FeaturedIntro({ intro }: { intro: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const quoted = `“${intro}”`;
+  const { measurementRef, isOverflowing } =
+    useClampedOverflow<HTMLQuoteElement>(quoted);
+  const introId = "mag-featured-intro";
+
+  useEffect(() => {
+    if (!isOverflowing) setExpanded(false);
+  }, [isOverflowing]);
+
+  return (
+    <div className="self-end border-l border-primary pl-5">
+      <div className="relative">
+        <blockquote
+          id={introId}
+          className={`font-serif text-xl font-bold italic leading-relaxed text-chrome sm:text-2xl ${
+            isOverflowing && !expanded ? "line-clamp-5" : ""
+          }`}
+        >
+          {quoted}
+        </blockquote>
+        <blockquote
+          ref={measurementRef}
+          aria-hidden="true"
+          className="invisible absolute inset-x-0 top-0 line-clamp-5 font-serif text-xl font-bold italic leading-relaxed sm:text-2xl"
+        >
+          {quoted}
+        </blockquote>
+      </div>
+      {isOverflowing && (
+        <button
+          type="button"
+          onClick={() => setExpanded((current) => !current)}
+          aria-expanded={expanded}
+          aria-controls={introId}
+          className="mt-4 inline-flex min-h-11 items-center gap-2 border border-border px-4 text-xs font-bold uppercase tracking-[0.18em] text-chrome transition-colors hover:border-primary hover:text-primary"
+        >
+          {expanded ? "Read less" : "Read more"}
+          <ChevronDown
+            className={`h-4 w-4 transition-transform ${expanded ? "rotate-180" : ""}`}
+          />
+        </button>
+      )}
+    </div>
+  );
 }
 
 export function MonthlyMag() {
@@ -101,11 +157,7 @@ export function MonthlyMag() {
                 Read the feature <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
-            {featuredIntro && (
-              <blockquote className="self-end border-l border-primary pl-5 font-serif text-xl font-bold italic leading-relaxed text-chrome sm:text-2xl">
-                “{featuredIntro}”
-              </blockquote>
-            )}
+            {featuredIntro && <FeaturedIntro intro={featuredIntro} />}
           </div>
         </article>
 
