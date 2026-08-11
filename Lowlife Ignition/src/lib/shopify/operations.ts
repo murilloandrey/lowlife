@@ -223,6 +223,17 @@ export const VIDEO_POSTS_QUERY = `#graphql
   }
 `;
 
+export const HERO_SLIDES_QUERY = `#graphql
+  ${METAOBJECT_FIELDS}
+  query StorefrontHeroSlides($first: Int!) {
+    heroSlides: metaobjects(type: "hero_slide", first: $first) {
+      nodes {
+        ...StorefrontMetaobjectFields
+      }
+    }
+  }
+`;
+
 const CART_FIELDS = `#graphql
   fragment StorefrontCartFields on Cart {
     id

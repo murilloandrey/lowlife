@@ -66,6 +66,11 @@ export type GalleryMetaobject = {
   caption: string;
 };
 
+export type HeroSlide = {
+  id: string;
+  image: ShopifyImage;
+};
+
 export type SpotlightBuild = {
   id: string;
   images: Array<{

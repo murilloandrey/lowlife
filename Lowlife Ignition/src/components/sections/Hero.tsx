@@ -1,22 +1,17 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, Flame } from "lucide-react";
-import heroFusion from "@/assets/hero-fusion.jpg";
 import lowlifeLogo from "@/assets/lowlife-logo.png";
-
-const HERO_SLIDES = [
-  {
-    src: heroFusion,
-    alt: "Blue Ford Fusion with a Lowlife windshield decal at a Houston car show",
-  },
-];
+import { useHeroSlides } from "@/lib/shopify/hooks";
 
 const HERO_SLIDE_INTERVAL_MS = 6_000;
 
 export function Hero() {
+  const { data: heroSlides } = useHeroSlides();
   const [activeSlide, setActiveSlide] = useState(0);
+  const visibleSlide = activeSlide % heroSlides.length;
 
   useEffect(() => {
-    if (HERO_SLIDES.length < 2) return;
+    if (heroSlides.length < 2) return;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let timer: number | undefined;
@@ -27,7 +22,7 @@ export function Hero() {
       if (reducedMotion.matches) return;
 
       timer = window.setInterval(() => {
-        setActiveSlide((current) => (current + 1) % HERO_SLIDES.length);
+        setActiveSlide((current) => (current + 1) % heroSlides.length);
       }, HERO_SLIDE_INTERVAL_MS);
     };
 
@@ -37,23 +32,23 @@ export function Hero() {
       window.clearInterval(timer);
       reducedMotion.removeEventListener("change", configureTimer);
     };
-  }, []);
+  }, [heroSlides.length]);
 
   return (
     <section
       id="top"
       className="relative isolate min-h-[100svh] overflow-hidden pt-20"
     >
-      {HERO_SLIDES.map((slide, index) => (
+      {heroSlides.map((slide, index) => (
         <img
-          key={slide.src}
-          src={slide.src}
-          alt={index === activeSlide ? slide.alt : ""}
-          aria-hidden={index !== activeSlide}
-          width={1467}
-          height={2200}
+          key={slide.id}
+          src={slide.image.url}
+          alt={index === visibleSlide ? (slide.image.altText ?? "") : ""}
+          aria-hidden={index !== visibleSlide}
+          width={slide.image.width}
+          height={slide.image.height}
           className={`absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-1000 motion-reduce:transition-none ${
-            index === activeSlide ? "opacity-70" : ""
+            index === visibleSlide ? "opacity-70" : ""
           }`}
         />
       ))}
@@ -88,17 +83,17 @@ export function Hero() {
           </div>
         </div>
       </div>
-      {HERO_SLIDES.length > 1 && (
+      {heroSlides.length > 1 && (
         <div className="absolute bottom-20 right-4 z-20 flex items-center gap-2 sm:bottom-24 sm:right-6">
-          {HERO_SLIDES.map((slide, index) => (
+          {heroSlides.map((slide, index) => (
             <button
-              key={slide.src}
+              key={slide.id}
               type="button"
               onClick={() => setActiveSlide(index)}
               aria-label={`Show hero image ${index + 1}`}
-              aria-current={index === activeSlide ? "true" : undefined}
+              aria-current={index === visibleSlide ? "true" : undefined}
               className={`h-2 rounded-full border border-chrome/50 transition-[width,background-color] motion-reduce:transition-none ${
-                index === activeSlide
+                index === visibleSlide
                   ? "w-7 bg-primary"
                   : "w-2 bg-black/50 hover:bg-chrome/70"
               }`}

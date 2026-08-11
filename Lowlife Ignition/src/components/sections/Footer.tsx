@@ -27,8 +27,12 @@ export function Footer() {
           icon: Instagram,
           external: true,
         },
-        // TODO(client-content): Confirm the real TikTok handle/URL.
-        { label: "TikTok", href: "#social", icon: TikTokIcon },
+        {
+          label: "TikTok",
+          href: "https://www.tiktok.com/@lowlife_est15",
+          icon: TikTokIcon,
+          external: true,
+        },
         { label: "YouTube", href: "#top" },
         { label: "Cart", href: "#top" },
       ],
