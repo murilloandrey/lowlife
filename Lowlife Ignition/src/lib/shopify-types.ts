@@ -62,7 +62,9 @@ export type ShopifyArticle = {
 
 export type GalleryMetaobject = {
   id: string;
-  image: ShopifyImage;
+  mediaType?: "image" | "video";
+  image: ShopifyImage | null;
+  videoFileUrl?: string | null;
   caption: string;
 };
 

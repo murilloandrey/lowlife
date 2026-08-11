@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Instagram } from "lucide-react";
+import { HlsVideo } from "@/components/media/HlsVideo";
 import { useShopifyGallery } from "@/lib/shopify/hooks";
 import { GALLERY } from "@/lib/mock-storefront-data";
+import type { GalleryMetaobject } from "@/lib/shopify-types";
 import {
   Dialog,
   DialogContent,
@@ -11,9 +13,51 @@ import {
 } from "@/components/ui/dialog";
 import { SectionHeader } from "./SectionHeader";
 
+function mediaLabel(item: GalleryMetaobject, index: number) {
+  return (
+    item.caption ||
+    item.image?.altText ||
+    `Lowlife gallery ${item.mediaType === "video" ? "video" : "photo"} ${index + 1}`
+  );
+}
+
+function GalleryMedia({
+  item,
+  className,
+  loading,
+}: {
+  item: GalleryMetaobject;
+  className: string;
+  loading?: "eager" | "lazy";
+}) {
+  if (item.mediaType === "video" && item.videoFileUrl) {
+    return (
+      <HlsVideo
+        src={item.videoFileUrl}
+        poster={item.image?.url}
+        autoPlay
+        loop
+        muted
+        controls={false}
+        className={className}
+      />
+    );
+  }
+
+  if (!item.image) return null;
+  return (
+    <img
+      src={item.image.url}
+      alt={item.image.altText ?? item.caption}
+      loading={loading}
+      className={className}
+    />
+  );
+}
+
 export function Gallery() {
   const { data } = useShopifyGallery();
-  const gallery = data?.gallery ?? GALLERY;
+  const gallery: GalleryMetaobject[] = data?.gallery ?? GALLERY;
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const activeItem = activeIndex === null ? null : gallery[activeIndex];
 
@@ -56,17 +100,16 @@ export function Gallery() {
               type="button"
               key={item.id}
               onClick={() => setActiveIndex(index)}
-              aria-label={`Open photo ${index + 1}: ${item.caption}`}
+              aria-label={`Open ${item.mediaType === "video" ? "video" : "photo"} ${index + 1}: ${mediaLabel(item, index)}`}
               className="group relative aspect-square overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
-              <img
-                src={item.image.url}
-                alt={item.image.altText ?? item.caption}
+              <GalleryMedia
+                item={item}
                 loading="lazy"
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-black/20 transition-all group-hover:bg-primary/20" />
-              <span className="sr-only">{item.caption}</span>
+              <span className="sr-only">{mediaLabel(item, index)}</span>
             </button>
           ))}
         </div>
@@ -90,15 +133,18 @@ export function Gallery() {
           {activeItem && (
             <>
               <DialogHeader className="sr-only">
-                <DialogTitle>{activeItem.caption}</DialogTitle>
+                <DialogTitle>
+                  {mediaLabel(activeItem, activeIndex!)}
+                </DialogTitle>
                 <DialogDescription>
-                  Full-size gallery photo {activeIndex! + 1} of {gallery.length}
+                  Full-size gallery{" "}
+                  {activeItem.mediaType === "video" ? "video" : "photo"}{" "}
+                  {activeIndex! + 1} of {gallery.length}
                 </DialogDescription>
               </DialogHeader>
               <div className="relative flex min-h-0 items-center justify-center bg-black">
-                <img
-                  src={activeItem.image.url}
-                  alt={activeItem.image.altText ?? activeItem.caption}
+                <GalleryMedia
+                  item={activeItem}
                   className="max-h-[72svh] w-full object-contain"
                 />
                 {gallery.length > 1 && (
@@ -124,8 +170,10 @@ export function Gallery() {
               </div>
               <div className="flex items-start justify-between gap-4 px-1 pb-1">
                 <div>
-                  <p className="text-sm text-chrome">{activeItem.caption}</p>
-                  {activeItem.image.altText &&
+                  {activeItem.caption && (
+                    <p className="text-sm text-chrome">{activeItem.caption}</p>
+                  )}
+                  {activeItem.image?.altText &&
                     activeItem.image.altText !== activeItem.caption && (
                       <p className="mt-1 text-xs text-muted-foreground">
                         {activeItem.image.altText}
