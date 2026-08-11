@@ -126,7 +126,7 @@ export function Events({
           title="Meet us in the streets."
           subtitle="See where LOWLIFE is pulling up next. Catch us at these upcoming events, shop the latest drops, and come kick it with us in person."
         />
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-3">
           {events.map((event) => {
             const date = dateParts(event.startsAt);
             const directionsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address)}`;
@@ -135,10 +135,10 @@ export function Events({
             return (
               <article
                 key={event.id}
-                className="group relative flex flex-col overflow-hidden chrome-border"
+                className="group relative flex h-full flex-col overflow-hidden chrome-border"
               >
-                {event.images[0] && (
-                  <div className="aspect-[16/9] overflow-hidden border-b border-border bg-surface-2">
+                <div className="relative aspect-[16/9] shrink-0 overflow-hidden border-b border-border bg-surface-2">
+                  {event.images[0] ? (
                     <img
                       src={event.images[0].url}
                       alt={
@@ -147,8 +147,18 @@ export function Events({
                       loading="lazy"
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
-                  </div>
-                )}
+                  ) : (
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_25%_25%,rgba(236,72,153,0.16),transparent_42%),linear-gradient(135deg,rgba(109,40,217,0.12),transparent_65%)]"
+                    >
+                      <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.24em] text-muted-foreground">
+                        <span className="h-px w-8 bg-primary/60" />
+                        Lowlife Est. 15
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <div className="flex flex-1 flex-col justify-between p-6">
                   <div>
                     <div className="flex items-start justify-between gap-4">
