@@ -1,11 +1,5 @@
-import { useCallback, useEffect, useState, type MouseEvent } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Instagram,
-  Volume2,
-  VolumeX,
-} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, Instagram, Maximize2 } from "lucide-react";
 import { HlsVideo } from "@/components/media/HlsVideo";
 import { useShopifyGallery } from "@/lib/shopify/hooks";
 import { GALLERY } from "@/lib/mock-storefront-data";
@@ -32,11 +26,13 @@ function GalleryMedia({
   className,
   loading,
   muted = true,
+  controls = false,
 }: {
   item: GalleryMetaobject;
   className: string;
   loading?: "eager" | "lazy";
   muted?: boolean;
+  controls?: boolean;
 }) {
   if (item.mediaType === "video" && item.videoFileUrl) {
     return (
@@ -46,7 +42,7 @@ function GalleryMedia({
         autoPlay
         loop
         muted={muted}
-        controls={false}
+        controls={controls}
         className={className}
       />
     );
@@ -67,36 +63,7 @@ export function Gallery() {
   const { data } = useShopifyGallery();
   const gallery: GalleryMetaobject[] = data?.gallery ?? GALLERY;
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [audibleVideoId, setAudibleVideoId] = useState<string | null>(null);
   const activeItem = activeIndex === null ? null : gallery[activeIndex];
-
-  const toggleVideoSound = useCallback(
-    (event: MouseEvent<HTMLButtonElement>, videoId: string) => {
-      const video = event.currentTarget.querySelector("video");
-      if (!video) return;
-
-      const makeAudible = audibleVideoId !== videoId;
-      event.currentTarget
-        .closest("#gallery")
-        ?.querySelectorAll("video")
-        .forEach((candidate) => {
-          candidate.muted = true;
-        });
-
-      if (!makeAudible) {
-        setAudibleVideoId(null);
-        return;
-      }
-
-      video.muted = false;
-      setAudibleVideoId(videoId);
-      void video.play().catch(() => {
-        video.muted = true;
-        setAudibleVideoId((current) => (current === videoId ? null : current));
-      });
-    },
-    [audibleVideoId],
-  );
 
   const move = useCallback(
     (direction: -1 | 1) => {
@@ -134,39 +101,24 @@ export function Gallery() {
         <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4">
           {gallery.map((item, index) => {
             const isVideo = item.mediaType === "video";
-            const isAudible = isVideo && audibleVideoId === item.id;
             const label = mediaLabel(item, index);
             return (
               <button
                 type="button"
                 key={item.id}
-                onClick={(event) =>
-                  isVideo
-                    ? toggleVideoSound(event, item.id)
-                    : setActiveIndex(index)
-                }
-                aria-label={
-                  isVideo
-                    ? `${isAudible ? "Mute" : "Play with sound"}: ${label}`
-                    : `Open photo ${index + 1}: ${label}`
-                }
-                aria-pressed={isVideo ? isAudible : undefined}
+                onClick={() => setActiveIndex(index)}
+                aria-label={`Open ${isVideo ? "video with sound" : "photo"} ${index + 1}: ${label}`}
                 className="group relative aspect-square overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <GalleryMedia
                   item={item}
                   loading="lazy"
-                  muted={!isAudible}
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-black/20 transition-all group-hover:bg-primary/20" />
                 {isVideo && (
                   <span className="pointer-events-none absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full border border-white/35 bg-black/65 text-white shadow-lg backdrop-blur transition-colors group-hover:border-primary">
-                    {isAudible ? (
-                      <Volume2 className="h-4 w-4" aria-hidden="true" />
-                    ) : (
-                      <VolumeX className="h-4 w-4" aria-hidden="true" />
-                    )}
+                    <Maximize2 className="h-4 w-4" aria-hidden="true" />
                   </span>
                 )}
                 <span className="sr-only">{label}</span>
@@ -206,6 +158,8 @@ export function Gallery() {
               <div className="relative flex min-h-0 items-center justify-center bg-black">
                 <GalleryMedia
                   item={activeItem}
+                  muted={activeItem.mediaType !== "video"}
+                  controls={activeItem.mediaType === "video"}
                   className="max-h-[72svh] w-full object-contain"
                 />
                 {gallery.length > 1 && (
@@ -213,7 +167,7 @@ export function Gallery() {
                     <button
                       type="button"
                       onClick={() => move(-1)}
-                      aria-label="Previous gallery photo"
+                      aria-label="Previous gallery item"
                       className="absolute left-2 grid h-11 w-11 place-items-center border border-white/30 bg-black/65 text-white backdrop-blur transition-colors hover:border-primary sm:left-4"
                     >
                       <ChevronLeft className="h-5 w-5" />
@@ -221,7 +175,7 @@ export function Gallery() {
                     <button
                       type="button"
                       onClick={() => move(1)}
-                      aria-label="Next gallery photo"
+                      aria-label="Next gallery item"
                       className="absolute right-2 grid h-11 w-11 place-items-center border border-white/30 bg-black/65 text-white backdrop-blur transition-colors hover:border-primary sm:right-4"
                     >
                       <ChevronRight className="h-5 w-5" />
