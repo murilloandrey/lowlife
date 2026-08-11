@@ -39,8 +39,12 @@ export function SocialCTA() {
             >
               <Instagram className="h-4 w-4" /> Follow on Instagram
             </a>
-            {/* TODO(client-content): Confirm the real TikTok handle/URL. */}
-            <a href="#social" className="btn-ghost">
+            <a
+              href="https://www.tiktok.com/@lowlife_est15"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-ghost"
+            >
               <TikTokIcon className="h-4 w-4" /> Follow on TikTok
             </a>
           </div>

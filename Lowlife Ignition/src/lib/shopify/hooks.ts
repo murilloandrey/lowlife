@@ -10,6 +10,7 @@ import {
 } from "@/lib/mock-storefront-data";
 import type {
   GalleryMetaobject,
+  HeroSlide,
   ShopifyArticle,
   ShopifyImage,
   ShopifyProduct,
@@ -22,6 +23,7 @@ import {
   ARTICLES_QUERY,
   EVENT_TICKETS_QUERY,
   GALLERY_QUERY,
+  HERO_SLIDES_QUERY,
   PRODUCTS_QUERY,
   SHOPTICKETS_COLLECTION_HANDLE,
   SHOPTICKETS_EVENT_METAFIELDS,
@@ -154,6 +156,25 @@ type GalleryResponse = {
 type VideoPostsResponse = {
   videoPosts: { nodes: MetaobjectNode[] };
 };
+
+type HeroSlidesResponse = {
+  heroSlides: { nodes: MetaobjectNode[] };
+};
+
+const HERO_FALLBACK_ALT =
+  "Blue Ford Fusion with a Lowlife windshield decal at a Houston car show";
+
+const HERO_SLIDES_FALLBACK: HeroSlide[] = [
+  {
+    id: "local-hero-fusion",
+    image: {
+      url: articleFallbackImage,
+      altText: HERO_FALLBACK_ALT,
+      width: 1467,
+      height: 2200,
+    },
+  },
+];
 
 const ARTICLE_FALLBACK_IMAGE: ShopifyImage = {
   url: articleFallbackImage,
@@ -441,6 +462,33 @@ async function fetchVideoPosts(): Promise<ShopifyVideoPostMetaobject[]> {
   }
 }
 
+async function fetchHeroSlides(): Promise<HeroSlide[]> {
+  try {
+    const data = await shopifyFetch<HeroSlidesResponse>(HERO_SLIDES_QUERY, {
+      first: 20,
+    });
+    const heroSlides = data.heroSlides.nodes.flatMap((node) => {
+      const fields = fieldMap(node);
+      const image = imageFrom(fields);
+      if (!image) return [];
+      const customAlt = fields.get("alt_text")?.value?.trim();
+      return [
+        {
+          id: node.id,
+          image: {
+            ...image,
+            altText:
+              customAlt || image.altText?.trim() || "Lowlife featured car",
+          },
+        },
+      ];
+    });
+    return heroSlides.length > 0 ? heroSlides : HERO_SLIDES_FALLBACK;
+  } catch (error) {
+    return fallbackOnError("hero slides", HERO_SLIDES_FALLBACK)(error);
+  }
+}
+
 export function useShopifyProducts() {
   const configured = isShopifyConfigured();
   return useQuery({
@@ -532,6 +580,17 @@ export function useShopifyVideoPosts() {
     queryKey: ["shopify", "video-posts", configured],
     queryFn: configured ? fetchVideoPosts : async () => VIDEO_POSTS,
     initialData: VIDEO_POSTS,
+    initialDataUpdatedAt: 0,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useHeroSlides() {
+  const configured = isShopifyConfigured();
+  return useQuery({
+    queryKey: ["shopify", "hero-slides", configured],
+    queryFn: configured ? fetchHeroSlides : async () => HERO_SLIDES_FALLBACK,
+    initialData: HERO_SLIDES_FALLBACK,
     initialDataUpdatedAt: 0,
     staleTime: 5 * 60 * 1000,
   });
