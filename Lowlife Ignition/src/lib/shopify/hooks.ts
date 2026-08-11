@@ -14,7 +14,6 @@ import type {
   ShopifyImage,
   ShopifyProduct,
   ShopifyTicketProduct,
-  ShopifyVideoPostMetaobject,
   SpotlightBuild,
 } from "@/lib/shopify-types";
 import { isShopifyConfigured, shopifyFetch } from "./client";
@@ -26,7 +25,6 @@ import {
   PRODUCTS_QUERY,
   SHOPTICKETS_COLLECTION_HANDLE,
   SHOPTICKETS_EVENT_METAFIELDS,
-  VIDEO_POSTS_QUERY,
 } from "./operations";
 import { selectableProductOptions } from "./variants";
 
@@ -125,6 +123,7 @@ type EventTicketsResponse = {
 };
 
 type MetaobjectReference = {
+  __typename?: "MediaImage" | "Video" | "GenericFile";
   /** Present on MediaImage references. */
   image?: ShopifyImage | null;
   /** Present on Video references (an uploaded, Shopify-transcoded video file). */
@@ -152,10 +151,6 @@ type MetaobjectNode = {
 type GalleryResponse = {
   gallery: { nodes: MetaobjectNode[] };
   spotlights: { nodes: MetaobjectNode[] };
-};
-
-type VideoPostsResponse = {
-  videoPosts: { nodes: MetaobjectNode[] };
 };
 
 type HeroSlidesResponse = {
@@ -366,15 +361,37 @@ async function fetchCommunityImages(): Promise<{
     const data = await shopifyFetch<GalleryResponse>(GALLERY_QUERY, {
       first: 50,
     });
-    const gallery = data.gallery.nodes.flatMap((node) => {
+    const gallery = data.gallery.nodes.flatMap<GalleryMetaobject>((node) => {
       const fields = fieldMap(node);
-      const image = imageFrom(fields);
-      if (!image) return [];
+      const reference = fields.get("image")?.reference;
+      if (!reference) return [];
+      const caption = fields.get("caption")?.value ?? "";
+
+      if (
+        reference.__typename === "Video" ||
+        (reference.__typename === "GenericFile" &&
+          reference.mimeType?.startsWith("video/"))
+      ) {
+        const videoFileUrl = videoFileUrlFrom(fields, "image");
+        if (!videoFileUrl) return [];
+        return [
+          {
+            id: node.id,
+            mediaType: "video" as const,
+            image: reference.previewImage ?? null,
+            videoFileUrl,
+            caption,
+          },
+        ];
+      }
+
+      if (reference.__typename !== "MediaImage" || !reference.image) return [];
       return [
         {
           id: node.id,
-          image,
-          caption: fields.get("caption")?.value ?? "",
+          mediaType: "image" as const,
+          image: reference.image,
+          caption,
         },
       ];
     });
@@ -436,52 +453,6 @@ async function fetchCommunityImages(): Promise<{
     };
   } catch (error) {
     return fallbackOnError("metaobjects", fallback)(error);
-  }
-}
-
-async function fetchVideoPosts(): Promise<ShopifyVideoPostMetaobject[]> {
-  try {
-    const data = await shopifyFetch<VideoPostsResponse>(VIDEO_POSTS_QUERY, {
-      first: 24,
-    });
-    const videoPosts: ShopifyVideoPostMetaobject[] = data.videoPosts.nodes
-      .flatMap((node) => {
-        const fields = fieldMap(node);
-        const thumbnail =
-          imageFrom(fields, "thumbnail") ??
-          fields.get("video_file")?.reference?.previewImage ??
-          null;
-        const platformValue = fields.get("platform")?.value?.toLowerCase();
-        const platform: ShopifyVideoPostMetaobject["platform"] =
-          platformValue === "instagram" || platformValue === "tiktok"
-            ? platformValue
-            : undefined;
-        const embedUrl = fields.get("embed_url")?.value || null;
-        const videoFileUrl = videoFileUrlFrom(fields, "video_file");
-        if (!videoFileUrl && !embedUrl && !thumbnail) {
-          return [];
-        }
-        return [
-          {
-            id: node.id,
-            updatedAt: node.updatedAt,
-            platform,
-            embedUrl,
-            videoFileUrl,
-            thumbnail,
-            caption: fields.get("caption")?.value ?? "",
-          },
-        ];
-      })
-      .sort(
-        (a, b) => Date.parse(b.updatedAt ?? "") - Date.parse(a.updatedAt ?? ""),
-      );
-    return videoPosts;
-  } catch (error) {
-    return fallbackOnError(
-      "video posts",
-      [] as ShopifyVideoPostMetaobject[],
-    )(error);
   }
 }
 
@@ -593,15 +564,6 @@ export function useShopifyGallery() {
     queryFn: configured ? fetchCommunityImages : async () => fallback,
     initialData: fallback,
     initialDataUpdatedAt: 0,
-    staleTime: 5 * 60 * 1000,
-  });
-}
-
-export function useShopifyVideoPosts() {
-  const configured = isShopifyConfigured();
-  return useQuery({
-    queryKey: ["shopify", "video-posts", configured],
-    queryFn: configured ? fetchVideoPosts : async () => [],
     staleTime: 5 * 60 * 1000,
   });
 }

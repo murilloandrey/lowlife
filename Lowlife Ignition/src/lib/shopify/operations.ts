@@ -162,6 +162,7 @@ const METAOBJECT_FIELDS = `#graphql
       key
       value
       reference {
+        __typename
         ... on MediaImage {
           image {
             url
@@ -212,21 +213,6 @@ export const GALLERY_QUERY = `#graphql
       }
     }
     spotlights: metaobjects(type: "spotlight_build", first: $first) {
-      nodes {
-        ...StorefrontMetaobjectFields
-      }
-    }
-  }
-`;
-
-export const VIDEO_POSTS_QUERY = `#graphql
-  ${METAOBJECT_FIELDS}
-  query StorefrontVideoPosts($first: Int!) {
-    videoPosts: metaobjects(
-      type: "video_post"
-      first: $first
-      sortKey: "updated_at"
-    ) {
       nodes {
         ...StorefrontMetaobjectFields
       }

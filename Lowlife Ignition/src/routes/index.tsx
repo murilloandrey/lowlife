@@ -13,7 +13,6 @@ import { NewsletterPopup } from "@/components/sections/NewsletterPopup";
 import { OwnerSpotlight } from "@/components/sections/OwnerSpotlight";
 import { Shop } from "@/components/sections/Shop";
 import { SocialCTA } from "@/components/sections/SocialCTA";
-import { VideoCarousel } from "@/components/sections/VideoCarousel";
 import { useStorefrontCart } from "@/lib/shopify/cart";
 import { canonicalUrl } from "@/lib/seo";
 
@@ -72,7 +71,6 @@ function LowlifeHome() {
         {/* Raffles are paused for now. Keep the section component/data available
             so it can be restored when the client is ready to run them. */}
         <MonthlyMag />
-        <VideoCarousel />
         <Gallery />
         <OwnerSpotlight />
         <SocialCTA />
