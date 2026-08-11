@@ -103,13 +103,14 @@ export type ShopifyTicketProduct = ShopifyProduct & {
 
 export type ShopifyVideoPostMetaobject = {
   id: string;
-  platform: "tiktok" | "instagram";
+  updatedAt?: string;
+  platform?: "tiktok" | "instagram";
   /** Instagram/TikTok post link, normalized for iframes by `embeddableUrl`. */
   embedUrl: string | null;
-  /** Playable URL from an uploaded video file. Takes priority over `embedUrl`.
+  /** Playable URL from an uploaded video file. Used when `embedUrl` is absent.
    * Null (and optional) while the `video_file` metaobject field is absent. */
   videoFileUrl?: string | null;
-  thumbnail: ShopifyImage;
+  thumbnail?: ShopifyImage | null;
   caption: string;
 };
 

@@ -31,9 +31,21 @@ type HlsVideoProps = {
   src: string;
   poster?: string;
   className?: string;
+  autoPlay?: boolean;
+  loop?: boolean;
+  muted?: boolean;
+  controls?: boolean;
 };
 
-export function HlsVideo({ src, poster, className }: HlsVideoProps) {
+export function HlsVideo({
+  src,
+  poster,
+  className,
+  autoPlay,
+  loop,
+  muted,
+  controls = true,
+}: HlsVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -70,7 +82,10 @@ export function HlsVideo({ src, poster, className }: HlsVideoProps) {
   return (
     <video
       ref={videoRef}
-      controls
+      controls={controls}
+      autoPlay={autoPlay}
+      loop={loop}
+      muted={muted}
       playsInline
       preload="metadata"
       poster={poster}

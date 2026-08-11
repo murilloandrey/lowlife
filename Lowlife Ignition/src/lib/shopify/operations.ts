@@ -157,6 +157,7 @@ const METAOBJECT_REFERENCE_LIST_SIZE = 20;
 const METAOBJECT_FIELDS = `#graphql
   fragment StorefrontMetaobjectFields on Metaobject {
     id
+    updatedAt
     fields {
       key
       value
@@ -170,6 +171,12 @@ const METAOBJECT_FIELDS = `#graphql
           }
         }
         ... on Video {
+          previewImage {
+            url
+            altText
+            width
+            height
+          }
           sources {
             url
             mimeType
@@ -215,7 +222,11 @@ export const GALLERY_QUERY = `#graphql
 export const VIDEO_POSTS_QUERY = `#graphql
   ${METAOBJECT_FIELDS}
   query StorefrontVideoPosts($first: Int!) {
-    videoPosts: metaobjects(type: "video_post", first: $first) {
+    videoPosts: metaobjects(
+      type: "video_post"
+      first: $first
+      sortKey: "updated_at"
+    ) {
       nodes {
         ...StorefrontMetaobjectFields
       }
