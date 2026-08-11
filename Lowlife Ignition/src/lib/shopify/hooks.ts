@@ -6,7 +6,6 @@ import {
   GALLERY,
   PRODUCTS,
   SPOTLIGHT_BUILDS,
-  VIDEO_POSTS,
 } from "@/lib/mock-storefront-data";
 import type {
   GalleryMetaobject,
@@ -129,6 +128,7 @@ type MetaobjectReference = {
   /** Present on MediaImage references. */
   image?: ShopifyImage | null;
   /** Present on Video references (an uploaded, Shopify-transcoded video file). */
+  previewImage?: ShopifyImage | null;
   sources?: Array<{ url: string; mimeType: string | null }> | null;
   /** Present on GenericFile references (an uploaded file Shopify didn't transcode). */
   url?: string | null;
@@ -145,6 +145,7 @@ type MetaobjectField = {
 
 type MetaobjectNode = {
   id: string;
+  updatedAt: string;
   fields: MetaobjectField[];
 };
 
@@ -343,7 +344,13 @@ function imageListFrom(fields: Map<string, MetaobjectField>, key: string) {
 function videoFileUrlFrom(fields: Map<string, MetaobjectField>, key: string) {
   const reference = fields.get(key)?.reference;
   if (!reference) return null;
-  const source = reference.sources?.find((candidate) => candidate.url);
+  // Shopify Video references expose HLS plus progressive MP4 renditions. The
+  // first MP4 is currently the HD rendition and plays natively everywhere;
+  // retain the HLS/GenericFile paths for older or differently processed files.
+  const source =
+    reference.sources?.find(
+      (candidate) => candidate.mimeType === "video/mp4" && candidate.url,
+    ) ?? reference.sources?.find((candidate) => candidate.url);
   if (source) return source.url;
   return reference.mimeType?.startsWith("video/") && reference.url
     ? reference.url
@@ -437,28 +444,44 @@ async function fetchVideoPosts(): Promise<ShopifyVideoPostMetaobject[]> {
     const data = await shopifyFetch<VideoPostsResponse>(VIDEO_POSTS_QUERY, {
       first: 24,
     });
-    const videoPosts: ShopifyVideoPostMetaobject[] =
-      data.videoPosts.nodes.flatMap((node) => {
+    const videoPosts: ShopifyVideoPostMetaobject[] = data.videoPosts.nodes
+      .flatMap((node) => {
         const fields = fieldMap(node);
-        const thumbnail = imageFrom(fields, "thumbnail");
-        const platform = fields.get("platform")?.value?.toLowerCase();
-        if (!thumbnail || (platform !== "instagram" && platform !== "tiktok")) {
+        const thumbnail =
+          imageFrom(fields, "thumbnail") ??
+          fields.get("video_file")?.reference?.previewImage ??
+          null;
+        const platformValue = fields.get("platform")?.value?.toLowerCase();
+        const platform: ShopifyVideoPostMetaobject["platform"] =
+          platformValue === "instagram" || platformValue === "tiktok"
+            ? platformValue
+            : undefined;
+        const embedUrl = fields.get("embed_url")?.value || null;
+        const videoFileUrl = videoFileUrlFrom(fields, "video_file");
+        if (!videoFileUrl && !embedUrl && !thumbnail) {
           return [];
         }
         return [
           {
             id: node.id,
+            updatedAt: node.updatedAt,
             platform,
-            embedUrl: fields.get("embed_url")?.value || null,
-            videoFileUrl: videoFileUrlFrom(fields, "video_file"),
+            embedUrl,
+            videoFileUrl,
             thumbnail,
             caption: fields.get("caption")?.value ?? "",
           },
         ];
-      });
-    return videoPosts.length > 0 ? videoPosts : VIDEO_POSTS;
+      })
+      .sort(
+        (a, b) => Date.parse(b.updatedAt ?? "") - Date.parse(a.updatedAt ?? ""),
+      );
+    return videoPosts;
   } catch (error) {
-    return fallbackOnError("video posts", VIDEO_POSTS)(error);
+    return fallbackOnError(
+      "video posts",
+      [] as ShopifyVideoPostMetaobject[],
+    )(error);
   }
 }
 
@@ -578,9 +601,7 @@ export function useShopifyVideoPosts() {
   const configured = isShopifyConfigured();
   return useQuery({
     queryKey: ["shopify", "video-posts", configured],
-    queryFn: configured ? fetchVideoPosts : async () => VIDEO_POSTS,
-    initialData: VIDEO_POSTS,
-    initialDataUpdatedAt: 0,
+    queryFn: configured ? fetchVideoPosts : async () => [],
     staleTime: 5 * 60 * 1000,
   });
 }

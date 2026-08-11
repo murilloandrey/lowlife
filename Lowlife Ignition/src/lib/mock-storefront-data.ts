@@ -23,7 +23,6 @@ import type {
   ShopifyArticle,
   ShopifyProduct,
   ShopifyTicketProduct,
-  ShopifyVideoPostMetaobject,
   SpotlightBuild,
 } from "@/lib/shopify-types";
 
@@ -522,59 +521,6 @@ export const ARTICLES = [
     author: { name: "Lowlife Editorial" },
   },
 ] satisfies ShopifyArticle[];
-
-export const VIDEO_POSTS = [
-  {
-    id: "video-1",
-    platform: "instagram",
-    embedUrl: null,
-    thumbnail: {
-      url: gallery1,
-      altText: "Two lowered coupes beside a weathered brick building",
-    },
-    caption: "Roll-in hour hits different in Houston.",
-  },
-  {
-    id: "video-2",
-    platform: "tiktok",
-    embedUrl: null,
-    thumbnail: {
-      url: gallery2,
-      altText: "Lowered blue widebody Camaro on a city street",
-    },
-    caption: "Fitment check. No shortcuts.",
-  },
-  {
-    id: "video-3",
-    platform: "instagram",
-    embedUrl: null,
-    thumbnail: {
-      url: gallery4,
-      altText: "Blue widebody Honda Civic among vendor booths",
-    },
-    caption: "The people make the meet.",
-  },
-  {
-    id: "video-4",
-    platform: "tiktok",
-    embedUrl: null,
-    thumbnail: {
-      url: gallery6,
-      altText: "Red widebody Lamborghini at an outdoor show",
-    },
-    caption: "Built for the parking-lot lights.",
-  },
-  {
-    id: "video-5",
-    platform: "instagram",
-    embedUrl: null,
-    thumbnail: {
-      url: gallery8,
-      altText: "Red lowered BMW inside a working garage",
-    },
-    caption: "One night. A hundred stories.",
-  },
-] satisfies ShopifyVideoPostMetaobject[];
 
 export const RAFFLES = [
   {

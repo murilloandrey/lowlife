@@ -445,7 +445,7 @@ export function OwnerSpotlight() {
                         {selectedBuild.video.videoFileUrl ? (
                           <HlsVideo
                             src={selectedBuild.video.videoFileUrl}
-                            poster={selectedBuild.video.thumbnail.url}
+                            poster={selectedBuild.video.thumbnail?.url}
                             className="h-full w-full object-cover"
                           />
                         ) : embeddableUrl(selectedBuild.video.embedUrl) ? (
@@ -456,7 +456,7 @@ export function OwnerSpotlight() {
                             allow="encrypted-media; picture-in-picture"
                             className="h-full w-full border-0"
                           />
-                        ) : (
+                        ) : selectedBuild.video.thumbnail ? (
                           <>
                             <img
                               src={selectedBuild.video.thumbnail.url}
@@ -475,7 +475,7 @@ export function OwnerSpotlight() {
                               {selectedBuild.video.caption}
                             </span>
                           </>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   )}
