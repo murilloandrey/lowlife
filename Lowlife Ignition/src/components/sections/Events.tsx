@@ -137,7 +137,7 @@ export function Events({
                 key={event.id}
                 className="group relative flex h-full flex-col overflow-hidden chrome-border"
               >
-                <div className="relative aspect-[16/9] shrink-0 overflow-hidden border-b border-border bg-surface-2">
+                <div className="relative aspect-square shrink-0 overflow-hidden border-b border-border bg-black">
                   {event.images[0] ? (
                     <img
                       src={event.images[0].url}
@@ -145,7 +145,7 @@ export function Events({
                         event.images[0].altText ?? `${event.title} event banner`
                       }
                       loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      className="h-full w-full object-contain transition-opacity duration-500 group-hover:opacity-95"
                     />
                   ) : (
                     <div
