@@ -63,61 +63,57 @@ export const PRODUCTS_QUERY = `#graphql
   }
 `;
 
-// ShopTickets is expected to sync ticket products into this collection.
-// Change this one value if the app creates a different collection handle.
-export const SHOPTICKETS_COLLECTION_HANDLE = "events";
-
-export const SHOPTICKETS_EVENT_METAFIELDS = [
-  { namespace: "shoptickets", key: "event_date" },
-  { namespace: "shoptickets", key: "event_time" },
-  { namespace: "shoptickets", key: "event_location" },
-  { namespace: "shoptickets", key: "event_address" },
-  { namespace: "shoptickets", key: "ticket_type" },
+export const SHOPTICKETS_EVENT_HANDLES = [
+  "carmeet-mod-day",
+  "importexpo-las-vegas",
+  "importexpo-orlando",
 ] as const;
 
 export const EVENT_TICKETS_QUERY = `#graphql
   query StorefrontEventTickets(
-    $handle: String!
-    $first: Int!
-    $metafieldIdentifiers: [HasMetafieldsIdentifier!]!
+    $carmeetHandle: String!
+    $vegasHandle: String!
+    $orlandoHandle: String!
   ) {
-    collection(handle: $handle) {
-      id
-      handle
-      title
-      products(first: $first, sortKey: COLLECTION_DEFAULT) {
-        nodes {
+    carmeet: collection(handle: $carmeetHandle) {
+      ...StorefrontEventCollection
+    }
+    vegas: collection(handle: $vegasHandle) {
+      ...StorefrontEventCollection
+    }
+    orlando: collection(handle: $orlandoHandle) {
+      ...StorefrontEventCollection
+    }
+  }
+
+  fragment StorefrontEventCollection on Collection {
+    id
+    handle
+    title
+    description
+    image {
+      url
+      altText
+      width
+      height
+    }
+    products(first: 1, sortKey: COLLECTION_DEFAULT) {
+      nodes {
+        id
+        title
+        handle
+        availableForSale
+        productType
+        tags
+        priceRange {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+        selectedOrFirstAvailableVariant {
           id
-          title
-          handle
-          description
           availableForSale
-          productType
-          tags
-          priceRange {
-            minVariantPrice {
-              amount
-              currencyCode
-            }
-          }
-          images(first: 8) {
-            nodes {
-              url
-              altText
-              width
-              height
-            }
-          }
-          selectedOrFirstAvailableVariant {
-            id
-            availableForSale
-          }
-          metafields(identifiers: $metafieldIdentifiers) {
-            namespace
-            key
-            value
-            type
-          }
         }
       }
     }
