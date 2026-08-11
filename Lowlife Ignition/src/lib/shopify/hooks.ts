@@ -2,7 +2,6 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import articleFallbackImage from "@/assets/hero-fusion.jpg";
 import {
   ARTICLES,
-  EVENTS,
   GALLERY,
   PRODUCTS,
   SPOTLIGHT_BUILDS,
@@ -23,8 +22,7 @@ import {
   GALLERY_QUERY,
   HERO_SLIDES_QUERY,
   PRODUCTS_QUERY,
-  SHOPTICKETS_COLLECTION_HANDLE,
-  SHOPTICKETS_EVENT_METAFIELDS,
+  SHOPTICKETS_EVENT_HANDLES,
 } from "./operations";
 import { selectableProductOptions } from "./variants";
 
@@ -86,40 +84,68 @@ type ArticlesResponse = {
   };
 };
 
-type EventMetafield = {
-  namespace: string;
-  key: string;
-  value: string;
-  type: string;
+type EventCollectionNode = {
+  id: string;
+  handle: string;
+  title: string;
+  description: string;
+  image: ShopifyImage | null;
+  products: {
+    nodes: Array<{
+      id: string;
+      title: string;
+      handle: string;
+      availableForSale: boolean;
+      productType: string;
+      tags: string[];
+      priceRange: {
+        minVariantPrice: {
+          amount: string;
+          currencyCode: string;
+        };
+      };
+      selectedOrFirstAvailableVariant: {
+        id: string;
+        availableForSale: boolean;
+      } | null;
+    }>;
+  };
 };
 
 type EventTicketsResponse = {
-  collection: {
-    handle: string;
-    products: {
-      nodes: Array<{
-        id: string;
-        title: string;
-        handle: string;
-        description: string;
-        availableForSale: boolean;
-        productType: string;
-        tags: string[];
-        priceRange: {
-          minVariantPrice: {
-            amount: string;
-            currencyCode: string;
-          };
-        };
-        images: { nodes: ShopifyImage[] };
-        selectedOrFirstAvailableVariant: {
-          id: string;
-          availableForSale: boolean;
-        } | null;
-        metafields: Array<EventMetafield | null>;
-      }>;
-    };
-  } | null;
+  carmeet: EventCollectionNode | null;
+  vegas: EventCollectionNode | null;
+  orlando: EventCollectionNode | null;
+};
+
+type ShopTicketsEventHandle = (typeof SHOPTICKETS_EVENT_HANDLES)[number];
+
+// ShopTickets does not currently expose its structured schedule fields through
+// this store's Storefront API. These values are the client-confirmed Admin data;
+// titles, descriptions, banners, products, and publication visibility remain
+// live Shopify data. Replace this map when ShopTickets exposes public fields.
+const SHOPTICKETS_EVENT_SCHEDULE: Record<
+  ShopTicketsEventHandle,
+  Pick<ShopifyTicketProduct, "startsAt" | "timeLabel" | "location" | "address">
+> = {
+  "carmeet-mod-day": {
+    startsAt: "2026-08-15T16:00:00-05:00",
+    timeLabel: "4:00–8:00 PM CDT",
+    location: "Apex Garage",
+    address: "23633 Gosling Rd., Ste A, Spring, TX",
+  },
+  "importexpo-las-vegas": {
+    startsAt: "2026-08-29T17:00:00-05:00",
+    timeLabel: "5:00–10:00 PM CDT",
+    location: "Las Vegas Convention Center",
+    address: "Las Vegas, NV",
+  },
+  "importexpo-orlando": {
+    startsAt: "2026-09-12T17:00:00-05:00",
+    timeLabel: "5:00–10:00 PM CDT",
+    location: "Orange County Convention Center",
+    address: "Orlando, FL",
+  },
 };
 
 type MetaobjectReference = {
@@ -245,40 +271,32 @@ async function fetchArticles(): Promise<ShopifyArticle[]> {
 async function fetchEventTickets(): Promise<ShopifyTicketProduct[]> {
   try {
     const data = await shopifyFetch<EventTicketsResponse>(EVENT_TICKETS_QUERY, {
-      handle: SHOPTICKETS_COLLECTION_HANDLE,
-      first: 24,
-      metafieldIdentifiers: SHOPTICKETS_EVENT_METAFIELDS,
+      carmeetHandle: SHOPTICKETS_EVENT_HANDLES[0],
+      vegasHandle: SHOPTICKETS_EVENT_HANDLES[1],
+      orlandoHandle: SHOPTICKETS_EVENT_HANDLES[2],
     });
-    const products = data.collection?.products.nodes ?? [];
-
-    // TODO(shoptickets): Confirm ShopTickets' real metafield namespace/keys for
-    // event date, time, location, address, and ticket type on a configured store.
-    // Until then, product/variant commerce data is live while display metadata
-    // falls back by card position so the existing event UI remains complete.
-    const tickets = products.flatMap((product, index) => {
+    const collections = [data.carmeet, data.vegas, data.orlando].flatMap(
+      (collection) => (collection ? [collection] : []),
+    );
+    const tickets = collections.flatMap((collection) => {
+      const schedule =
+        SHOPTICKETS_EVENT_SCHEDULE[collection.handle as ShopTicketsEventHandle];
+      if (!schedule) return [];
+      const product = collection.products.nodes[0];
+      if (!product) return [];
       const variant = product.selectedOrFirstAvailableVariant;
       if (!variant) return [];
-      const fallback = EVENTS[index % EVENTS.length];
-      const metafields = new Map(
-        product.metafields.flatMap((metafield) =>
-          metafield ? [[metafield.key, metafield.value] as const] : [],
-        ),
-      );
-      const images =
-        product.images.nodes.length > 0
-          ? product.images.nodes
-          : fallback.images;
 
       return [
         {
           id: product.id,
           variantId: variant.id,
-          title: product.title,
+          title: collection.title,
           handle: product.handle,
           productType: product.productType || "Event Ticket",
           tags: product.tags,
           price: product.priceRange.minVariantPrice,
-          images,
+          images: collection.image ? [collection.image] : [],
           options: [],
           variants: [
             {
@@ -288,23 +306,22 @@ async function fetchEventTickets(): Promise<ShopifyTicketProduct[]> {
               selectedOptions: [],
             },
           ],
-          description: product.description || fallback.description,
+          description: collection.description,
           availableForSale:
             product.availableForSale && variant.availableForSale,
-          collectionHandle:
-            data.collection?.handle ?? SHOPTICKETS_COLLECTION_HANDLE,
-          startsAt: metafields.get("event_date") || fallback.startsAt,
-          timeLabel: metafields.get("event_time") || fallback.timeLabel,
-          location: metafields.get("event_location") || fallback.location,
-          address: metafields.get("event_address") || fallback.address,
-          ticketType: metafields.get("ticket_type") || fallback.ticketType,
+          collectionHandle: collection.handle,
+          ...schedule,
+          ticketType:
+            product.title.split("—").at(-1)?.trim() || "General Admission",
         },
       ];
     });
 
-    return tickets.length > 0 ? tickets : EVENTS;
+    return tickets.sort(
+      (left, right) => Date.parse(left.startsAt) - Date.parse(right.startsAt),
+    );
   } catch (error) {
-    return fallbackOnError("ShopTickets event collection", EVENTS)(error);
+    return fallbackOnError("ShopTickets event collections", [])(error);
   }
 }
 
@@ -546,12 +563,10 @@ export function useShopifyEvents() {
     queryKey: [
       "shopify",
       "event-tickets",
-      SHOPTICKETS_COLLECTION_HANDLE,
+      SHOPTICKETS_EVENT_HANDLES,
       configured,
     ],
-    queryFn: configured ? fetchEventTickets : async () => EVENTS,
-    initialData: EVENTS,
-    initialDataUpdatedAt: 0,
+    queryFn: configured ? fetchEventTickets : async () => [],
     staleTime: 5 * 60 * 1000,
   });
 }

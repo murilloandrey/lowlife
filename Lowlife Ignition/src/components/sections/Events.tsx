@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  Calendar,
   CheckCircle2,
   Clock,
   ExternalLink,
@@ -10,7 +9,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useShopifyEvents } from "@/lib/shopify/hooks";
-import { EVENTS } from "@/lib/mock-storefront-data";
 import type {
   EventTicket,
   ShopifyProduct,
@@ -87,8 +85,7 @@ export function Events({
   onAdd: (product: ShopifyProduct) => Promise<string | null>;
   isLive: boolean;
 }) {
-  const { data } = useShopifyEvents();
-  const events = data ?? EVENTS;
+  const { data: events = [] } = useShopifyEvents();
   const [ticket, setTicket] = useState<EventTicket | null>(null);
   const [purchasingId, setPurchasingId] = useState<string | null>(null);
 
@@ -138,84 +135,94 @@ export function Events({
             return (
               <article
                 key={event.id}
-                className="group relative flex flex-col justify-between overflow-hidden chrome-border p-6"
+                className="group relative flex flex-col overflow-hidden chrome-border"
               >
-                <div>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-sm bg-gradient-brand text-white">
-                      <span className="font-display text-xs tracking-widest">
-                        {date.month}
-                      </span>
-                      <span className="font-display text-2xl leading-none">
-                        {date.day}
-                      </span>
-                    </div>
-                    {TICKETS_ENABLED && !isAttendanceOnly && (
-                      <span className="rounded-sm border border-primary/50 bg-primary/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
-                        ${Number(event.price.amount)}
-                      </span>
-                    )}
+                {event.images[0] && (
+                  <div className="aspect-[16/9] overflow-hidden border-b border-border bg-surface-2">
+                    <img
+                      src={event.images[0].url}
+                      alt={
+                        event.images[0].altText ?? `${event.title} event banner`
+                      }
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
                   </div>
-                  <h3 className="mt-6 font-display text-2xl tracking-wide">
-                    {event.title}
-                  </h3>
-                  <div className="mt-3 space-y-1.5 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-3.5 w-3.5 text-primary" />{" "}
-                      {event.location}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-3.5 w-3.5 text-primary" />{" "}
-                      {event.timeLabel}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-3.5 w-3.5 text-primary" /> Doors
-                      open early
-                    </div>
-                  </div>
-                  <p className="mt-4 text-sm text-chrome-dim">
-                    {event.description}
-                  </p>
-                  <a
-                    href={directionsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-4 inline-flex min-h-11 items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-chrome transition-colors hover:text-primary"
-                    aria-label={`Get directions to ${event.title} at ${event.address}`}
-                  >
-                    <MapPin className="h-4 w-4 text-primary" />
-                    Get Directions
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
-                  <p className="text-xs leading-relaxed text-muted-foreground">
-                    {event.address}
-                  </p>
-                </div>
-                {TICKETS_ENABLED &&
-                  (isAttendanceOnly ? (
-                    <span className="btn-ghost mt-6 w-full cursor-default justify-center">
-                      <CheckCircle2 className="h-4 w-4" />
-                      We'll Be There
-                    </span>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => void selectTicket(event)}
-                      disabled={!event.availableForSale || purchasing}
-                      className="btn-brand mt-6 w-full"
-                    >
-                      {purchasing ? (
-                        <LoaderCircle className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Ticket className="h-4 w-4" />
+                )}
+                <div className="flex flex-1 flex-col justify-between p-6">
+                  <div>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-sm bg-gradient-brand text-white">
+                        <span className="font-display text-xs tracking-widest">
+                          {date.month}
+                        </span>
+                        <span className="font-display text-2xl leading-none">
+                          {date.day}
+                        </span>
+                      </div>
+                      {TICKETS_ENABLED && !isAttendanceOnly && (
+                        <span className="rounded-sm border border-primary/50 bg-primary/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
+                          ${Number(event.price.amount)}
+                        </span>
                       )}
-                      {purchasing
-                        ? "Opening Checkout"
-                        : event.availableForSale
-                          ? "Buy Tickets"
-                          : "Sold Out"}
-                    </button>
-                  ))}
+                    </div>
+                    <h3 className="mt-6 font-display text-2xl tracking-wide">
+                      {event.title}
+                    </h3>
+                    <div className="mt-3 space-y-1.5 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-3.5 w-3.5 text-primary" />{" "}
+                        {event.location}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-3.5 w-3.5 text-primary" />{" "}
+                        {event.timeLabel}
+                      </div>
+                    </div>
+                    <p className="mt-4 text-sm text-chrome-dim">
+                      {event.description}
+                    </p>
+                    <a
+                      href={directionsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-4 inline-flex min-h-11 items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-chrome transition-colors hover:text-primary"
+                      aria-label={`Get directions to ${event.title} at ${event.address}`}
+                    >
+                      <MapPin className="h-4 w-4 text-primary" />
+                      Get Directions
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      {event.address}
+                    </p>
+                  </div>
+                  {TICKETS_ENABLED &&
+                    (isAttendanceOnly ? (
+                      <span className="btn-ghost mt-6 w-full cursor-default justify-center">
+                        <CheckCircle2 className="h-4 w-4" />
+                        We'll Be There
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => void selectTicket(event)}
+                        disabled={!event.availableForSale || purchasing}
+                        className="btn-brand mt-6 w-full"
+                      >
+                        {purchasing ? (
+                          <LoaderCircle className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Ticket className="h-4 w-4" />
+                        )}
+                        {purchasing
+                          ? "Opening Checkout"
+                          : event.availableForSale
+                            ? "Buy Tickets"
+                            : "Sold Out"}
+                      </button>
+                    ))}
+                </div>
               </article>
             );
           })}
