@@ -6,9 +6,11 @@ import { useHeroSlides } from "@/lib/shopify/hooks";
 const HERO_SLIDE_INTERVAL_MS = 6_000;
 
 export function Hero() {
-  const { data: heroSlides } = useHeroSlides();
+  const { data: resolvedHeroSlides = [], isPending } = useHeroSlides();
+  const heroSlides = isPending ? [] : resolvedHeroSlides;
   const [activeSlide, setActiveSlide] = useState(0);
-  const visibleSlide = activeSlide % heroSlides.length;
+  const visibleSlide =
+    heroSlides.length > 0 ? activeSlide % heroSlides.length : 0;
 
   useEffect(() => {
     if (heroSlides.length < 2) return;
@@ -37,7 +39,8 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative isolate min-h-[100svh] overflow-hidden pt-20"
+      aria-busy={isPending}
+      className="relative isolate min-h-[100svh] overflow-hidden bg-background pt-20"
     >
       {heroSlides.map((slide, index) => (
         <img
@@ -48,12 +51,12 @@ export function Hero() {
           width={slide.image.width}
           height={slide.image.height}
           className={`absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-1000 motion-reduce:transition-none ${
-            index === visibleSlide ? "opacity-70" : ""
+            index === visibleSlide ? "opacity-85" : ""
           }`}
         />
       ))}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,#050505_80%)]" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_15%,rgba(5,5,5,0.68)_100%)]" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
       <div className="absolute inset-x-0 top-1/2 h-64 -translate-y-1/2 bg-[radial-gradient(ellipse_at_center,rgba(236,72,153,0.2),rgba(109,40,217,0.12)_42%,transparent_72%)]" />
       <div className="relative z-10 mx-auto flex min-h-[calc(100svh-5rem)] max-w-7xl flex-col justify-end px-4 pb-16 pt-24 sm:px-6 sm:pb-24">
         <div className="max-w-3xl">
