@@ -590,8 +590,6 @@ export function useHeroSlides() {
   return useQuery({
     queryKey: ["shopify", "hero-slides", configured],
     queryFn: configured ? fetchHeroSlides : async () => HERO_SLIDES_FALLBACK,
-    initialData: HERO_SLIDES_FALLBACK,
-    initialDataUpdatedAt: 0,
     staleTime: 5 * 60 * 1000,
   });
 }
