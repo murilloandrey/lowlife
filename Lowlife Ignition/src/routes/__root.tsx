@@ -11,7 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import lowlifeLogo from "@/assets/lowlife-logo.png";
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
+import { reportClientError } from "../lib/observability";
 import { canonicalUrl } from "../lib/seo";
 import { isShopifyConfigured } from "../lib/shopify/client";
 
@@ -42,10 +42,13 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    reportClientError(error, {
+      area: "router",
+      action: "root_error_boundary",
+      route: window.location.pathname,
+    });
   }, [error]);
 
   return (
