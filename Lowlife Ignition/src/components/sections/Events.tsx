@@ -22,6 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { SectionHeader } from "./SectionHeader";
+import { addClientBreadcrumb, reportClientError } from "@/lib/observability";
 
 const TICKETS_ENABLED = false;
 
@@ -97,9 +98,19 @@ export function Events({
         if (!checkoutUrl) {
           throw new Error("Shopify did not return a checkout URL.");
         }
-        window.location.assign(checkoutUrl);
+        const checkout = new URL(checkoutUrl);
+        if (checkout.protocol !== "https:") {
+          throw new Error("ShopTickets checkout URL must use HTTPS.");
+        }
+        addClientBreadcrumb("ShopTickets checkout handoff", {
+          area: "events",
+        });
+        window.location.assign(checkout.href);
       } catch (error) {
-        console.error("Could not start ShopTickets checkout.", error);
+        reportClientError(error, {
+          area: "events",
+          action: "checkout_handoff",
+        });
         toast.error("Could not start ticket checkout.", {
           description: "Try again in a moment.",
         });

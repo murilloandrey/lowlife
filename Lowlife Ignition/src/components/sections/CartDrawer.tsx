@@ -9,6 +9,7 @@ import {
 import { formatMoney, type DisplayCartLine } from "@/lib/shopify/cart";
 import { getShopifyStoreUrl } from "@/lib/shopify/client";
 import type { ShopifyMoney } from "@/lib/shopify-types";
+import { reportClientError } from "@/lib/observability";
 
 export function CartDrawer({
   isOpen,
@@ -50,7 +51,10 @@ export function CartDrawer({
     try {
       await onUpdateQuantity(lineId, quantity);
     } catch (error) {
-      console.error("Could not update cart quantity.", error);
+      reportClientError(error, {
+        area: "cart",
+        action: "update_quantity",
+      });
       toast.error("Could not update quantity.", {
         description: "Try again in a moment.",
       });
@@ -61,7 +65,7 @@ export function CartDrawer({
     try {
       await onRemove(lineId);
     } catch (error) {
-      console.error("Could not remove cart item.", error);
+      reportClientError(error, { area: "cart", action: "remove_line" });
       toast.error("Could not remove that item.", {
         description: "Try again in a moment.",
       });

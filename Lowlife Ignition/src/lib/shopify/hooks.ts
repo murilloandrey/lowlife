@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import articleFallbackImage from "@/assets/hero-fusion.jpg";
+import { reportClientError } from "@/lib/observability";
 import {
   ARTICLES,
   GALLERY,
@@ -207,10 +208,11 @@ const ARTICLE_FALLBACK_IMAGE: ShopifyImage = {
 
 function fallbackOnError<T>(label: string, fallback: T) {
   return (error: unknown) => {
-    console.warn(
-      `Shopify ${label} request failed; using local fallback.`,
-      error,
-    );
+    reportClientError(error, {
+      area: "shopify_content",
+      action: label,
+      fallbackUsed: true,
+    });
     return fallback;
   };
 }

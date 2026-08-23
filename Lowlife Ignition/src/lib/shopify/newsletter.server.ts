@@ -1,3 +1,4 @@
+import { reportServerError } from "../observability.server";
 import { SHOPIFY_API_VERSION } from "./client";
 
 const CUSTOMER_SET_MUTATION = `#graphql
@@ -178,7 +179,10 @@ export async function handleNewsletterRequest(request: Request, env: unknown) {
     await subscribeCustomer(domain, token, customerId);
     return Response.json({ subscribed: true, configured: true });
   } catch (error) {
-    console.error("Shopify newsletter signup failed.", error);
+    reportServerError(error, {
+      area: "newsletter",
+      action: "shopify_signup",
+    });
     return Response.json(
       {
         subscribed: false,

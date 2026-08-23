@@ -23,6 +23,7 @@ import {
   selectableProductOptions,
 } from "@/lib/shopify/variants";
 import { useClampedOverflow } from "@/hooks/use-clamped-overflow";
+import { reportClientError } from "@/lib/observability";
 
 export function ProductQuickView({
   product,
@@ -104,7 +105,7 @@ export function ProductQuickView({
       await onAdd(product, selectedVariant.id);
       onOpenChange(false);
     } catch (error) {
-      console.error("Could not add product to cart.", error);
+      reportClientError(error, { area: "cart", action: "add_line" });
       toast.error("Could not add that item.", {
         description: "Try again in a moment.",
       });
