@@ -135,8 +135,8 @@ export function About() {
       className="relative border-b border-border py-20 sm:py-28"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="grid gap-14 lg:grid-cols-2 lg:gap-20">
-          <div className="relative">
+        <div className="grid min-w-0 gap-14 lg:grid-cols-2 lg:gap-20">
+          <div className="relative min-w-0">
             <img
               src={gallery11}
               alt="Lowlife community gathering with modified cars at a raceway"
@@ -152,10 +152,11 @@ export function About() {
               </div>
             </div>
           </div>
-          <div>
+          <div className="min-w-0">
             <SectionHeader
               eyebrow="Our Story"
               title="Built in Houston. Repped everywhere."
+              compact
             />
             <p className="text-base leading-relaxed text-chrome-dim">
               Lowlife Est. 15 started as more than a merch brand — it became a
