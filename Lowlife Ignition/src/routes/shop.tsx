@@ -14,6 +14,7 @@ import { useShopifyProductCatalog } from "@/lib/shopify/hooks";
 import { partitionProductsByType } from "@/lib/shopify/products";
 import type { ShopifyProduct } from "@/lib/shopify-types";
 import { canonicalUrl } from "@/lib/seo";
+import { reportClientError } from "@/lib/observability";
 
 export const Route = createFileRoute("/shop")({
   head: () => ({
@@ -82,7 +83,7 @@ function ShopPage() {
     try {
       await addProduct(product, variantId);
     } catch (error) {
-      console.error("Could not add product to Shopify cart.", error);
+      reportClientError(error, { area: "cart", action: "add_line" });
       toast.error("Could not add that item.", {
         description: "Try again in a moment.",
       });

@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { isShopifyConfigured } from "@/lib/shopify/client";
 import { subscribeToNewsletter } from "@/lib/shopify/newsletter";
+import { reportClientError } from "@/lib/observability";
 
 const STORAGE_KEY = "lowlife-newsletter-seen-at";
 const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
@@ -57,6 +58,10 @@ export function NewsletterPopup() {
         }
       }
     } catch (error) {
+      reportClientError(error, {
+        area: "newsletter",
+        action: "subscribe",
+      });
       toast.error("We couldn't add you yet.", {
         description:
           error instanceof Error ? error.message : "Try again in a moment.",

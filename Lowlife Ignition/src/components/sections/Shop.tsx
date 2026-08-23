@@ -8,6 +8,7 @@ import {
   partitionProductsByType,
 } from "@/lib/shopify/products";
 import { PRODUCTS } from "@/lib/mock-storefront-data";
+import { reportClientError } from "@/lib/observability";
 import type { ShopifyProduct } from "@/lib/shopify-types";
 import { SectionHeader } from "./SectionHeader";
 import { ProductCategoryGrid } from "./ProductCategoryGrid";
@@ -39,7 +40,7 @@ export function Shop({
     try {
       await onAdd(product, variantId);
     } catch (error) {
-      console.error("Could not add product to Shopify cart.", error);
+      reportClientError(error, { area: "cart", action: "add_line" });
       toast.error("Could not add that item.", {
         description: "Try again in a moment.",
       });

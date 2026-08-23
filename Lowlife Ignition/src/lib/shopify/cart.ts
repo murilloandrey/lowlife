@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { addClientBreadcrumb, reportClientError } from "@/lib/observability";
 import type {
   ShopifyImage,
   ShopifyMoney,
@@ -238,7 +239,7 @@ export function useStorefrontCart() {
         }
       })
       .catch((error) => {
-        console.warn("Stored Shopify cart could not be restored.", error);
+        reportClientError(error, { area: "cart", action: "restore" });
         clearStoredCart();
       });
   }, [configured]);
@@ -316,8 +317,20 @@ export function useStorefrontCart() {
 
   const checkout = useCallback(() => {
     if (!configured || !shopifyCart?.checkoutUrl) return;
-    window.location.assign(shopifyCart.checkoutUrl);
-  }, [configured, shopifyCart?.checkoutUrl]);
+    try {
+      const checkoutUrl = new URL(shopifyCart.checkoutUrl);
+      if (checkoutUrl.protocol !== "https:") {
+        throw new Error("Shopify checkout URL must use HTTPS.");
+      }
+      addClientBreadcrumb("Shopify checkout handoff", {
+        area: "checkout",
+        lineCount: shopifyCart.totalQuantity,
+      });
+      window.location.assign(checkoutUrl.href);
+    } catch (error) {
+      reportClientError(error, { area: "checkout", action: "redirect" });
+    }
+  }, [configured, shopifyCart]);
 
   const openCart = useCallback(() => setIsCartOpen(true), []);
   const closeCart = useCallback(() => setIsCartOpen(false), []);
