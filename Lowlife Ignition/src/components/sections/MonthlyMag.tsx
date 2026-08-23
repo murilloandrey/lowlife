@@ -46,8 +46,8 @@ function FeaturedIntro({ intro }: { intro: string }) {
     useClampedOverflow<HTMLQuoteElement>(quoted);
 
   return (
-    <div className="self-end border-l border-primary pl-5">
-      <div className="relative">
+    <div className="min-w-0 self-end border-l border-primary pl-5">
+      <div className="relative min-w-0">
         <blockquote
           ref={measurementRef}
           className="line-clamp-5 font-serif text-xl font-bold italic leading-relaxed text-chrome sm:text-2xl"
@@ -79,16 +79,16 @@ export function MonthlyMag() {
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="border-y border-border py-5">
-          <div className="flex items-end justify-between gap-6">
-            <div>
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+            <div className="min-w-0">
               <div className="text-[10px] font-bold uppercase tracking-[0.34em] text-primary">
                 Lowlife editorial
               </div>
-              <h2 className="mt-1 font-heading text-5xl font-black uppercase leading-none sm:text-7xl lg:text-8xl">
+              <h2 className="mt-1 font-heading text-4xl font-black uppercase leading-none sm:text-7xl lg:text-8xl">
                 Feature of the month
               </h2>
             </div>
-            <div className="shrink-0 text-right text-[10px] font-bold uppercase leading-relaxed tracking-[0.2em] text-muted-foreground">
+            <div className="shrink-0 text-left text-[10px] font-bold uppercase leading-relaxed tracking-[0.2em] text-muted-foreground sm:text-right">
               <div>Issue 01</div>
               <div>{issueMonth(featured.publishedAt)}</div>
             </div>
@@ -128,9 +128,9 @@ export function MonthlyMag() {
             </span>
           </div>
 
-          <div className="grid gap-7 border-b border-border py-8 sm:py-10 lg:grid-cols-[1.35fr_0.65fr] lg:gap-14">
-            <div>
-              <h3 className="max-w-5xl font-heading text-4xl font-black uppercase leading-[0.95] sm:text-6xl lg:text-7xl">
+          <div className="grid min-w-0 gap-7 border-b border-border py-8 sm:py-10 lg:grid-cols-[1.35fr_0.65fr] lg:gap-14">
+            <div className="min-w-0">
+              <h3 className="max-w-5xl font-heading text-3xl font-black uppercase leading-[0.95] sm:text-6xl">
                 {featured.title}
               </h3>
               <p className="mt-6 max-w-3xl text-base leading-relaxed text-chrome-dim sm:text-lg">

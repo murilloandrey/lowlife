@@ -6,3 +6,5 @@ _review-screenshots/
 .output
 .wrangler
 dist
+playwright-report/
+test-results/
