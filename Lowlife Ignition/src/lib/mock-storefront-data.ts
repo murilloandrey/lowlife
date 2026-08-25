@@ -396,6 +396,7 @@ export const ARTICLES = [
     },
     publishedAt: "2026-03-28T12:00:00Z",
     author: { name: "Lowlife Editorial" },
+    instagramHandle: "@midnight_candy",
   },
   {
     handle: "five-builds-night-meet",

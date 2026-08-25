@@ -72,17 +72,20 @@ type ProductsPage = {
 };
 
 type ArticlesResponse = {
-  articles: {
-    nodes: Array<{
-      handle: string;
-      title: string;
-      excerpt: string | null;
-      contentHtml: string;
-      publishedAt: string;
-      authorV2: { name: string } | null;
-      image: ShopifyImage | null;
-    }>;
-  };
+  blog: {
+    articles: {
+      nodes: Array<{
+        handle: string;
+        title: string;
+        excerpt: string | null;
+        contentHtml: string;
+        publishedAt: string;
+        authorV2: { name: string } | null;
+        image: ShopifyImage | null;
+        instagramHandle: { value: string } | null;
+      }>;
+    };
+  } | null;
 };
 
 type EventCollectionNode = {
@@ -255,7 +258,7 @@ async function fetchArticles(): Promise<ShopifyArticle[]> {
     const data = await shopifyFetch<ArticlesResponse>(ARTICLES_QUERY, {
       first: 12,
     });
-    const articles = data.articles.nodes.map((article) => ({
+    const articles = (data.blog?.articles.nodes ?? []).map((article) => ({
       handle: article.handle,
       title: article.title,
       excerpt: article.excerpt ?? "",
@@ -263,6 +266,7 @@ async function fetchArticles(): Promise<ShopifyArticle[]> {
       image: article.image ?? ARTICLE_FALLBACK_IMAGE,
       publishedAt: article.publishedAt,
       author: { name: article.authorV2?.name ?? "Lowlife Editorial" },
+      instagramHandle: article.instagramHandle?.value.trim() || undefined,
     }));
     return articles.length > 0 ? articles : ARTICLES;
   } catch (error) {

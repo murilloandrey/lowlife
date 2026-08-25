@@ -1,8 +1,18 @@
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, CalendarDays } from "lucide-react";
+import { ArrowRight, CalendarDays, Instagram } from "lucide-react";
+import {
+  type CarouselApi,
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import { useClampedOverflow } from "@/hooks/use-clamped-overflow";
 import { useShopifyArticles } from "@/lib/shopify/hooks";
 import { ARTICLES } from "@/lib/mock-storefront-data";
+import type { ShopifyArticle } from "@/lib/shopify-types";
 
 function articleDate(value: string) {
   return new Intl.DateTimeFormat("en-US", {
@@ -65,12 +75,110 @@ function FeaturedIntro({ intro }: { intro: string }) {
   );
 }
 
+function instagramUrl(handle: string) {
+  return `https://instagram.com/${handle.replace(/^@/, "")}`;
+}
+
+function FeaturedArticle({ article }: { article: ShopifyArticle }) {
+  const featuredIntro = articleIntro(article.contentHtml, article.excerpt);
+
+  return (
+    <article className="pt-8 sm:pt-12">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">
+          Feature of the month
+        </div>
+        <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+          <span className="inline-flex items-center gap-2">
+            <CalendarDays className="h-3.5 w-3.5 text-primary" />
+            {articleDate(article.publishedAt)} · By {article.author.name}
+          </span>
+          {article.instagramHandle && (
+            <a
+              href={instagramUrl(article.instagramHandle)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center gap-2 text-chrome transition-colors hover:text-primary"
+            >
+              <Instagram className="h-3.5 w-3.5 text-primary" />
+              {article.instagramHandle}
+            </a>
+          )}
+        </div>
+      </div>
+
+      {/* Same letterboxing as the article page hero: a blurred object-cover
+          copy fills the banner while the real photo sits on top with
+          object-contain, so the whole car stays visible instead of being
+          cropped to the teaser's aspect ratio. */}
+      <div className="relative aspect-[4/3] overflow-hidden border border-border bg-black sm:aspect-[16/9] lg:aspect-[2/1]">
+        <img
+          src={article.image.url}
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl brightness-[0.45]"
+        />
+        <img
+          src={article.image.url}
+          alt={article.image.altText ?? article.title}
+          draggable={false}
+          className="absolute inset-0 h-full w-full object-contain"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/10" />
+        <span className="absolute bottom-4 left-4 border border-white/30 bg-black/65 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.22em] text-white backdrop-blur sm:bottom-6 sm:left-6">
+          Cover feature
+        </span>
+      </div>
+
+      <div className="grid min-w-0 gap-7 border-b border-border py-8 sm:py-10 lg:grid-cols-[1.35fr_0.65fr] lg:gap-14">
+        <div className="min-w-0">
+          <h3 className="max-w-5xl font-heading text-3xl font-black uppercase leading-[0.95] sm:text-6xl">
+            {article.title}
+          </h3>
+          <p className="mt-6 max-w-3xl text-base leading-relaxed text-chrome-dim sm:text-lg">
+            {article.excerpt}
+          </p>
+          <Link
+            to="/mag/$handle"
+            params={{ handle: article.handle }}
+            className="mt-7 inline-flex min-h-11 items-center gap-2 border-b border-primary text-xs font-bold uppercase tracking-[0.2em] text-chrome transition-colors hover:text-primary"
+          >
+            Read the feature <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+        {featuredIntro && <FeaturedIntro intro={featuredIntro} />}
+      </div>
+    </article>
+  );
+}
+
 export function MonthlyMag() {
   const { data } = useShopifyArticles();
-  const articles = data ?? ARTICLES;
-  const [featured, ...recent] = articles;
-  const recentArticles = recent.slice(0, 3);
-  const featuredIntro = articleIntro(featured.contentHtml, featured.excerpt);
+  const articles = data?.length ? data : ARTICLES;
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const selectedIndex = activeIndex < articles.length ? activeIndex : 0;
+  const activeArticle = articles[selectedIndex];
+  const recentArticles = articles
+    .map((article, index) => ({ article, issue: index + 1 }))
+    .filter((_, index) => index !== selectedIndex)
+    .slice(0, 3);
+
+  useEffect(() => {
+    if (!carouselApi) return;
+
+    const syncActiveIndex = () =>
+      setActiveIndex(carouselApi.selectedScrollSnap());
+    syncActiveIndex();
+    carouselApi.on("select", syncActiveIndex);
+    carouselApi.on("reInit", syncActiveIndex);
+
+    return () => {
+      carouselApi.off("select", syncActiveIndex);
+      carouselApi.off("reInit", syncActiveIndex);
+    };
+  }, [carouselApi]);
 
   return (
     <section
@@ -89,64 +197,34 @@ export function MonthlyMag() {
               </h2>
             </div>
             <div className="shrink-0 text-left text-[10px] font-bold uppercase leading-relaxed tracking-[0.2em] text-muted-foreground sm:text-right">
-              <div>Issue 01</div>
-              <div>{issueMonth(featured.publishedAt)}</div>
+              <div>Issue {String(selectedIndex + 1).padStart(2, "0")}</div>
+              <div>{issueMonth(activeArticle.publishedAt)}</div>
             </div>
           </div>
         </div>
 
-        <article id={`article-${featured.handle}`} className="pt-8 sm:pt-12">
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-            <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">
-              Feature of the month
-            </div>
-            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-              <CalendarDays className="h-3.5 w-3.5 text-primary" />
-              {articleDate(featured.publishedAt)} · By {featured.author.name}
-            </div>
-          </div>
-
-          {/* Same letterboxing as the article page hero: a blurred object-cover
-              copy fills the banner while the real photo sits on top with
-              object-contain, so the whole car stays visible instead of being
-              cropped to the teaser's aspect ratio. */}
-          <div className="relative aspect-[4/3] overflow-hidden border border-border bg-black sm:aspect-[16/9] lg:aspect-[2/1]">
-            <img
-              src={featured.image.url}
-              alt=""
-              aria-hidden="true"
-              className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl brightness-[0.45]"
-            />
-            <img
-              src={featured.image.url}
-              alt={featured.image.altText ?? featured.title}
-              className="absolute inset-0 h-full w-full object-contain"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/10" />
-            <span className="absolute bottom-4 left-4 border border-white/30 bg-black/65 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.22em] text-white backdrop-blur sm:bottom-6 sm:left-6">
-              Cover feature
-            </span>
-          </div>
-
-          <div className="grid min-w-0 gap-7 border-b border-border py-8 sm:py-10 lg:grid-cols-[1.35fr_0.65fr] lg:gap-14">
-            <div className="min-w-0">
-              <h3 className="max-w-5xl font-heading text-3xl font-black uppercase leading-[0.95] sm:text-6xl">
-                {featured.title}
-              </h3>
-              <p className="mt-6 max-w-3xl text-base leading-relaxed text-chrome-dim sm:text-lg">
-                {featured.excerpt}
-              </p>
-              <Link
-                to="/mag/$handle"
-                params={{ handle: featured.handle }}
-                className="mt-7 inline-flex min-h-11 items-center gap-2 border-b border-primary text-xs font-bold uppercase tracking-[0.2em] text-chrome transition-colors hover:text-primary"
+        <Carousel
+          opts={{ align: "start", loop: articles.length > 1 }}
+          setApi={setCarouselApi}
+          className={articles.length > 1 ? "sm:px-12" : undefined}
+        >
+          <CarouselContent>
+            {articles.map((article, index) => (
+              <CarouselItem
+                key={article.handle}
+                aria-current={index === selectedIndex ? "true" : undefined}
               >
-                Read the feature <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-            {featuredIntro && <FeaturedIntro intro={featuredIntro} />}
-          </div>
-        </article>
+                <FeaturedArticle article={article} />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          {articles.length > 1 && (
+            <>
+              <CarouselPrevious className="left-0 hidden border-border bg-background/90 hover:border-primary hover:bg-background sm:inline-flex" />
+              <CarouselNext className="right-0 hidden border-border bg-background/90 hover:border-primary hover:bg-background sm:inline-flex" />
+            </>
+          )}
+        </Carousel>
 
         {recentArticles.length > 0 && (
           <div className="pt-10 sm:pt-14">
@@ -159,14 +237,13 @@ export function MonthlyMag() {
               </span>
             </div>
             <div className="divide-y divide-border border-y border-border">
-              {recentArticles.map((article, index) => (
+              {recentArticles.map(({ article, issue }) => (
                 <article
-                  id={`article-${article.handle}`}
                   key={article.handle}
                   className="group grid gap-5 py-5 sm:grid-cols-[3.5rem_10rem_1fr_auto] sm:items-center sm:py-6"
                 >
                   <span className="hidden font-serif text-3xl font-black text-primary sm:block">
-                    {String(index + 2).padStart(2, "0")}
+                    {String(issue).padStart(2, "0")}
                   </span>
                   <div className="aspect-[16/10] overflow-hidden">
                     <img
