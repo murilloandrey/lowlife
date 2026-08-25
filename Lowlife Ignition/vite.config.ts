@@ -6,6 +6,9 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
+import { validateHostingEnvironment } from "./config/environment";
+
+validateHostingEnvironment(process.env);
 
 const sentryUploadConfigured = Boolean(
   process.env.SENTRY_AUTH_TOKEN &&

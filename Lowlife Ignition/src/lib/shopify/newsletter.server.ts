@@ -1,5 +1,10 @@
 import { reportServerError } from "../observability.server";
 import { SHOPIFY_API_VERSION } from "./client";
+import {
+  checkNewsletterRateLimit,
+  NewsletterRequestError,
+  parseNewsletterBody,
+} from "./newsletter-guard.server";
 
 const CUSTOMER_SET_MUTATION = `#graphql
   mutation NewsletterCustomerSet(
@@ -160,25 +165,41 @@ export async function handleNewsletterRequest(request: Request, env: unknown) {
     );
   }
 
-  try {
-    const body = (await request.json()) as { email?: unknown };
-    const email =
-      typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return Response.json(
-        {
-          subscribed: false,
-          configured: true,
-          message: "Enter a valid email address.",
-        },
-        { status: 400 },
-      );
-    }
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",", 1)[0].trim() ||
+    "unknown";
+  const rateLimit = checkNewsletterRateLimit(ip);
+  if (!rateLimit.allowed) {
+    return Response.json(
+      {
+        subscribed: false,
+        configured: true,
+        message: "Too many signup attempts. Try again in a few minutes.",
+      },
+      {
+        status: 429,
+        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
+      },
+    );
+  }
 
+  try {
+    const { email } = await parseNewsletterBody(request);
     const customerId = await createOrFindCustomer(domain, token, email);
     await subscribeCustomer(domain, token, customerId);
     return Response.json({ subscribed: true, configured: true });
   } catch (error) {
+    if (error instanceof NewsletterRequestError) {
+      return Response.json(
+        {
+          subscribed: false,
+          configured: true,
+          message: error.message,
+        },
+        { status: error.status },
+      );
+    }
+
     reportServerError(error, {
       area: "newsletter",
       action: "shopify_signup",
@@ -187,8 +208,7 @@ export async function handleNewsletterRequest(request: Request, env: unknown) {
       {
         subscribed: false,
         configured: true,
-        message:
-          error instanceof Error ? error.message : "Newsletter signup failed.",
+        message: "We couldn't add you right now. Try again in a moment.",
       },
       { status: 502 },
     );
