@@ -79,6 +79,88 @@ function instagramUrl(handle: string) {
   return `https://instagram.com/${handle.replace(/^@/, "")}`;
 }
 
+function FeaturePhoto({
+  article,
+  index,
+}: {
+  article: ShopifyArticle;
+  index: number;
+}) {
+  const photo = article.images[index];
+
+  return (
+    <div className="relative aspect-[4/3] overflow-hidden border border-border bg-black sm:aspect-[16/9] lg:aspect-[2/1]">
+      <img
+        src={photo.url}
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+        className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl brightness-[0.45]"
+      />
+      <img
+        src={photo.url}
+        alt={photo.altText ?? `${article.title} photo ${index + 1}`}
+        draggable={false}
+        className="absolute inset-0 h-full w-full object-contain"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/10" />
+      <span className="absolute bottom-4 left-4 border border-white/30 bg-black/65 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.22em] text-white backdrop-blur sm:bottom-6 sm:left-6">
+        {index === 0 ? "Cover feature" : "Feature photo"}
+      </span>
+    </div>
+  );
+}
+
+function FeaturePhotos({ article }: { article: ShopifyArticle }) {
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    if (!carouselApi) return;
+
+    const syncActiveIndex = () =>
+      setActiveIndex(carouselApi.selectedScrollSnap());
+    syncActiveIndex();
+    carouselApi.on("select", syncActiveIndex);
+    carouselApi.on("reInit", syncActiveIndex);
+
+    return () => {
+      carouselApi.off("select", syncActiveIndex);
+      carouselApi.off("reInit", syncActiveIndex);
+    };
+  }, [carouselApi]);
+
+  if (article.images.length === 1) {
+    return <FeaturePhoto article={article} index={0} />;
+  }
+
+  return (
+    <Carousel
+      aria-label={`${article.title} photos`}
+      data-feature-photo-carousel
+      opts={{ align: "start", loop: true }}
+      setApi={setCarouselApi}
+    >
+      <CarouselContent className="ml-0">
+        {article.images.map((photo, index) => (
+          <CarouselItem
+            key={`${photo.url}-${index}`}
+            aria-current={index === activeIndex ? "true" : undefined}
+            className="pl-0"
+          >
+            <FeaturePhoto article={article} index={index} />
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious className="left-3 z-10 hidden h-11 w-11 rounded-none border-white/30 bg-black/65 text-white backdrop-blur hover:border-primary hover:bg-black/80 sm:inline-flex" />
+      <CarouselNext className="right-3 z-10 hidden h-11 w-11 rounded-none border-white/30 bg-black/65 text-white backdrop-blur hover:border-primary hover:bg-black/80 sm:inline-flex" />
+      <span className="absolute bottom-4 right-4 bg-black/65 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white backdrop-blur sm:bottom-6 sm:right-6">
+        {activeIndex + 1} / {article.images.length}
+      </span>
+    </Carousel>
+  );
+}
+
 function FeaturedArticle({ article }: { article: ShopifyArticle }) {
   const featuredIntro = articleIntro(article.contentHtml, article.excerpt);
 
@@ -107,29 +189,10 @@ function FeaturedArticle({ article }: { article: ShopifyArticle }) {
         </div>
       </div>
 
-      {/* Same letterboxing as the article page hero: a blurred object-cover
-          copy fills the banner while the real photo sits on top with
-          object-contain, so the whole car stays visible instead of being
-          cropped to the teaser's aspect ratio. */}
-      <div className="relative aspect-[4/3] overflow-hidden border border-border bg-black sm:aspect-[16/9] lg:aspect-[2/1]">
-        <img
-          src={article.image.url}
-          alt=""
-          aria-hidden="true"
-          draggable={false}
-          className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl brightness-[0.45]"
-        />
-        <img
-          src={article.image.url}
-          alt={article.image.altText ?? article.title}
-          draggable={false}
-          className="absolute inset-0 h-full w-full object-contain"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/10" />
-        <span className="absolute bottom-4 left-4 border border-white/30 bg-black/65 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.22em] text-white backdrop-blur sm:bottom-6 sm:left-6">
-          Cover feature
-        </span>
-      </div>
+      {/* The native article image remains the cover/first slide. Optional
+          custom.feature_photos entries follow it; a single image keeps the
+          legacy static presentation with no carousel controls. */}
+      <FeaturePhotos article={article} />
 
       <div className="grid min-w-0 gap-7 border-b border-border py-8 sm:py-10 lg:grid-cols-[1.35fr_0.65fr] lg:gap-14">
         <div className="min-w-0">
@@ -204,7 +267,16 @@ export function MonthlyMag() {
         </div>
 
         <Carousel
-          opts={{ align: "start", loop: articles.length > 1 }}
+          aria-label="Monthly Mag issues"
+          opts={{
+            align: "start",
+            loop: articles.length > 1,
+            watchDrag: (_, event) =>
+              !(
+                event.target instanceof Element &&
+                event.target.closest("[data-feature-photo-carousel]")
+              ),
+          }}
           setApi={setCarouselApi}
           className={articles.length > 1 ? "sm:px-12" : undefined}
         >
@@ -212,6 +284,7 @@ export function MonthlyMag() {
             {articles.map((article, index) => (
               <CarouselItem
                 key={article.handle}
+                data-monthly-mag-issue
                 aria-current={index === selectedIndex ? "true" : undefined}
               >
                 <FeaturedArticle article={article} />

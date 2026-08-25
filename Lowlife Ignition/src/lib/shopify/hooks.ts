@@ -84,6 +84,11 @@ type ArticlesResponse = {
         authorV2: { name: string } | null;
         image: ShopifyImage | null;
         instagramHandle: { value: string } | null;
+        featurePhotos: {
+          references: {
+            nodes: Array<{ image?: ShopifyImage | null }>;
+          } | null;
+        } | null;
       }>;
     };
   } | null;
@@ -201,16 +206,28 @@ async function fetchArticles(): Promise<ShopifyArticle[]> {
     const data = await shopifyFetch<ArticlesResponse>(ARTICLES_QUERY, {
       first: 12,
     });
-    const articles = (data.blog?.articles.nodes ?? []).map((article) => ({
-      handle: article.handle,
-      title: article.title,
-      excerpt: article.excerpt ?? "",
-      contentHtml: article.contentHtml,
-      image: article.image ?? ARTICLE_FALLBACK_IMAGE,
-      publishedAt: article.publishedAt,
-      author: { name: article.authorV2?.name ?? "Lowlife Editorial" },
-      instagramHandle: article.instagramHandle?.value.trim() || undefined,
-    }));
+    const articles = (data.blog?.articles.nodes ?? []).map((article) => {
+      const cover = article.image ?? ARTICLE_FALLBACK_IMAGE;
+      const additionalPhotos = (
+        article.featurePhotos?.references?.nodes ?? []
+      ).flatMap((node) => (node.image ? [node.image] : []));
+      const images = [
+        cover,
+        ...additionalPhotos.filter((photo) => photo.url !== cover.url),
+      ];
+
+      return {
+        handle: article.handle,
+        title: article.title,
+        excerpt: article.excerpt ?? "",
+        contentHtml: article.contentHtml,
+        image: cover,
+        images,
+        publishedAt: article.publishedAt,
+        author: { name: article.authorV2?.name ?? "Lowlife Editorial" },
+        instagramHandle: article.instagramHandle?.value.trim() || undefined,
+      };
+    });
     return articles.length > 0 ? articles : ARTICLES;
   } catch (error) {
     return fallbackOnError("articles", ARTICLES)(error);
