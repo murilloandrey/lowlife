@@ -58,6 +58,7 @@ export type ShopifyArticle = {
   author: {
     name: string;
   };
+  instagramHandle?: string;
 };
 
 export type GalleryMetaobject = {

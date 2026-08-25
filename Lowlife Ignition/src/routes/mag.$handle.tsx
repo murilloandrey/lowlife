@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, CalendarDays, ChevronDown } from "lucide-react";
+import { ArrowLeft, CalendarDays, ChevronDown, Instagram } from "lucide-react";
 import { Footer } from "@/components/sections/Footer";
 import { useClampedOverflow } from "@/hooks/use-clamped-overflow";
 import { useShopifyArticles } from "@/lib/shopify/hooks";
@@ -175,6 +175,17 @@ function MagArticle() {
               <CalendarDays className="h-3.5 w-3.5 text-primary" />
               {articleDate(article.publishedAt)} · By {article.author.name}
             </div>
+            {article.instagramHandle && (
+              <a
+                href={`https://instagram.com/${article.instagramHandle.replace(/^@/, "")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex min-h-11 items-center gap-2 text-xs font-bold tracking-[0.12em] text-chrome transition-colors hover:text-primary"
+              >
+                <Instagram className="h-4 w-4 text-primary" />
+                {article.instagramHandle}
+              </a>
+            )}
             {article.excerpt && <ArticleExcerpt excerpt={article.excerpt} />}
             <div
               className="mt-10 space-y-6 text-base leading-relaxed text-chrome-dim sm:text-lg [&_a]:text-primary [&_a]:underline [&_blockquote]:border-l [&_blockquote]:border-primary [&_blockquote]:pl-5 [&_h2]:font-heading [&_h2]:text-3xl [&_h2]:font-black [&_h2]:uppercase [&_h3]:font-heading [&_h3]:text-2xl [&_h3]:font-black [&_h3]:uppercase [&_iframe]:aspect-video [&_iframe]:h-auto [&_iframe]:w-full [&_iframe]:border-0 [&_img]:w-full [&_p]:leading-relaxed [&_video]:aspect-video [&_video]:h-auto [&_video]:w-full [&_video]:bg-black [&_video]:object-contain"

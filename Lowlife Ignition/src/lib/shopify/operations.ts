@@ -122,21 +122,29 @@ export const EVENT_TICKETS_QUERY = `#graphql
 
 export const ARTICLES_QUERY = `#graphql
   query StorefrontArticles($first: Int!) {
-    articles(first: $first, sortKey: PUBLISHED_AT, reverse: true) {
-      nodes {
-        handle
-        title
-        excerpt
-        contentHtml
-        publishedAt
-        authorV2 {
-          name
-        }
-        image {
-          url
-          altText
-          width
-          height
+    blog(handle: "news") {
+      articles(first: $first, sortKey: PUBLISHED_AT, reverse: true) {
+        nodes {
+          handle
+          title
+          excerpt
+          contentHtml
+          publishedAt
+          authorV2 {
+            name
+          }
+          image {
+            url
+            altText
+            width
+            height
+          }
+          instagramHandle: metafield(
+            namespace: "custom"
+            key: "instagram_handle"
+          ) {
+            value
+          }
         }
       }
     }
