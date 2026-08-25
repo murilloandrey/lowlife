@@ -145,6 +145,23 @@ export const ARTICLES_QUERY = `#graphql
           ) {
             value
           }
+          featurePhotos: metafield(
+            namespace: "custom"
+            key: "feature_photos"
+          ) {
+            references(first: 20) {
+              nodes {
+                ... on MediaImage {
+                  image {
+                    url
+                    altText
+                    width
+                    height
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

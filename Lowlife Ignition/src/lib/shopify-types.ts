@@ -54,6 +54,8 @@ export type ShopifyArticle = {
   excerpt: string;
   contentHtml: string;
   image: ShopifyImage;
+  /** Native article cover followed by any custom.feature_photos images. */
+  images: ShopifyImage[];
   publishedAt: string;
   author: {
     name: string;

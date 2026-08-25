@@ -394,6 +394,20 @@ export const ARTICLES = [
       url: gallery7,
       altText: "White modified Nissan photographed from above",
     },
+    images: [
+      {
+        url: gallery7,
+        altText: "White modified Nissan photographed from above",
+      },
+      {
+        url: gallery3,
+        altText: "Green Audi and orange Infiniti at a daytime meet",
+      },
+      {
+        url: gallery5,
+        altText: "Turquoise lowered Lexus GS downtown",
+      },
+    ],
     publishedAt: "2026-03-28T12:00:00Z",
     author: { name: "Lowlife Editorial" },
     instagramHandle: "@midnight_candy",
@@ -408,6 +422,12 @@ export const ARTICLES = [
       url: gallery3,
       altText: "Green Audi and orange Infiniti at a daytime meet",
     },
+    images: [
+      {
+        url: gallery3,
+        altText: "Green Audi and orange Infiniti at a daytime meet",
+      },
+    ],
     publishedAt: "2026-03-18T12:00:00Z",
     author: { name: "Lowlife Editorial" },
   },
@@ -419,6 +439,7 @@ export const ARTICLES = [
     contentHtml:
       "<p>Lexi walks us through a daily-driven build made to be used.</p>",
     image: { url: gallery5, altText: "Turquoise lowered Lexus GS downtown" },
+    images: [{ url: gallery5, altText: "Turquoise lowered Lexus GS downtown" }],
     publishedAt: "2026-03-09T12:00:00Z",
     author: { name: "Lowlife Editorial" },
   },
@@ -428,6 +449,7 @@ export const ARTICLES = [
     excerpt: "A photo diary from the streets that raised the brand.",
     contentHtml: "<p>Houston after sundown, seen through the Lowlife lens.</p>",
     image: { url: gallery8, altText: "Red lowered BMW inside a garage" },
+    images: [{ url: gallery8, altText: "Red lowered BMW inside a garage" }],
     publishedAt: "2026-02-24T12:00:00Z",
     author: { name: "Lowlife Editorial" },
   },
